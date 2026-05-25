@@ -1,0 +1,58 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Images and media accidentally committed
+Pipelines/*.jpeg
+Pipelines/*.jpg
+Pipelines/*.png
+Pipelines/*.mp4
+
+# Model checkpoints and large binary outputs
+Model/outputs/models/*.pt
+Model/outputs/surrogates/*.joblib
+
+# Data files (managed separately)
+Model/datasrc/*.parquet
+Pipelines/results/*.parquet
+
+# Logs and reports (generated — not source)
+Validators/feedback_log.json
+Validators/feedback_report.json
+Validators/fp_sweep_results.json
+Pipelines/checkpoints/batch_checkpoint.json
+
+# OS
+.DS_Store
+Thumbs.db
+Validators/results/
+Pipelines/results/
+
+*.env
+Model/.env
