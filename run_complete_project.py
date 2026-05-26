@@ -78,12 +78,21 @@ def main():
         cwd=validators,
     )
 
+    run_cmd(
+        [
+            sys.executable,
+            "update_report.py",
+        ],
+        cwd=root,
+    )
+
     print("\n=== PROJECT COMPLETE ===")
     print(f"Handoff file      : {handoff}")
     print(f"Validation report : {validators / 'results' / 'validation_report.json'}")
     print(f"Dashboard         : {validators / 'results' / 'validation_dashboard.html'}")
     print(f"FP sweep results  : {validators / 'results' / 'fp_sweep_results.json'}")
     print(f"Feedback report   : {validators / 'results' / 'feedback_report.json'}")
+    print(f"Completion report : {root / 'PROJECT_COMPLETION_REPORT.md'} (Updated)")
 
 
 if __name__ == "__main__":
