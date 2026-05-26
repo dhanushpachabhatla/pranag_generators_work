@@ -26,6 +26,7 @@ requests>=2.31.0              # HTTP calls (feedback_loop.py)
 
 deepxde
 sympy
+pytorch_lightning
 
 # ─────────────────────────────────────────────
 # NOTES

@@ -48,10 +48,13 @@ class LossGenerator:
     # COMPONENT BUILDERS
     # ────────────────────────────────────────────────────────────
 
-    def add_data_loss(self, observed: torch.Tensor, weight_fn: Optional[Callable] = None):
+    def add_data_loss(self, observed: Optional[torch.Tensor] = None, weight_fn: Optional[Callable] = None):
         """Loss_Data: MSE to real observations, weighted by data quality."""
         def compute(pred):
-            mse = (pred - observed) ** 2
+            if pred is None: return torch.tensor(0.0)
+            # If observed is None, assume pred is already the residual
+            obs = observed if observed is not None else torch.zeros_like(pred)
+            mse = (pred - obs) ** 2
             if weight_fn is not None:
                 mse = mse * weight_fn()
             return mse.mean()
@@ -63,10 +66,12 @@ class LossGenerator:
             description="Match real-world observations"
         )
 
-    def add_physics_loss(self, pde_residuals: torch.Tensor, domain: str = "general"):
+    def add_physics_loss(self, domain: str = "general"):
         """Loss_Physics: PDE residual penalty for fundamental laws."""
         def compute(pred):
-            residual_norm = torch.norm(pde_residuals, p=2)
+            if pred is None: return torch.tensor(0.0)
+            # pred is expected to be the pde_residuals
+            residual_norm = torch.norm(pred, p=2)
             return residual_norm ** 2
 
         self.components["physics"] = LossComponent(
@@ -78,14 +83,24 @@ class LossGenerator:
 
     def add_boundary_loss(
         self,
-        lower_bounds: torch.Tensor,
-        upper_bounds: torch.Tensor
+        lower_bounds: Optional[torch.Tensor] = None,
+        upper_bounds: Optional[torch.Tensor] = None
     ):
         """Loss_Boundary: Penalize predictions outside feasible range."""
         def compute(pred):
-            below = torch.relu(lower_bounds - pred) ** 2
-            above = torch.relu(pred - upper_bounds) ** 2
-            return (below + above).mean()
+            if pred is None: return torch.tensor(0.0)
+            # If bounds aren't passed, assume pred is the boundary residual
+            if lower_bounds is None and upper_bounds is None:
+                return (pred ** 2).mean()
+            
+            loss = torch.tensor(0.0, device=pred.device)
+            if lower_bounds is not None:
+                lb = lower_bounds.to(pred.device)
+                loss += (torch.relu(lb - pred) ** 2).mean()
+            if upper_bounds is not None:
+                ub = upper_bounds.to(pred.device)
+                loss += (torch.relu(pred - ub) ** 2).mean()
+            return loss
 
         self.components["boundary"] = LossComponent(
             name="Boundary",
@@ -96,23 +111,29 @@ class LossGenerator:
 
     def add_biology_loss(
         self,
-        constraints: Dict[str, torch.Tensor]
+        constraints: Optional[Dict[str, torch.Tensor]] = None
     ):
         """Loss_Biology: Genetic code, protein folding, metabolic rules."""
         def compute(pred):
-            loss = 0.0
+            if pred is None: return torch.tensor(0.0)
+            loss = torch.tensor(0.0, device=pred.device)
+            c = constraints or {}
             # Codon optimization penalty
-            if "codon_rarity" in constraints:
-                loss += constraints["codon_rarity"].mean()
+            if "codon_rarity" in c:
+                loss += c["codon_rarity"].mean()
             # Protein stability (ΔG)
-            if "protein_stability" in constraints:
-                stability = constraints["protein_stability"]
+            if "protein_stability" in c:
+                stability = c["protein_stability"]
                 loss += torch.relu(-stability).mean()  # Penalize unstable (ΔG > 0)
             # Metabolic burden
-            if "metabolic_burden" in constraints:
-                burden = constraints["metabolic_burden"]
+            if "metabolic_burden" in c:
+                burden = c["metabolic_burden"]
                 loss += torch.relu(burden - 0.5).mean()  # Penalize >50% burden
-            return loss if loss > 0 else torch.tensor(0.0)
+                
+            # If no constraints dict, assume pred is the bio penalty directly
+            if not c:
+                loss += pred.mean()
+            return loss if loss > 0 else torch.tensor(0.0, device=pred.device)
 
         self.components["biology"] = LossComponent(
             name="Biology",
@@ -128,12 +149,13 @@ class LossGenerator:
     ):
         """Loss_Ecology: Containment, invasiveness, ecosystem harm."""
         def compute(pred):
+            if pred is None: return torch.tensor(0.0)
             # P_escape × (Impact_ecological + Impact_economic)
-            ecological_impact = torch.clamp(torch.tensor(pred), 0, 1)
+            ecological_impact = torch.clamp(pred, 0, 1)
             total_loss = escape_prob * ecological_impact
-            if total_loss > impact_threshold:
+            if (total_loss > impact_threshold).any():
                 penalty = (total_loss - impact_threshold) ** 2
-                return penalty
+                return penalty.mean()
             return torch.tensor(0.0)
 
         self.components["ecology"] = LossComponent(
@@ -145,17 +167,19 @@ class LossGenerator:
 
     def add_economics_loss(
         self,
-        manufacturing_cost: float,
-        operating_cost: float,
-        budget: float
+        manufacturing_cost: float = 0.0,
+        operating_cost: float = 0.0,
+        budget: float = 1.0
     ):
         """Loss_Economics: Ensure manufacturing viability."""
         def compute(pred):
-            total_cost = manufacturing_cost + operating_cost
+            if pred is None: return torch.tensor(0.0)
+            # Allow pred to be the operating cost if dynamic
+            total_cost = manufacturing_cost + pred
             cost_ratio = total_cost / budget if budget > 0 else float('inf')
             # Penalize if over budget
-            overbudget = torch.relu(torch.tensor(cost_ratio - 1.0)) ** 2
-            return overbudget
+            overbudget = torch.relu(cost_ratio - 1.0) ** 2
+            return overbudget.mean()
 
         self.components["economics"] = LossComponent(
             name="Economics",
@@ -172,14 +196,15 @@ class LossGenerator:
     ):
         """Loss_Safety: Toxicity, pathogenicity, allergenicity."""
         def compute(pred):
-            # Each violation multiplied by exposure
+            if pred is None: return torch.tensor(0.0)
+            # Allow pred to be the toxicity_score
             exposure = 1.0
             loss = (
-                torch.tensor(toxicity_score) * exposure +
+                pred * exposure +
                 torch.tensor(pathogenicity) * exposure +
                 torch.tensor(allergenicity) * exposure
             )
-            return torch.relu(loss)
+            return torch.relu(loss).mean()
 
         self.components["safety"] = LossComponent(
             name="Safety",
@@ -201,7 +226,7 @@ class LossGenerator:
                 weighted = self.weights[name] * loss_val
                 total = total + weighted
             except Exception as e:
-                print(f"⚠️  Error in {name} loss: {e}")
+                print(f"Error in {name} loss: {e}")
                 continue
         return total
 
@@ -271,7 +296,7 @@ def create_biology_loss_generator() -> LossGenerator:
 def create_physics_loss_generator() -> LossGenerator:
     """Pre-configured for physics/mechanics simulations."""
     gen = LossGenerator()
-    gen.add_physics_loss(torch.tensor(0.0), "mechanics")
+    gen.add_physics_loss("mechanics")
     gen.add_boundary_loss(torch.tensor(0.0), torch.tensor(1.0))
     gen.weights["physics"] = 2.0
     return gen
@@ -281,7 +306,7 @@ def create_cross_domain_loss_generator() -> LossGenerator:
     """Full 7-component loss for multi-domain designs."""
     gen = LossGenerator()
     gen.add_data_loss(torch.tensor(0.5))
-    gen.add_physics_loss(torch.tensor(0.0), "multi-domain")
+    gen.add_physics_loss("multi-domain")
     gen.add_boundary_loss(torch.tensor(0.0), torch.tensor(1.0))
     gen.add_biology_loss({})
     gen.add_ecology_loss()

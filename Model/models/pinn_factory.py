@@ -20,16 +20,16 @@ Capabilities:
   • build_from_hint(hint)        → PINN from text hint
   • build_from_equation(eq)      → PINN from equation string
   • register(name, cls)          → add custom PINN class
-  • list_domains()               → all available domains
+  • list_domains()      factory = PINNFactory()
+
+    # Create by domain name
+    model = factory.create("navier_stokes", Re=20          → all available domains
   • domain_info(name)            → description + input/output dims
   • batch_create(domain_list)    → dict of PINNs
   • from_checkpoint(path, domain)→ load saved model
 
 Usage:
-    factory = PINNFactory()
-
-    # Create by domain name
-    model = factory.create("navier_stokes", Re=200)
+   0)
 
     # Create from equation
     model = factory.build_from_equation("du/dt = alpha*d2u/dx2")
@@ -136,8 +136,9 @@ class _GenericPINN(nn.Module):
 
 class HeatPINN(_GenericPINN):
     """1D heat equation: du/dt = alpha * d2u/dx2."""
-    def __init__(self, alpha: float = 0.01, **kw):
-        super().__init__(input_dim=2, output_dim=1, params={"alpha": alpha}, **kw)
+    def __init__(self, alpha: float = 0.05, **kw):
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1, params={"alpha": alpha}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
         u = self(x)
@@ -152,7 +153,8 @@ class HeatPINN(_GenericPINN):
 class WavePINN(_GenericPINN):
     """1D wave equation: d2u/dt2 = c^2 * d2u/dx2."""
     def __init__(self, c: float = 1.0, **kw):
-        super().__init__(input_dim=2, output_dim=1, params={"c": c}, **kw)
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1, params={"c": c}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
         u  = self(x)
@@ -169,7 +171,8 @@ class WavePINN(_GenericPINN):
 class BurgersPINN(_GenericPINN):
     """Viscous Burgers equation: du/dt + u*du/dx = nu*d2u/dx2."""
     def __init__(self, nu: float = 0.01, **kw):
-        super().__init__(input_dim=2, output_dim=1, params={"nu": nu}, **kw)
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1, params={"nu": nu}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
         u  = self(x)
@@ -183,7 +186,8 @@ class BurgersPINN(_GenericPINN):
 class PoissonPINN(_GenericPINN):
     """2D Poisson equation: d2u/dx2 + d2u/dy2 = f."""
     def __init__(self, f: float = 1.0, **kw):
-        super().__init__(input_dim=2, output_dim=1, params={"f": f}, **kw)
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1, params={"f": f}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
         u  = self(x)
@@ -199,7 +203,8 @@ class PoissonPINN(_GenericPINN):
 class NavierStokesPINN(_GenericPINN):
     """2D incompressible Navier-Stokes (u, v, p)."""
     def __init__(self, Re: float = 100.0, **kw):
-        super().__init__(input_dim=3, output_dim=3, params={"Re": Re}, **kw)
+        input_dim = kw.pop("input_dim", 3)
+        super().__init__(input_dim=input_dim, output_dim=3, params={"Re": Re}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
         out = self(x)
@@ -582,16 +587,17 @@ class PINNFactory:
             kw = {**defaults, **params}
             # Only pass recognised init parameters
             sig = inspect.signature(cls.__init__).parameters
-            if "hidden_dim" in sig:
+            has_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.values())
+            
+            if "hidden_dim" in sig or has_kwargs:
                 kw["hidden_dim"] = hidden_dim
-            if "num_layers" in sig:
+            if "num_layers" in sig or has_kwargs:
                 kw["num_layers"] = num_layers
-            try:
-                return cls(**{k: v for k, v in kw.items()
-                               if k in sig or "kwargs" in str(sig.get("kwargs", ""))})
-            except TypeError:
-                return cls(**{k: v for k, v in kw.items()
-                               if k not in ("hidden_dim", "num_layers")})
+                
+            if has_kwargs:
+                return cls(**kw)
+            else:
+                return cls(**{k: v for k, v in kw.items() if k in sig})
 
         if dynamic:
             return self._dynamic_create(key, hidden_dim, num_layers, **params)
@@ -618,25 +624,64 @@ class PINNFactory:
         cfg = self._generator.from_hint(
             domain, hidden_dim=hidden_dim, num_layers=num_layers, **params
         )
-        code = self._generator.generate_class(cfg)
 
-        # Compile the generated code into a module
-        tmp = tempfile.NamedTemporaryFile(
-            suffix=".py", mode="w", encoding="utf-8",
-            delete=False, dir=tempfile.gettempdir()
-        )
-        tmp.write(code)
-        tmp.close()
-
-        spec = importlib.util.spec_from_file_location(cfg.class_name, tmp.name)
-        mod  = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        os.unlink(tmp.name)
-
-        cls = getattr(mod, cfg.class_name)
-        self._dynamic_cache[cache_key] = cls
-        self._registry[domain] = (cls, params)
-        return cls()
+        try:
+            # Use the new SymPyLossGenerator to compile the physics loss from the equation
+            from sympy_loss_generator import SymPyLossGenerator
+            sympy_gen = SymPyLossGenerator()
+            eq_str = cfg.equation_info.raw
+            # Remove whitespace and replace common patterns for deepxde parsing if needed
+            input_vars = cfg.equation_info.independent
+            output_var = cfg.equation_info.dependent[0] if cfg.equation_info.dependent else "u"
+            pde_fn = sympy_gen.compile_pde(eq_str, input_vars=input_vars, output_var=output_var)
+            
+            all_params = {**cfg.equation_info.parameters, **params}
+            
+            # Wrap the DeepXDE function (x, y) into a physics_fn (model, x) expected by _GenericPINN
+            def wrapped_physics_fn(model, x):
+                x_clone = x.clone().requires_grad_(True)
+                y = model(x_clone)
+                res = pde_fn(x_clone, y)
+                return (res**2).mean()
+            
+            def model_builder(**kwargs):
+                runtime_params = {**all_params, **kwargs}
+                return _GenericPINN(
+                    input_dim=cfg.input_dim,
+                    output_dim=cfg.output_dim,
+                    hidden_dim=hidden_dim,
+                    num_layers=num_layers,
+                    activation=cfg.activation,
+                    params=runtime_params,
+                    physics_fn=wrapped_physics_fn
+                )
+                
+            self._dynamic_cache[cache_key] = model_builder
+            self._registry[domain] = (model_builder, all_params)
+            print(f"[PINNFactory] Successfully compiled '{domain}' using SymPy/DeepXDE.")
+            return model_builder()
+            
+        except Exception as e:
+            print(f"[PINNFactory] Falling back to text generation due to SymPy/DeepXDE error: {e}")
+            code = self._generator.generate_class(cfg)
+    
+            # Compile the generated code into a module
+            tmp = tempfile.NamedTemporaryFile(
+                suffix=".py", mode="w", encoding="utf-8",
+                delete=False, dir=tempfile.gettempdir()
+            )
+            tmp.write(code)
+            tmp.close()
+    
+            spec = importlib.util.spec_from_file_location(cfg.class_name, tmp.name)
+            mod  = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            os.unlink(tmp.name)
+    
+            cls = getattr(mod, cfg.class_name)
+            self._dynamic_cache[cache_key] = cls
+            self._registry[domain] = (cls, params)
+            return cls()
 
     def build_from_config(
         self,
@@ -646,6 +691,24 @@ class PINNFactory:
         """Build a PINN directly from a SimulationConfig."""
         eq = cfg.equation_info
         all_params = {**eq.parameters, **params}
+        
+        try:
+            from sympy_loss_generator import SymPyLossGenerator
+            sympy_gen = SymPyLossGenerator()
+            eq_str = eq.raw
+            input_vars = eq.independent
+            output_var = eq.dependent[0] if eq.dependent else "u"
+            pde_fn = sympy_gen.compile_pde(eq_str, input_vars=input_vars, output_var=output_var)
+            
+            def wrapped_physics_fn(model, x):
+                x_clone = x.clone().requires_grad_(True)
+                y = model(x_clone)
+                res = pde_fn(x_clone, y)
+                return (res**2).mean()
+        except Exception as e:
+            print(f"[PINNFactory] Warning: Failed to compile physics from config: {e}")
+            wrapped_physics_fn = None
+
         return _GenericPINN(
             input_dim  = cfg.input_dim,
             output_dim = cfg.output_dim,
@@ -653,7 +716,7 @@ class PINNFactory:
             num_layers = cfg.num_layers,
             activation = cfg.activation,
             params     = all_params,
-            # physics_fn left as None; caller can override via subclass
+            physics_fn = wrapped_physics_fn
         )
 
     def build_from_hint(

@@ -38,6 +38,8 @@ Pipelines/*.mp4
 Model/outputs/models/*.pt
 Model/outputs/surrogates/*.joblib
 
+unified_pipeline_output
+
 # Data files (managed separately)
 Model/datasrc/*.parquet
 Pipelines/results/*.parquet
