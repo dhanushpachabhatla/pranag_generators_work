@@ -37,6 +37,9 @@ Usage:
                          output_path="wave_pinn.py")
 """
 
+import ast
+import importlib.util
+import os
 import re
 import textwrap
 import hashlib
@@ -826,8 +829,135 @@ LOSS_TEMPLATES = {
 
 
 # ═══════════════════════════════════════════════════════════════
-# SimulationGenerator
+# Shared Utilities
 # ═══════════════════════════════════════════════════════════════
+
+def _indent(code: str, level: int = 1) -> str:
+    if not code:
+        return ""
+    return textwrap.indent(textwrap.dedent(code).strip('\n'), ' ' * 4 * level)
+
+
+def _normalize_class_name(name: str) -> str:
+    if not name:
+        return "GeneratedPINN"
+    cleaned = re.sub(r'[^A-Za-z0-9]+', '_', name).strip('_')
+    if cleaned.lower().endswith('pinn'):
+        cleaned = cleaned[:-4]
+    parts = [p for p in re.split(r'[_\W]+', cleaned) if p]
+    normalized = ''.join(
+        p if p.isupper() else p[0].upper() + p[1:].lower()
+        for p in parts
+    )
+    return (normalized or 'Generated') + 'PINN'
+
+
+def _detect_dimensionality(text: str) -> int:
+    if re.search(r'\b3\s*[-]?d\b|\bthree\s+dimensional\b', text):
+        return 3
+    if re.search(r'\b2\s*[-]?d\b|\btwo\s+dimensional\b', text):
+        return 2
+    if re.search(r'\b1\s*[-]?d\b|\bone\s+dimensional\b', text):
+        return 1
+    return 0
+
+
+def _keyword_is_regex(keyword: str) -> bool:
+    return bool(re.search(r'[\.\^\$\*\+\?\{\}\[\]\|\(\)]', keyword))
+
+
+def _score_equation_pattern(text_lower: str, eq_type: str, pat: dict) -> Tuple[int, int, int, int]:
+    score = 0
+    matches = 0
+    longest = 0
+    for kw in pat.get('keywords', []):
+        kw_lower = kw.lower()
+        found = False
+        if not _keyword_is_regex(kw_lower):
+            if kw_lower in text_lower:
+                score += 4
+                found = True
+        else:
+            try:
+                if re.search(kw_lower, text_lower):
+                    score += 3
+                    found = True
+            except re.error:
+                if kw_lower in text_lower:
+                    score += 2
+                    found = True
+        if found:
+            matches += 1
+            longest = max(longest, len(kw_lower))
+    if eq_type.replace('_', ' ') in text_lower or eq_type in text_lower:
+        score += 2
+    dim = _detect_dimensionality(text_lower)
+    hints = [c for c in pat.get('independent', []) if c in ('x', 'y', 'z')]
+    dim_bonus = 0
+    if dim and hints:
+        if len(hints) == dim:
+            dim_bonus = 7 if dim > 1 else 3
+        elif len(hints) >= dim:
+            dim_bonus = 4
+        else:
+            dim_bonus = 1
+        score += dim_bonus
+    return score, dim_bonus, matches, longest
+
+
+def _detect_nonlinearity(eq_str: str) -> bool:
+    text = eq_str.replace('^', '**')
+    if _SYMPY:
+        try:
+            symbols_found = set(re.findall(r'\b[A-Za-z_]\w*\b', text))
+            local_symbols = {name: sp.symbols(name) for name in symbols_found}
+            parsed = sp.sympify(text, locals=local_symbols)
+            for node in sp.preorder_traversal(parsed):
+                if isinstance(node, sp.Pow):
+                    exponent = node.args[1]
+                    if exponent.is_Number and exponent > 1:
+                        return True
+                if isinstance(node, sp.Mul):
+                    non_number_factors = [arg for arg in node.args if not arg.is_Number]
+                    if len(non_number_factors) > 1:
+                        return True
+            return False
+        except Exception:
+            pass
+    if re.search(r'\b[A-Za-z_]\w*\s*\*\s*[A-Za-z_]\w*\b', eq_str):
+        return True
+    if re.search(r'\b[A-Za-z_]\w*\s*\^\s*[2-9]\b', eq_str):
+        return True
+    if re.search(r'\*\*[2-9]', eq_str):
+        return True
+    if re.search(r'\b[A-Za-z_]\w*_[A-Za-z_]\w*\s*\*\s*[A-Za-z_]\w*\b', eq_str):
+        return True
+    if re.search(r'\b[A-Za-z_]\w*\s*\*\s*[A-Za-z_]\w*_[A-Za-z_]\w*\b', eq_str):
+        return True
+    return False
+
+
+def _validate_generated_code(code: str, filename: str = '<generated>') -> None:
+    try:
+        ast.parse(code, filename=filename)
+        compile(code, filename, 'exec')
+    except SyntaxError as exc:
+        raise ValueError(f'Generated code has invalid Python syntax: {exc}') from exc
+
+
+def _dynamic_import_and_instantiate(path: str, class_name: str) -> Any:
+    spec = importlib.util.spec_from_file_location(class_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f'Could not create import spec for {path}')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    cls = getattr(module, class_name, None)
+    if cls is None:
+        raise ImportError(f'Class {class_name} not found in generated module')
+    return cls()
+
+
+# ════════════════════════════════════════════════════════════════════
 
 class SimulationGenerator:
     """
@@ -841,24 +971,21 @@ class SimulationGenerator:
     def _detect_equation_type(self, text: str) -> Tuple[str, dict]:
         """
         Return (equation_type, pattern_dict) from free-form text or equation.
-        Keywords support regex (e.g. 'alpha.*d2u').
+        Uses weighted keyword scoring, dimensional hints, and specificity tie-breakers.
         """
         text_lower = text.lower()
+        best_type = "custom"
+        best_score = (-1, -1, -1, -1, -1)
 
-        # Score each pattern by keyword (regex) hits
-        best_type, best_score = "custom", 0
         for eq_type, pat in EQUATION_PATTERNS.items():
-            score = 0
-            for kw in pat["keywords"]:
-                try:
-                    if re.search(kw.lower(), text_lower):
-                        score += 1
-                except re.error:
-                    if kw.lower() in text_lower:
-                        score += 1
-            if score > best_score:
-                best_score = score
-                best_type  = eq_type
+            score, dim_bonus, matches, longest = _score_equation_pattern(
+                text_lower, eq_type, pat
+            )
+            specificity = len(pat.get("keywords", []))
+            score_key = (score, dim_bonus, matches, longest, specificity)
+            if score_key > best_score:
+                best_score = score_key
+                best_type = eq_type
 
         return best_type, EQUATION_PATTERNS.get(best_type, {})
 
@@ -912,12 +1039,8 @@ class SimulationGenerator:
         if "d2" in eq_lower or "xx" in eq_lower or "yy" in eq_lower:
             order = max(order, 2)
 
-        # Nonlinearity: product of two dep-vars or power > 1
-        is_nonlinear = bool(
-            re.search(r'[a-zA-Z]\*[a-zA-Z]', eq_str) or
-            re.search(r'\*\*[2-9]', eq_str) or
-            re.search(r'\^[2-9]', eq_str)
-        )
+        # Nonlinearity detection uses symbolic awareness when available.
+        is_nonlinear = _detect_nonlinearity(eq_str)
 
         eq_type, pat = self._detect_equation_type(eq_str)
         params = {**pat.get("params", {})}
@@ -975,8 +1098,8 @@ class SimulationGenerator:
         if name is None:
             slug = re.sub(r'\W+', '_', eq_info.equation_type).strip('_')
             h    = hashlib.md5(equation.encode()).hexdigest()[:4]
-            name = f"{slug.title()}PINN_{h}"
-        class_name = re.sub(r'\W+', '', name.title().replace(' ', ''))
+            name = f"{slug.title()} PINN {h}"
+        class_name = _normalize_class_name(name)
 
         # Select physics loss template
         pat         = EQUATION_PATTERNS.get(eq_info.equation_type, {})
@@ -1042,8 +1165,8 @@ class SimulationGenerator:
         # Build class name
         slug = re.sub(r'\W+', '_', forced_type).strip('_')
         if name is None:
-            name = f"{slug.title()}PINN"
-        class_name = re.sub(r'\W+', '', name.title().replace(' ', ''))
+            name = f"{slug.title()} PINN"
+        class_name = _normalize_class_name(name)
 
         tpl_key   = pat.get("loss_template", "custom")
         phys_code = LOSS_TEMPLATES.get(tpl_key, LOSS_TEMPLATES["custom"])
@@ -1063,7 +1186,7 @@ class SimulationGenerator:
             order         = 2 if "d2" in pat.get("eq_hint", "") else 1,
             is_pde        = any(c in coords for c in ("x", "y", "z"))
                             and "t" in coords,
-            is_nonlinear  = any(c in pat.get("eq_hint", "") for c in ("**", "^", "*S*")),
+            is_nonlinear  = _detect_nonlinearity(pat.get("eq_hint", "")),
             description   = pat.get("description", forced_type),
         )
 
@@ -1161,142 +1284,140 @@ class SimulationGenerator:
         """
         Generate a complete Python PINN class file as a string.
 
-        The output is import-ready and inherits from a minimal BasePINN.
+        The output is import-ready and validated for Python syntax.
         """
-        eq     = cfg.equation_info
-        params = eq.parameters
+        eq = cfg.equation_info
+        params = cfg.equation_info.parameters or {}
 
-        # Parameter registrations
-        param_inits = "\n".join(
-            f"        self.{k} = {v!r}"
-            for k, v in params.items()
-        )
-        if not param_inits:
-            param_inits = "        pass  # no physical parameters"
-
-        # Parameter kwargs for __init__ signature
-        param_sig = ", ".join(
+        init_param_sig = ", ".join(
             f"{k}: float = {v!r}"
             for k, v in params.items()
         )
-        if param_sig:
-            param_sig = ", " + param_sig
+        if init_param_sig:
+            init_param_sig = ", " + init_param_sig
+
+        init_assign_lines = [f"self.{k} = {v!r}" for k, v in params.items()]
+        if not init_assign_lines:
+            init_assign_lines = ["pass  # no physical parameters"]
 
         activation_map = {
             "tanh":   "nn.Tanh()",
             "relu":   "nn.ReLU()",
             "silu":   "nn.SiLU()",
             "gelu":   "nn.GELU()",
-            "sigmoid":"nn.Sigmoid()",
+            "sigmoid": "nn.Sigmoid()",
         }
         act_code = activation_map.get(cfg.activation, "nn.Tanh()")
 
-        # Build hidden layers
-        hidden_layers = []
-        for i in range(cfg.num_layers):
-            hidden_layers.append(
-                f"            nn.Linear({cfg.hidden_dim}, {cfg.hidden_dim}), {act_code},"
-            )
-        layers_code = "\n".join(hidden_layers)
+        network_layers = [
+            f"nn.Linear({cfg.input_dim}, {cfg.hidden_dim}),",
+            f"{act_code},",
+        ]
+        for _ in range(cfg.num_layers):
+            network_layers.extend([
+                f"nn.Linear({cfg.hidden_dim}, {cfg.hidden_dim}),",
+                f"{act_code},",
+            ])
+        network_layers.append(f"nn.Linear({cfg.hidden_dim}, {cfg.output_dim}),")
+        network_body = "\n".join(network_layers)
 
-        class_code = textwrap.dedent(f'''
-            """
-            {cfg.class_name} — AUTO-GENERATED by SimulationGenerator
-            =========================================================
-            Equation : {eq.raw}
-            Domain   : {eq.domain_class}
-            Type     : {eq.equation_type}
-            Generated: AUTO
-            """
+        physics_loss_code = _indent(cfg.physics_loss_code, 1)
 
-            import torch
-            import torch.nn as nn
+        lines = [
+            '"""',
+            f'{cfg.class_name} — AUTO-GENERATED by SimulationGenerator',
+            '========================================================= ',
+            f'Equation : {eq.raw}',
+            f'Domain   : {eq.domain_class}',
+            f'Type     : {eq.equation_type}',
+            'Generated: AUTO',
+            '"""',
+            '',
+            'import torch',
+            'import torch.nn as nn',
+            '',
+            '',
+            f'class {cfg.class_name}(nn.Module):',
+            '    """',
+            '    Physics-Informed Neural Network for:',
+            f'      {eq.description}',
+            '',
+            f'    Input  : {eq.independent}  →  dim={cfg.input_dim}',
+            f'    Output : {eq.dependent}    →  dim={cfg.output_dim}',
+            '    """',
+            '',
+            f'    def __init__(self{init_param_sig}, **kwargs):',
+            '        super().__init__()',
+            *_indent('\n'.join(init_assign_lines), 2).splitlines(),
+            '        self.network = nn.Sequential(',
+            *_indent(network_body, 3).splitlines(),
+            '        )',
+            '        self._init_weights()',
+            '',
+            '    def _init_weights(self):',
+            '        for m in self.modules():',
+            '            if isinstance(m, nn.Linear):',
+            '                nn.init.xavier_normal_(m.weight)',
+            '                nn.init.zeros_(m.bias)',
+            '',
+            '    def forward(self, x: torch.Tensor) -> torch.Tensor:',
+            '        return self.network(x)',
+            '',
+            physics_loss_code,
+            '',
+            '    def boundary_loss(self, x_bc: torch.Tensor,',
+            '                      y_bc: torch.Tensor) -> torch.Tensor:',
+            '        """L2 loss at boundary / initial conditions."""',
+            '        pred = self(x_bc)',
+            '        return ((pred - y_bc) ** 2).mean()',
+            '',
+            '    def total_loss(self, x_data, y_data,',
+            '                   x_physics, x_boundary=None, y_boundary=None,',
+            '                   lam_data=1.0, lam_phys=1.0, lam_bc=10.0):',
+            '        L_data  = ((self(x_data) - y_data) ** 2).mean()',
+            '        L_phys  = self.physics_loss(x_physics)',
+            '        L_bc    = 0.0',
+            '        if x_boundary is not None and y_boundary is not None:',
+            '            L_bc = self.boundary_loss(x_boundary, y_boundary)',
+            '        return lam_data*L_data + lam_phys*L_phys + lam_bc*L_bc',
+            '',
+            '',
+            'def train_' + cfg.class_name.lower() + '(',
+            f'    model: {cfg.class_name},',
+            '    x_data:     torch.Tensor,',
+            '    y_data:     torch.Tensor,',
+            '    x_physics:  torch.Tensor,',
+            '    x_bc:       torch.Tensor = None,',
+            '    y_bc:       torch.Tensor = None,',
+            f'    n_epochs:   int   = {cfg.training_config.get("n_epochs", 5000)},',
+            f'    lr:         float = {cfg.training_config.get("lr", 1e-3)},',
+            '    verbose:    bool  = True,',
+            '):',
+            '    """Standard PINN training loop."""',
+            '    opt = torch.optim.Adam(model.parameters(), lr=lr)',
+            '    sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=n_epochs)',
+            '    for epoch in range(1, n_epochs + 1):',
+            '        opt.zero_grad()',
+            '        loss = model.total_loss(x_data, y_data, x_physics, x_bc, y_bc)',
+            '        loss.backward()',
+            '        opt.step()',
+            '        sched.step()',
+            '        if verbose and epoch % (n_epochs // 10) == 0:',
+            '            print(f"  Epoch {epoch:5d} / {n_epochs} | loss={loss.item():.6f}")',
+            '    return model',
+            '',
+            'if __name__ == "__main__":',
+            '    import torch',
+            '    model = ' + cfg.class_name + '()',
+            f'    x = torch.rand({cfg.input_dim})',
+            '    print(f"Forward  : {model(x.unsqueeze(0)).shape}")',
+            f'    xb = torch.rand(32, {cfg.input_dim})',
+            '    print(f"Phys loss: {model.physics_loss(xb).item():.6f}")',
+            '    print("PINN instantiated successfully.")',
+        ]
 
-
-            class {cfg.class_name}(nn.Module):
-                """
-                Physics-Informed Neural Network for:
-                  {eq.description}
-
-                Input  : {eq.independent}  →  dim={cfg.input_dim}
-                Output : {eq.dependent}    →  dim={cfg.output_dim}
-                """
-
-                def __init__(self{param_sig}, **kwargs):
-                    super().__init__()
-            {param_inits}
-                    self.network = nn.Sequential(
-                        nn.Linear({cfg.input_dim}, {cfg.hidden_dim}), {act_code},
-            {layers_code}
-                        nn.Linear({cfg.hidden_dim}, {cfg.output_dim}),
-                    )
-                    self._init_weights()
-
-                def _init_weights(self):
-                    for m in self.modules():
-                        if isinstance(m, nn.Linear):
-                            nn.init.xavier_normal_(m.weight)
-                            nn.init.zeros_(m.bias)
-
-                def forward(self, x: torch.Tensor) -> torch.Tensor:
-                    return self.network(x)
-
-            {cfg.physics_loss_code}
-
-                def boundary_loss(self, x_bc: torch.Tensor,
-                                  y_bc: torch.Tensor) -> torch.Tensor:
-                    """L2 loss at boundary / initial conditions."""
-                    pred = self(x_bc)
-                    return ((pred - y_bc) ** 2).mean()
-
-                def total_loss(self, x_data, y_data,
-                               x_physics, x_boundary=None, y_boundary=None,
-                               lam_data=1.0, lam_phys=1.0, lam_bc=10.0):
-                    L_data  = ((self(x_data) - y_data) ** 2).mean()
-                    L_phys  = self.physics_loss(x_physics)
-                    L_bc    = 0.0
-                    if x_boundary is not None and y_boundary is not None:
-                        L_bc = self.boundary_loss(x_boundary, y_boundary)
-                    return lam_data*L_data + lam_phys*L_phys + lam_bc*L_bc
-
-
-            # ── Training Helper ────────────────────────────────────────────
-            def train_{cfg.class_name.lower()}(
-                model: {cfg.class_name},
-                x_data:     torch.Tensor,
-                y_data:     torch.Tensor,
-                x_physics:  torch.Tensor,
-                x_bc:       torch.Tensor = None,
-                y_bc:       torch.Tensor = None,
-                n_epochs:   int   = {cfg.training_config.get("n_epochs", 5000)},
-                lr:         float = {cfg.training_config.get("lr", 1e-3)},
-                verbose:    bool  = True,
-            ):
-                """Standard PINN training loop."""
-                opt = torch.optim.Adam(model.parameters(), lr=lr)
-                sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=n_epochs)
-                for epoch in range(1, n_epochs + 1):
-                    opt.zero_grad()
-                    loss = model.total_loss(x_data, y_data, x_physics, x_bc, y_bc)
-                    loss.backward()
-                    opt.step()
-                    sched.step()
-                    if verbose and epoch % (n_epochs // 10) == 0:
-                        print(f"  Epoch {{epoch:5d}} / {{n_epochs}} | loss={{loss.item():.6f}}")
-                return model
-
-
-            if __name__ == "__main__":
-                import torch
-                # Quick sanity test
-                model = {cfg.class_name}()
-                x = torch.rand({cfg.input_dim})
-                print(f"Forward  : {{model(x.unsqueeze(0)).shape}}")
-                xb = torch.rand(32, {cfg.input_dim})
-                print(f"Phys loss: {{model.physics_loss(xb).item():.6f}}")
-                print("PINN instantiated successfully.")
-        ''').strip()
-
+        class_code = "\n".join(lines).strip() + "\n"
+        _validate_generated_code(class_code)
         return class_code
 
     def generate_to_file(
