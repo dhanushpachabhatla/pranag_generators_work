@@ -227,7 +227,8 @@ class NavierStokesPINN(_GenericPINN):
 class BlackScholesPINN(_GenericPINN):
     """Black-Scholes option pricing PDE."""
     def __init__(self, r: float = 0.05, sigma: float = 0.2, **kw):
-        super().__init__(input_dim=2, output_dim=1,
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"r": r, "sigma": sigma}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -245,7 +246,8 @@ class SIRPINN(_GenericPINN):
     """SIR epidemic ODE system."""
     def __init__(self, beta: float = 0.3, gamma: float = 0.1,
                  N: float = 1000.0, **kw):
-        super().__init__(input_dim=1, output_dim=3,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=3,
                          params={"beta": beta, "gamma": gamma, "N": N}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -264,7 +266,8 @@ class SEIRPINN(_GenericPINN):
     """SEIR epidemic ODE with latent compartment."""
     def __init__(self, b: float=0.3, sigma: float=0.2,
                  gamma: float=0.1, **kw):
-        super().__init__(input_dim=1, output_dim=4,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=4,
                          params={"b": b, "sigma": sigma, "gamma": gamma}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -283,7 +286,8 @@ class SEIRPINN(_GenericPINN):
 class SchrodingerPINN(_GenericPINN):
     """1D time-dependent Schrodinger equation (real+imag split)."""
     def __init__(self, hbar: float = 1.0, m: float = 1.0, **kw):
-        super().__init__(input_dim=2, output_dim=2,
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=2,
                          params={"hbar": hbar, "m": m}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -303,7 +307,8 @@ class SchrodingerPINN(_GenericPINN):
 class AdvDiffPINN(_GenericPINN):
     """1D advection-diffusion: du/dt + v*du/dx = D*d2u/dx2."""
     def __init__(self, v: float = 1.0, D: float = 0.01, **kw):
-        super().__init__(input_dim=2, output_dim=1,
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"v": v, "D": D}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -318,7 +323,8 @@ class AdvDiffPINN(_GenericPINN):
 class AllenCahnPINN(_GenericPINN):
     """Allen-Cahn phase-field: du/dt = eps^2*d2u/dx2 + u - u^3."""
     def __init__(self, epsilon: float = 0.1, **kw):
-        super().__init__(input_dim=2, output_dim=1,
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"epsilon": epsilon}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -333,7 +339,8 @@ class AllenCahnPINN(_GenericPINN):
 class KdVPINN(_GenericPINN):
     """Korteweg-de Vries soliton: du/dt + 6u*du/dx + d3u/dx3 = 0."""
     def __init__(self, **kw):
-        super().__init__(input_dim=2, output_dim=1, **kw)
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
         u   = self(x)
@@ -350,7 +357,8 @@ class LotkaVolterraPINN(_GenericPINN):
     """Lotka-Volterra predator-prey ODE."""
     def __init__(self, alpha:float=1.0, beta:float=0.1,
                  delta:float=0.075, gamma:float=1.5, **kw):
-        super().__init__(input_dim=1, output_dim=2,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=2,
                          params={"alpha":alpha,"beta":beta,
                                  "delta":delta,"gamma":gamma}, **kw)
     def physics_loss(self, x):
@@ -369,7 +377,8 @@ class FitzHughNagumoPINN(_GenericPINN):
     """FitzHugh-Nagumo excitable neuron."""
     def __init__(self, a:float=0.7, b:float=0.8,
                  tau:float=12.5, I:float=0.5, **kw):
-        super().__init__(input_dim=1, output_dim=2,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=2,
                          params={"a":a,"b":b,"tau":tau,"I":I}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -386,7 +395,8 @@ class FitzHughNagumoPINN(_GenericPINN):
 class EulerBernoulliBeamPINN(_GenericPINN):
     """Euler-Bernoulli beam bending: EI*d4w/dx4 = q."""
     def __init__(self, EI:float=1.0, q:float=1.0, **kw):
-        super().__init__(input_dim=1, output_dim=1,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"EI":EI,"q":q}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -401,7 +411,8 @@ class EulerBernoulliBeamPINN(_GenericPINN):
 class DarcyPINN(_GenericPINN):
     """Darcy flow through porous media: -div(K*grad(p)) = f."""
     def __init__(self, K:float=1.0, f_src:float=1.0, **kw):
-        super().__init__(input_dim=2, output_dim=1,
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"K":K,"f_src":f_src}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -418,7 +429,8 @@ class DarcyPINN(_GenericPINN):
 class VanDerPolPINN(_GenericPINN):
     """Van der Pol oscillator: d2x/dt2 - mu*(1-x^2)*dx/dt + x = 0."""
     def __init__(self, mu:float=1.0, **kw):
-        super().__init__(input_dim=1, output_dim=1,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"mu":mu}, **kw)
     def physics_loss(self, x_in):
         x_in = x_in.clone().requires_grad_(True)
@@ -433,7 +445,8 @@ class VanDerPolPINN(_GenericPINN):
 class LogisticPINN(_GenericPINN):
     """Logistic population growth ODE."""
     def __init__(self, r:float=0.3, K:float=1000.0, **kw):
-        super().__init__(input_dim=1, output_dim=1,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"r":r,"K":K}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -447,7 +460,8 @@ class ArrheniusPINN(_GenericPINN):
     """Arrhenius: k = A * exp(-Ea/(R*T))."""
     def __init__(self, A:float=1e13, Ea:float=50000.0,
                  R:float=8.314, **kw):
-        super().__init__(input_dim=1, output_dim=1,
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
                          params={"A":A,"Ea":Ea,"R":R}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -461,7 +475,8 @@ class GrayScottPINN(_GenericPINN):
     """Gray-Scott reaction-diffusion pattern formation."""
     def __init__(self, Du:float=0.16, Dv:float=0.08,
                  F:float=0.035, k:float=0.065, **kw):
-        super().__init__(input_dim=3, output_dim=2,
+        input_dim = kw.pop("input_dim", 3)
+        super().__init__(input_dim=input_dim, output_dim=2,
                          params={"Du":Du,"Dv":Dv,"F":F,"k":k}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
@@ -658,11 +673,12 @@ class PINNFactory:
                 
             self._dynamic_cache[cache_key] = model_builder
             self._registry[domain] = (model_builder, all_params)
-            print(f"[PINNFactory] Successfully compiled '{domain}' using SymPy/DeepXDE.")
+            print(f"\n[PINNFactory - SUCCESS] Successfully compiled physics for '{domain}' using SymPy/DeepXDE Loss Generator.")
             return model_builder()
             
         except Exception as e:
-            print(f"[PINNFactory] Falling back to text generation due to SymPy/DeepXDE error: {e}")
+            print(f"\n[PINNFactory - FALLBACK] SymPy/DeepXDE failed to parse the equation: {e}")
+            print(f"[PINNFactory - FALLBACK] Now relying on hardcoded python text strings from SimulationGenerator...")
             code = self._generator.generate_class(cfg)
     
             # Compile the generated code into a module

@@ -352,7 +352,7 @@ EQUATION_PATTERNS = {
         "independent": ["t"],
         "dependent": ["V", "m", "h", "n"],
         "params": {"C": 1.0, "gNa": 120.0, "gK": 36.0, "gL": 0.3,
-                   "ENa": 50.0, "EK": -77.0, "EL": -54.4},
+                   "ENa": 50.0, "EK": -77.0, "EL": -54.4, "I_ext": 0.0},
         "loss_template": "hodgkin_huxley_ode",
         "description": "Hodgkin-Huxley neuron model",
     },

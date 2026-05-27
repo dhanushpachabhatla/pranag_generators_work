@@ -38,12 +38,18 @@ class PranagPipeline:
         
         # 1. Build & Train Parametric PINN
         print("--- Phase 1: Train Parametric PINN ---")
-        pinn_model = self.factory.create(self.domain, input_dim=3)
+        pinn_model = self.factory.create(self.domain, input_dim=3,dynamic=True)
         alias = f"Parametric_{self.domain.capitalize()}PINN"
         
+        # Dynamically discover the true input_dim of the instantiated model!
+        try:
+            actual_input_dim = pinn_model.network[0].in_features
+        except AttributeError:
+            actual_input_dim = 3  # Fallback if network structure is non-standard
+            
         trained_pinn, _ = train_pinn_model(
             pinn_model=pinn_model,
-            input_dim=3,
+            input_dim=actual_input_dim,
             num_points=5000,
             max_epochs=50,  # Increased epochs for better convergence
             batch_size=256,
@@ -53,17 +59,23 @@ class PranagPipeline:
         
         # 2. On-the-fly Data Generation (In-Memory)
         print("\n--- Phase 2: In-Memory Data Generation ---")
-        t = np.linspace(0, 1, 20)
-        x = np.linspace(-1, 1, 20)
-        T_bound = np.linspace(-1, 1, 20)
         
-        T_grid, X_grid, B_grid = np.meshgrid(t, x, T_bound, indexing='ij')
-        inputs = np.column_stack((T_grid.ravel(), X_grid.ravel(), B_grid.ravel()))
+        # Dynamically generate N-dimensional grid
+        grids = [np.linspace(-1, 1, 20) for _ in range(actual_input_dim)]
+        if actual_input_dim > 0:
+            grids[0] = np.linspace(0, 1, 20)  # Time dimension usually 0 to 1
+            
+        mesh = np.meshgrid(*grids, indexing='ij')
+        inputs = np.column_stack([m.ravel() for m in mesh])
         inputs_tensor = torch.tensor(inputs, dtype=torch.float32)
+        
+        # Ensure inputs_tensor is on the same device as the trained model (e.g. CUDA)
+        device = next(trained_pinn.parameters()).device
+        inputs_tensor = inputs_tensor.to(device)
         
         trained_pinn.eval()
         with torch.no_grad():
-            preds = trained_pinn(inputs_tensor).numpy()
+            preds = trained_pinn(inputs_tensor).cpu().numpy()
             
         print(f"Generated {len(inputs)} parametric data points in RAM.")
         
@@ -100,7 +112,10 @@ class PranagPipeline:
         print("\n--- Phase 5: PRANA-G 7-Component Diagnostics ---")
         loss_gen = create_cross_domain_loss_generator()
         preds_tensor = torch.tensor(y_pred, dtype=torch.float32)
-        bound_temp_tensor = torch.tensor(X_test[:, 2], dtype=torch.float32)
+        
+        # Safely extract boundary tensor based on dynamic dimensions
+        bound_idx = 2 if actual_input_dim >= 3 else 0
+        bound_temp_tensor = torch.tensor(X_test[:, bound_idx], dtype=torch.float32)
         
         safety_hazard = torch.relu(preds_tensor * bound_temp_tensor) * 100.0
         
@@ -149,7 +164,8 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    domains_to_train = ["heat", "wave", "burgers"]
+    # domains_to_train = ["heat", "wave", "burgers"]
+    domains_to_train = ["cahn_hilliard" , "elasticity", "hodgkin_huxley"]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:
         pipeline = PranagPipeline(domain=d)
