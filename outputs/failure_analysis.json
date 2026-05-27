@@ -1,0 +1,12 @@
+[
+  {
+    "model": "biology",
+    "reason": "Viability score below 70% threshold",
+    "viability_score": 0.6252660052438316
+  },
+  {
+    "model": "heat",
+    "reason": "Viability score below 70% threshold",
+    "viability_score": 0.19229455978719687
+  }
+]

@@ -95,7 +95,7 @@ class SrikarModelInterface:
             model_root = Path(__file__).resolve().parents[1] / "Model"
             if str(model_root) not in sys.path:
                 sys.path.insert(0, str(model_root))
-            from models.physics_models import HeatPINN, StressPINN, GrowthPINN, BiologyPINN, ChemistryPINN
+            from Model.models.physics_models import HeatPINN, StressPINN, GrowthPINN, BiologyPINN, ChemistryPINN
 
             required = {
                 "heat": os.path.join(self.model_dir, "heat_pinn.pt"),

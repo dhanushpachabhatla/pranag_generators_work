@@ -14,7 +14,7 @@ Inputs are designed to accept parsed JSON from prompt parser (out1/out2).
 
 import torch
 import torch.nn as nn
-from models.base_pinn import BasePINN
+from Model.models.base_pinn import BasePINN
 
 
 # ═══════════════════════════════════════════════════════════════════════

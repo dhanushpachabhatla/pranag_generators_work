@@ -26,7 +26,7 @@ try:
 except ImportError:
     SKLEARN_OK = False
 
-from models.base_pinn import BasePINN
+from Model.models.base_pinn import BasePINN
 
 
 class SurrogateTrainer:

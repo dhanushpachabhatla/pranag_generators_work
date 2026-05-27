@@ -22,12 +22,12 @@ from pathlib import Path
 # Allow running from repo root
 sys.path.insert(0, str(Path(__file__).parent))
 
-from models.base_pinn          import BasePINN
-from models.physics_models     import (
+from Model.models.base_pinn import BasePINN
+from Model.models.physics_models import (
     HeatPINN, StressPINN, GrowthPINN, BiologyPINN, ChemistryPINN,
 )
-from models.adaptive_loss      import AdaptiveLoss
-from models.surrogate_trainer  import SurrogateTrainer
+from Model.models.adaptive_loss import AdaptiveLoss
+from Model.models.surrogate_trainer import SurrogateTrainer
 from datasrc.data_loader          import PINNDataLoader
 from visualization import (
     plot_training_losses, 

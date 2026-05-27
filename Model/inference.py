@@ -5,7 +5,7 @@ import os
 import re
 from pathlib import Path
 
-from models.physics_models import (
+from Model.models.physics_models import (
     BiologyPINN, StressPINN, HeatPINN, ChemistryPINN, GrowthPINN
 )
 from datasrc.data_loader import PINNDataLoader
