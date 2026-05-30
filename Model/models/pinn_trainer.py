@@ -15,11 +15,13 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from loss_generator import create_cross_domain_loss_generator
 
 class PINNLightningModule(pl.LightningModule):
-    def __init__(self, pinn_model, learning_rate=1e-3):
+    def __init__(self, pinn_model, learning_rate=1e-3, optimizer_type="adam"):
         super().__init__()
         self.pinn = pinn_model
         self.learning_rate = learning_rate
+        self.optimizer_type = optimizer_type
         self.save_hyperparameters(ignore=['pinn'])
+        self.loss_history = {"train_loss": [], "phys_loss": [], "boundary_loss": []}
 
     def forward(self, x):
         return self.pinn(x)
@@ -31,15 +33,87 @@ class PINNLightningModule(pl.LightningModule):
         # 1. Calculate base Physics Loss from DeepXDE (residual)
         phys_loss = self.pinn.physics_loss(x_collocation)
         
-        # We can add explicit boundary logic here later, but for Foundation models 
-        # we learn the pure physics PDE first.
         total_loss = phys_loss
         
-        self.log("train_loss", total_loss, prog_bar=True)
+        # 2. Dynamic Parametric Boundary Loss
+        # We enforce that at physical edges (x = -1 or 1), the prediction matches the parametric T_bound
+        input_dim = x_collocation.shape[1]
+        if input_dim >= 3:
+            # Mask points that are on the physical boundary
+            bound_mask = (torch.abs(x_collocation[:, 1]) >= 0.99)
+            if bound_mask.any():
+                u_pred = self.pinn(x_collocation[bound_mask])
+                # Target is ALWAYS the last column (the parametric T_bound)
+                u_target = x_collocation[bound_mask, -1:]
+                boundary_loss = torch.mean((u_pred - u_target)**2)
+                
+                # Weight the boundary loss heavily to force convergence
+                total_loss = total_loss + (10.0 * boundary_loss)
+                self.log("boundary_loss", boundary_loss, prog_bar=True, on_epoch=True)
+
+        # 3. Step-Response Initial Condition Loss
+        # Enforces that the simulation always starts at a normalized baseline (0.0) at Time = 0
+        if input_dim >= 1:
+            # Mask points that are exactly at the start of the simulation (t = 0)
+            ic_mask = (torch.abs(x_collocation[:, 0]) <= 0.01)
+            if ic_mask.any():
+                u_pred_ic = self.pinn(x_collocation[ic_mask])
+                ic_loss = torch.mean((u_pred_ic - 0.0)**2)
+                
+                total_loss = total_loss + (10.0 * ic_loss)
+                self.log("ic_loss", ic_loss, prog_bar=True, on_epoch=True)
+                
+        self.log("phys_loss", phys_loss, prog_bar=True, on_epoch=True)
+        self.log("train_loss", total_loss, prog_bar=True, on_epoch=True)
         return total_loss
 
+    def on_train_epoch_end(self):
+        metrics = self.trainer.callback_metrics
+        if "train_loss" in metrics:
+            self.loss_history["train_loss"].append(metrics["train_loss"].item())
+        if "phys_loss" in metrics:
+            self.loss_history["phys_loss"].append(metrics["phys_loss"].item())
+        if "boundary_loss" in metrics:
+            self.loss_history["boundary_loss"].append(metrics["boundary_loss"].item())
+        if "ic_loss" in metrics:
+            if "ic_loss" not in self.loss_history:
+                self.loss_history["ic_loss"] = []
+            self.loss_history["ic_loss"].append(metrics["ic_loss"].item())
+
+        # Heartbeat print every 100 epochs to prevent terminal lag
+        epoch = self.current_epoch
+        if (epoch + 1) % 100 == 0:
+            train_loss = metrics.get("train_loss")
+            loss_val = train_loss.item() if train_loss is not None else 0.0
+            print(f"[Epoch {epoch + 1}/{self.trainer.max_epochs}] Total Loss: {loss_val:.6f}")
+
     def configure_optimizers(self):
-        return torch.optim.Adam(self.pinn.parameters(), lr=self.learning_rate)
+        if self.optimizer_type == "lbfgs":
+            # Stage 2: Sniper Mode (High precision, full batch)
+            optimizer = torch.optim.LBFGS(
+                self.pinn.parameters(), 
+                lr=0.1, 
+                max_iter=20, 
+                max_eval=25, 
+                tolerance_grad=1e-5, 
+                tolerance_change=1e-9, 
+                history_size=50, 
+                line_search_fn="strong_wolfe"
+            )
+            return optimizer
+        else:
+            # Stage 1: Explorer Mode (Mini-batch)
+            optimizer = torch.optim.Adam(self.pinn.parameters(), lr=self.learning_rate)
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                optimizer, mode='min', factor=0.5, patience=500
+            )
+            return {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": scheduler,
+                    "monitor": "train_loss"
+                }
+            }
 
 def validate_pinn(pinn_model, input_dim=2, num_points=500):
     """Post-training validation on unseen data across physics constraints."""
@@ -67,12 +141,31 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
     Utility function to automatically train and save a generated PINN model.
     """
     print(f"[PINNTrainer] Generating {num_points} collocation points for {input_dim}D input.")
-    x_train = (torch.rand(num_points, input_dim) * 2) - 1.0
+    
+    # 1. Interior collocation points
+    x_colloc = (torch.rand(num_points, input_dim) * 2) - 1.0
+    if input_dim > 0:
+        x_colloc[:, 0] = (x_colloc[:, 0] + 1) / 2.0  # Time from 0 to 1
+    
+    # 2. Explicit Boundary Points
+    num_boundary = num_points // 4
+    x_bound = (torch.rand(num_boundary, input_dim) * 2) - 1.0
+    if input_dim > 0:
+        x_bound[:, 0] = (x_bound[:, 0] + 1) / 2.0  # Time from 0 to 1
+    if input_dim >= 2:
+        # Force spatial dimension (x) to exactly -1 or 1
+        edges = torch.randint(0, 2, (num_boundary,)).float() * 2 - 1.0
+        x_bound[:, 1] = edges
+        
+    # 3. Explicit Initial Condition Points (t = 0)
+    num_ic = num_points // 4
+    x_ic = (torch.rand(num_ic, input_dim) * 2) - 1.0
+    if input_dim > 0:
+        x_ic[:, 0] = 0.0  # Force t = 0 exactly
+        
+    x_train = torch.cat([x_colloc, x_bound, x_ic], dim=0)
     
     dataset = TensorDataset(x_train)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-    
-    lightning_model = PINNLightningModule(pinn_model)
     
     # Checkpointing: Save the model automatically
     if checkpoint_dir is None:
@@ -88,18 +181,79 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
         mode="min"
     )
     
-    print(f"[PINNTrainer] Starting PyTorch Lightning training for {max_epochs} epochs...")
-    trainer = pl.Trainer(
+    # --- STAGE 1: Adam Optimization ---
+    dataloader_adam = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    lightning_model = PINNLightningModule(pinn_model, optimizer_type="adam")
+    
+    print(f"[PINNTrainer] Starting Stage 1 (Adam) for {max_epochs} epochs...")
+    trainer_adam = pl.Trainer(
         max_epochs=max_epochs,
         accelerator="auto",
         devices=1,
         enable_model_summary=False,
         logger=False,
+        enable_progress_bar=False,
         callbacks=[checkpoint_callback]
     )
     
-    trainer.fit(lightning_model, train_dataloaders=dataloader)
-    print(f"\n[PINNTrainer] Training completed! Best model saved to: {checkpoint_callback.best_model_path}")
+    import time
+    start_time = time.time()
+    trainer_adam.fit(lightning_model, train_dataloaders=dataloader_adam)
+    adam_time = time.time() - start_time
+    
+    # --- STAGE 2: L-BFGS Optimization ---
+    print(f"\n[PINNTrainer] Starting Stage 2 (L-BFGS Sniper) for 1000 epochs...")
+    # L-BFGS requires the full dataset in a single massive batch for stable Hessians
+    dataloader_lbfgs = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+    
+    # Switch optimizer
+    lightning_model.optimizer_type = "lbfgs"
+    
+    trainer_lbfgs = pl.Trainer(
+        max_epochs=1000,
+        accelerator="auto",
+        devices=1,
+        enable_model_summary=False,
+        logger=False,
+        enable_progress_bar=False,
+        callbacks=[checkpoint_callback]  # Reuse checkpointing to save the ultimate best
+    )
+    
+    start_time = time.time()
+    trainer_lbfgs.fit(lightning_model, train_dataloaders=dataloader_lbfgs)
+    lbfgs_time = time.time() - start_time
+    
+    total_time = adam_time + lbfgs_time
+    mins, secs = divmod(total_time, 60)
+    print(f"\n[PINNTrainer] Two-Stage Training completed in {int(mins)}m {int(secs)}s! Best model saved to: {checkpoint_callback.best_model_path}")
+    
+    # --- Generate Loss History Plot ---
+    try:
+        import matplotlib.pyplot as plt
+        history = lightning_model.loss_history
+        if len(history["train_loss"]) > 0:
+            plt.figure(figsize=(10, 6))
+            plt.plot(history["train_loss"], label="Total Loss", linewidth=2)
+            if len(history["phys_loss"]) > 0:
+                plt.plot(history["phys_loss"], label="Physics Loss", linestyle="--")
+            if len(history["boundary_loss"]) > 0:
+                plt.plot(history["boundary_loss"], label="Boundary Loss", linestyle=":")
+            if "ic_loss" in history and len(history["ic_loss"]) > 0:
+                plt.plot(history["ic_loss"], label="Initial Condition Loss", linestyle="-.")
+                
+            plt.yscale("log")
+            plt.xlabel("Epoch")
+            plt.ylabel("Loss (Log Scale)")
+            plt.title(f"PINN Training Convergence: {model_alias}")
+            plt.grid(True, which="both", ls="-", alpha=0.2)
+            plt.legend()
+            
+            plot_path = os.path.join(checkpoint_dir, f"{model_alias}_loss_history.png")
+            plt.savefig(plot_path, dpi=300, bbox_inches="tight")
+            plt.close()
+            print(f"[PINNTrainer] Saved convergence plot to {plot_path}")
+    except Exception as e:
+        print(f"[PINNTrainer] Failed to generate plot: {e}")
     
     # Run Post-Training Validation
     breakdown, passed = validate_pinn(lightning_model.pinn, input_dim=input_dim)

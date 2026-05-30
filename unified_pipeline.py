@@ -38,7 +38,7 @@ class PranagPipeline:
         
         # 1. Build & Train Parametric PINN
         print("--- Phase 1: Train Parametric PINN ---")
-        pinn_model = self.factory.create(self.domain, input_dim=3,dynamic=True)
+        pinn_model = self.factory.create(self.domain, input_dim=3, hidden_dim=128, num_layers=6, dynamic=True)
         alias = f"Parametric_{self.domain.capitalize()}PINN"
         
         # Dynamically discover the true input_dim of the instantiated model!
@@ -50,9 +50,9 @@ class PranagPipeline:
         trained_pinn, _ = train_pinn_model(
             pinn_model=pinn_model,
             input_dim=actual_input_dim,
-            num_points=5000,
-            max_epochs=50,  # Increased epochs for better convergence
-            batch_size=256,
+            num_points=10000,
+            max_epochs=5000,  # Reduced to 5k since L-BFGS will finish the job
+            batch_size=2048,  # Increased batch size for smoother gradient descent
             model_alias=alias,
             checkpoint_dir=self.pinn_dir
         )
@@ -85,7 +85,7 @@ class PranagPipeline:
         y = preds[:, 0]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
-        surrogate = RandomForestRegressor(n_estimators=50, max_depth=10, n_jobs=-1)
+        surrogate = RandomForestRegressor(n_estimators=50, max_depth=10, n_jobs=4)
         surrogate.fit(X_train, y_train)
         
         # 4. Evaluation and Plotting
@@ -164,8 +164,8 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    # domains_to_train = ["heat", "wave", "burgers"]
-    domains_to_train = ["cahn_hilliard" , "elasticity", "hodgkin_huxley"]
+    domains_to_train = ["burgers","heat"]
+    # domains_to_train = ["cahn_hilliard" , "elasticity", "hodgkin_huxley"]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:
         pipeline = PranagPipeline(domain=d)
