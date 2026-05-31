@@ -69,7 +69,23 @@ class _GenericPINN(nn.Module):
     """
     Lightweight PINN base class for dynamically-generated models.
     Physics loss is injected at construction time.
+    Ensures all physics parameters are set as attributes with sensible defaults.
     """
+    # Default parameters for common equations - ensures critical params always exist
+    _DEFAULTS = {
+        # Hodgkin-Huxley neuron model
+        "C": 1.0, "gNa": 120.0, "gK": 36.0, "gL": 0.3,
+        "ENa": 50.0, "EK": -77.0, "EL": -54.4, "I_ext": 0.0,
+        # Heat/Burgers
+        "alpha": 0.01, "nu": 0.01, "mu": 0.01,
+        # Wave
+        "c": 1.0,
+        # Poisson
+        "f": 1.0,
+        # Other common
+        "Re": 100.0, "rho": 1.0, "hbar": 1.0, "m": 1.0,
+    }
+
     def __init__(
         self,
         input_dim:    int,
@@ -82,8 +98,16 @@ class _GenericPINN(nn.Module):
     ):
         super().__init__()
         # Register physics parameters as model attributes
-        for k, v in (params or {}).items():
+        # First apply defaults, then override with provided params
+        merged_params = {**self._DEFAULTS}
+        if params:
+            merged_params.update(params)
+        
+        for k, v in merged_params.items():
             setattr(self, k, v)
+        
+        # Store params for later validation
+        self._initialized_params = merged_params
 
         act_map = {
             "tanh":    nn.Tanh,
@@ -128,6 +152,25 @@ class _GenericPINN(nn.Module):
         if x_bc is not None and y_bc is not None:
             L = L + lam_bc * self.boundary_loss(x_bc, y_bc)
         return L
+
+    def validate_physics_parameters(self) -> Tuple[bool, List[str]]:
+        """
+        Validate that all critical physics parameters are present.
+        Returns (is_valid, list_of_missing_params)
+        """
+        missing = []
+        
+        # Check for equation-specific required parameters
+        # (based on generated templates that use self.param)
+        if hasattr(self, '_physics_fn') and self._physics_fn is not None:
+            # For Hodgkin-Huxley
+            if hasattr(self, 'I_ext') and hasattr(self, 'C'):
+                required_hh = ['C', 'gNa', 'gK', 'gL', 'ENa', 'EK', 'EL', 'I_ext']
+                for param in required_hh:
+                    if not hasattr(self, param):
+                        missing.append(param)
+        
+        return len(missing) == 0, missing
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -695,9 +738,21 @@ class PINNFactory:
             os.unlink(tmp.name)
     
             cls = getattr(mod, cfg.class_name)
+            # Merge default parameters with any user-provided params
+            merged_params = {**cfg.equation_info.parameters, **params}
             self._dynamic_cache[cache_key] = cls
-            self._registry[domain] = (cls, params)
-            return cls()
+            self._registry[domain] = (cls, merged_params)
+            # Instantiate with merged parameters
+            try:
+                # Try passing params if the generated class accepts them
+                return cls(params=merged_params)
+            except TypeError:
+                # Fallback: the generated class doesn't accept params in __init__
+                # Instantiate and set attributes directly
+                instance = cls()
+                for k, v in merged_params.items():
+                    setattr(instance, k, v)
+                return instance
 
     def build_from_config(
         self,

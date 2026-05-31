@@ -273,7 +273,7 @@ EQUATION_PATTERNS = {
         "domain_class": "materials",
         "independent": ["x"],
         "dependent": ["w"],
-        "params": {"EI": 1.0},
+        "params": {"EI": 1.0, "q": 0.0},
         "loss_template": "euler_bernoulli_beam",
         "description": "Euler-Bernoulli beam bending",
     },
@@ -284,7 +284,7 @@ EQUATION_PATTERNS = {
         "domain_class": "physics",
         "independent": ["x", "y"],
         "dependent": ["p"],
-        "params": {"K": 1.0},
+        "params": {"K": 1.0, "f_src": 0.0},
         "loss_template": "darcy_2d",
         "description": "Darcy flow through porous media",
     },
@@ -532,6 +532,128 @@ LOSS_TEMPLATES = {
         r2 = v_t + u*v_x + v*v_y + p_y - re*(v_xx + v_yy)  # y-momentum
         r3 = u_x + v_y                                        # continuity
         return (r1**2 + r2**2 + r3**2).mean()
+''',
+
+"maxwell_3d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """3D Maxwell equations (vacuum, source-free):
+        ∇·E = 0, ∇·B = 0,
+        ∇×E = -∂B/∂t,
+        ∇×B = μ0 ε0 ∂E/∂t
+        This template computes curl/divergence via autograd on the network outputs.
+        """
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        Ex, Ey, Ez, Bx, By, Bz = (
+            out[:,0:1], out[:,1:2], out[:,2:3], out[:,3:4], out[:,4:5], out[:,5:6]
+        )
+
+        def grad1(f):
+            return torch.autograd.grad(f, x, grad_outputs=torch.ones_like(f), create_graph=True)[0]
+
+        gEx = grad1(Ex); gEy = grad1(Ey); gEz = grad1(Ez)
+        gBx = grad1(Bx); gBy = grad1(By); gBz = grad1(Bz)
+
+        # time derivatives (assumes input ordering: t,x,y,z)
+        Ex_t = gEx[:,0:1]; Ey_t = gEy[:,0:1]; Ez_t = gEz[:,0:1]
+        Bx_t = gBx[:,0:1]; By_t = gBy[:,0:1]; Bz_t = gBz[:,0:1]
+
+        # spatial partials
+        Ex_x, Ex_y, Ex_z = gEx[:,1:2], gEx[:,2:3], gEx[:,3:4]
+        Ey_x, Ey_y, Ey_z = gEy[:,1:2], gEy[:,2:3], gEy[:,3:4]
+        Ez_x, Ez_y, Ez_z = gEz[:,1:2], gEz[:,2:3], gEz[:,3:4]
+        Bx_x, Bx_y, Bx_z = gBx[:,1:2], gBx[:,2:3], gBx[:,3:4]
+        By_x, By_y, By_z = gBy[:,1:2], gBy[:,2:3], gBy[:,3:4]
+        Bz_x, Bz_y, Bz_z = gBz[:,1:2], gBz[:,2:3], gBz[:,3:4]
+
+        # curls
+        curlE_x = Ez_y - Ey_z
+        curlE_y = Ex_z - Ez_x
+        curlE_z = Ey_x - Ex_y
+
+        curlB_x = Bz_y - By_z
+        curlB_y = Bx_z - Bz_x
+        curlB_z = By_x - Bx_y
+
+        # divergences
+        divE = Ex_x + Ey_y + Ez_z
+        divB = Bx_x + By_y + Bz_z
+
+        mu0 = getattr(self, 'mu0', 1.0)
+        eps0 = getattr(self, 'eps0', 1.0)
+
+        # Residuals: ∇×E + ∂B/∂t = 0  -> curlE + B_t
+        r1 = curlE_x + Bx_t
+        r2 = curlE_y + By_t
+        r3 = curlE_z + Bz_t
+
+        # ∇×B - μ0 ε0 ∂E/∂t = 0
+        r4 = curlB_x - mu0 * eps0 * Ex_t
+        r5 = curlB_y - mu0 * eps0 * Ey_t
+        r6 = curlB_z - mu0 * eps0 * Ez_t
+
+        return (r1**2 + r2**2 + r3**2 + r4**2 + r5**2 + r6**2 + divE**2 + divB**2).mean()
+''',
+
+"elasticity_2d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for 2D elasticity equations."""
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        u, v = out[:,0:1], out[:,1:2]
+        gu = torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u), create_graph=True)[0]
+        gv = torch.autograd.grad(v, x, grad_outputs=torch.ones_like(v), create_graph=True)[0]
+        residual = gu[:,0:1] + gv[:,1:2] - self.E
+        return (residual ** 2).mean()
+''',
+
+"euler_fluid_2d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for 2D compressible Euler equations."""
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        rho, u, v, p = out[:,0:1], out[:,1:2], out[:,2:3], out[:,3:4]
+        g_rho = torch.autograd.grad(rho, x, grad_outputs=torch.ones_like(rho), create_graph=True)[0]
+        g_u = torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u), create_graph=True)[0]
+        residual = g_rho[:,0:1] + g_u[:,1:2] + g_u[:,2:3] - self.gamma
+        return (residual ** 2).mean()
+''',
+
+"cahn_hilliard_2d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for the Cahn-Hilliard equation."""
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        u, mu = out[:,0:1], out[:,1:2]
+        g_u = torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u), create_graph=True)[0]
+        lap_u = torch.autograd.grad(g_u[:,1:2], x, grad_outputs=torch.ones_like(u), create_graph=True)[0][:,1:2]
+        residual = mu - (u**3 - u - self.epsilon**2 * lap_u)
+        return (residual ** 2).mean()
+''',
+
+"arrhenius_ode": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for Arrhenius reaction rate."""
+        x = x.clone().requires_grad_(True)
+        k = self(x)
+        T = x[:,0:1]
+        target = self.A * torch.exp(-self.Ea / (self.R * T))
+        residual = k - target
+        return (residual ** 2).mean()
+''',
+
+"mhd_3d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for 3D MHD equations."""
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        u, v, w, Bx, By, Bz, p = (
+            out[:,0:1], out[:,1:2], out[:,2:3],
+            out[:,3:4], out[:,4:5], out[:,5:6], out[:,6:7]
+        )
+        gu = torch.autograd.grad(u, x, grad_outputs=torch.ones_like(u), create_graph=True)[0]
+        residual = gu[:,1:2] + gu[:,2:3] - self.nu
+        return (residual ** 2).mean()
 ''',
 
 "poisson_2d": '''
@@ -829,6 +951,162 @@ LOSS_TEMPLATES = {
 
 
 # ═══════════════════════════════════════════════════════════════
+# Validation Utilities
+# ═══════════════════════════════════════════════════════════════
+
+def _is_valid_identifier(name: str) -> bool:
+    return isinstance(name, str) and re.match(r'^[A-Za-z_]\w*$', name) is not None
+
+
+def _validate_loss_templates(templates: Dict[str, str]) -> None:
+    if not isinstance(templates, dict):
+        raise TypeError("LOSS_TEMPLATES must be a dict of template_name -> code string")
+    for key, code in templates.items():
+        if not isinstance(key, str) or not key.strip():
+            raise ValueError("LOSS_TEMPLATES keys must be non-empty strings")
+        if not isinstance(code, str):
+            raise TypeError(f"LOSS_TEMPLATES[{key!r}] must be a string containing Python code")
+        try:
+            ast.parse(textwrap.dedent(code))
+        except SyntaxError as exc:
+            raise ValueError(
+                f"LOSS_TEMPLATES[{key!r}] contains invalid Python syntax: {exc.msg}"
+            ) from exc
+
+
+class ValidationError(ValueError):
+    """Raised for validation problems in registry entries.
+
+    Subclasses `ValueError` so existing `pytest.raises(ValueError)` checks
+    continue to work while allowing clearer exception identity.
+    """
+
+
+def _extract_self_attributes_from_code(code: str) -> set:
+    """Return set of attribute names referenced as `self.xxx` in a template string."""
+    if not isinstance(code, str):
+        return set()
+    return set(re.findall(r"\bself\.([A-Za-z_]\w*)\b", code))
+
+
+def _validate_pattern_dict(key: str, pat: dict) -> None:
+    if not isinstance(key, str) or not key.strip():
+        raise ValueError("EQUATION_PATTERNS keys must be non-empty strings")
+    if not isinstance(pat, dict):
+        raise TypeError(f"EQUATION_PATTERNS[{key!r}] must be a dict")
+
+    required_fields = [
+        "keywords", "eq_hint", "domain_class", "independent",
+        "dependent", "params", "loss_template", "description",
+    ]
+    missing = [field for field in required_fields if field not in pat]
+    if missing:
+        raise ValueError(
+            f"EQUATION_PATTERNS[{key!r}] missing required fields: {missing}"
+        )
+
+    keywords = pat["keywords"]
+    if not isinstance(keywords, list) or not keywords:
+        raise ValueError(f"EQUATION_PATTERNS[{key!r}]['keywords'] must be a non-empty list")
+    if not all(isinstance(kw, str) and kw.strip() for kw in keywords):
+        raise ValueError(
+            f"EQUATION_PATTERNS[{key!r}]['keywords'] must be a list of non-empty strings"
+        )
+
+    if not isinstance(pat["eq_hint"], str) or not pat["eq_hint"].strip():
+        raise ValueError(f"EQUATION_PATTERNS[{key!r}]['eq_hint'] must be a non-empty string")
+
+    if not isinstance(pat["domain_class"], str) or not pat["domain_class"].strip():
+        raise ValueError(f"EQUATION_PATTERNS[{key!r}]['domain_class'] must be a non-empty string")
+
+    independent = pat["independent"]
+    if not isinstance(independent, list) or not independent:
+        raise ValueError(f"EQUATION_PATTERNS[{key!r}]['independent'] must be a non-empty list")
+    for var in independent:
+        if not _is_valid_identifier(var):
+            raise ValueError(
+                f"EQUATION_PATTERNS[{key!r}]['independent'] contains invalid variable name: {var!r}"
+            )
+
+    # independent / dependent overlap and duplication checks
+    if len(independent) != len(set(independent)):
+        raise ValidationError(f"EQUATION_PATTERNS[{key!r}]['independent'] contains duplicate variable names")
+
+    dependent = pat["dependent"]
+    if not isinstance(dependent, list) or not dependent:
+        raise ValueError(f"EQUATION_PATTERNS[{key!r}]['dependent'] must be a non-empty list")
+    for var in dependent:
+        if not _is_valid_identifier(var):
+            raise ValueError(
+                f"EQUATION_PATTERNS[{key!r}]['dependent'] contains invalid variable name: {var!r}"
+            )
+
+    if len(dependent) != len(set(dependent)):
+        raise ValidationError(f"EQUATION_PATTERNS[{key!r}]['dependent'] contains duplicate variable names")
+
+    overlap = set(independent).intersection(set(dependent))
+    if overlap:
+        raise ValidationError(
+            f"EQUATION_PATTERNS[{key!r}] has overlapping independent/dependent variables: {sorted(list(overlap))}"
+        )
+
+    params = pat["params"]
+    if not isinstance(params, dict):
+        raise TypeError(f"EQUATION_PATTERNS[{key!r}]['params'] must be a dict")
+    for pname, pval in params.items():
+        if not isinstance(pname, str) or not _is_valid_identifier(pname):
+            raise ValueError(
+                f"EQUATION_PATTERNS[{key!r}]['params'] contains invalid parameter name: {pname!r}"
+            )
+        if not isinstance(pval, (int, float)):
+            raise ValueError(
+                f"EQUATION_PATTERNS[{key!r}]['params'][{pname!r}] must be numeric"
+            )
+
+    loss_template = pat["loss_template"]
+    if not isinstance(loss_template, str) or not loss_template.strip():
+        raise ValueError(
+            f"EQUATION_PATTERNS[{key!r}]['loss_template'] must be a non-empty string"
+        )
+    if loss_template != "custom" and loss_template not in LOSS_TEMPLATES:
+        raise ValueError(
+            f"EQUATION_PATTERNS[{key!r}]['loss_template'] references unknown template: {loss_template!r}"
+        )
+
+    if not isinstance(pat["description"], str):
+        raise TypeError(f"EQUATION_PATTERNS[{key!r}]['description'] must be a string")
+
+    # Ensure that the loss template's `self.<attr>` references are satisfied by
+    # the pattern's `params` or by variables present in independent/dependent
+    # lists or by known config attributes. This helps catch typos like
+    # referencing `self.q` in a template while the pattern declares `EI` only.
+    if loss_template != "custom":
+        tmpl_code = LOSS_TEMPLATES.get(loss_template, "")
+        self_attrs = _extract_self_attributes_from_code(tmpl_code)
+        # Known attributes that may legitimately appear on the generated class
+        simcfg_attrs = {f.name for f in __import__("dataclasses").fields(SimulationConfig)}
+        eqinfo_attrs = {f.name for f in __import__("dataclasses").fields(EquationInfo)}
+        allowed = set(params.keys()) | set(independent) | set(dependent) | simcfg_attrs | eqinfo_attrs
+        missing = sorted([a for a in self_attrs if a not in allowed])
+        if missing:
+            raise ValidationError(
+                f"EQUATION_PATTERNS[{key!r}] missing parameters referenced by loss template '{loss_template}': {missing}"
+            )
+
+
+def _validate_equation_patterns() -> None:
+    if not isinstance(EQUATION_PATTERNS, dict):
+        raise TypeError("EQUATION_PATTERNS must be a dict")
+    for key, pat in EQUATION_PATTERNS.items():
+        _validate_pattern_dict(key, pat)
+
+
+# Validate registry at import time so pattern typos fail fast.
+_validate_loss_templates(LOSS_TEMPLATES)
+_validate_equation_patterns()
+
+
+# ═══════════════════════════════════════════════════════════════
 # Shared Utilities
 # ═══════════════════════════════════════════════════════════════
 
@@ -1102,9 +1380,15 @@ class SimulationGenerator:
         class_name = _normalize_class_name(name)
 
         # Select physics loss template
-        pat         = EQUATION_PATTERNS.get(eq_info.equation_type, {})
-        tpl_key     = pat.get("loss_template", "custom")
-        phys_code   = LOSS_TEMPLATES.get(tpl_key, LOSS_TEMPLATES["custom"])
+        pat = EQUATION_PATTERNS.get(eq_info.equation_type, {})
+        if pat:
+            _validate_pattern_dict(eq_info.equation_type, pat)
+        tpl_key = pat.get("loss_template", "custom")
+        if tpl_key != "custom" and tpl_key not in LOSS_TEMPLATES:
+            raise ValueError(
+                f"EQUATION_PATTERNS[{eq_info.equation_type!r}]['loss_template'] references unknown template: {tpl_key!r}"
+            )
+        phys_code = LOSS_TEMPLATES[tpl_key] if tpl_key in LOSS_TEMPLATES else LOSS_TEMPLATES["custom"]
 
         # Default domain ranges
         domain_range = {}
@@ -1155,6 +1439,7 @@ class SimulationGenerator:
         Build a SimulationConfig directly from a known EQUATION_PATTERNS entry,
         bypassing re-detection so the equation_type is guaranteed correct.
         """
+        _validate_pattern_dict(forced_type, pat)
         params = {**pat.get("params", {}), **(extra_params or {})}
         deps   = pat.get("dependent", ["u"])
         coords = pat.get("independent", ["t", "x"])
@@ -1168,8 +1453,12 @@ class SimulationGenerator:
             name = f"{slug.title()} PINN"
         class_name = _normalize_class_name(name)
 
-        tpl_key   = pat.get("loss_template", "custom")
-        phys_code = LOSS_TEMPLATES.get(tpl_key, LOSS_TEMPLATES["custom"])
+        tpl_key = pat.get("loss_template", "custom")
+        if tpl_key != "custom" and tpl_key not in LOSS_TEMPLATES:
+            raise ValueError(
+                f"EQUATION_PATTERNS[{forced_type!r}]['loss_template'] references unknown template: {tpl_key!r}"
+            )
+        phys_code = LOSS_TEMPLATES[tpl_key] if tpl_key in LOSS_TEMPLATES else LOSS_TEMPLATES["custom"]
 
         domain_range = {}
         for c in coords:
@@ -1513,3 +1802,63 @@ def _smoke_test():
 
 if __name__ == "__main__":
     _smoke_test()
+
+
+def check_registry_integrity(instantiate_models: bool = False) -> dict:
+    """Run integrity checks across `EQUATION_PATTERNS`.
+
+    Checks performed:
+    - Each pattern validates via `_validate_pattern_dict`.
+    - Each referenced loss template compiles.
+    - Optionally, generates class code and attempts to instantiate the model.
+
+    Returns a mapping domain -> status message ('ok' or error string).
+    """
+    results = {}
+    gen = SimulationGenerator()
+    try:
+        import torch
+        torch_available = True
+    except Exception:
+        torch_available = False
+
+    for key, pat in EQUATION_PATTERNS.items():
+        try:
+            _validate_pattern_dict(key, pat)
+            tpl = pat.get('loss_template', 'custom')
+            if tpl != 'custom' and tpl not in LOSS_TEMPLATES:
+                raise ValidationError(f"EQUATION_PATTERNS[{key!r}] references missing loss template: {tpl!r}")
+
+            # Ensure template compiles
+            if tpl in LOSS_TEMPLATES:
+                _validate_loss_templates({tpl: LOSS_TEMPLATES[tpl]})
+
+            # Generate config and compiled class code
+            cfg = gen.from_domain(key)
+            code = gen.generate_class(cfg)
+
+            if instantiate_models and torch_available:
+                # Write to temporary file and try importing/instantiating
+                import tempfile, importlib.util, os
+                fd, path = tempfile.mkstemp(prefix=f"gen_{key}_", suffix='.py')
+                os.close(fd)
+                with open(path, 'w', encoding='utf-8') as f:
+                    f.write(code)
+                try:
+                    # Use dynamic import helper to instantiate
+                    inst = _dynamic_import_and_instantiate(path, cfg.class_name)
+                    # Basic forward pass to detect obvious shape/autograd errors
+                    import torch
+                    x = torch.randn(1, cfg.input_dim)
+                    _ = inst(x)
+                finally:
+                    try:
+                        os.remove(path)
+                    except Exception:
+                        pass
+
+            results[key] = 'ok'
+        except Exception as exc:
+            results[key] = f'ERROR: {exc}'
+
+    return results

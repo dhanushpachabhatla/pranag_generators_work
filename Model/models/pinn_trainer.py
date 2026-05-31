@@ -21,8 +21,19 @@ class PINNLightningModule(pl.LightningModule):
         self.learning_rate = learning_rate
         self.optimizer_type = optimizer_type
         self.save_hyperparameters(ignore=['pinn'])
+        
+        # Validate physics parameters before training
+        if hasattr(pinn_model, 'validate_physics_parameters'):
+            is_valid, missing_params = pinn_model.validate_physics_parameters()
+            if not is_valid:
+                raise ValueError(
+                    f"Physics model has missing required parameters: {missing_params}. "
+                    f"This will cause AttributeError during training. "
+                    f"Available parameters: {list(pinn_model._initialized_params.keys()) if hasattr(pinn_model, '_initialized_params') else 'unknown'}"
+                )
+        
         self.loss_history = {"train_loss": [], "phys_loss": [], "boundary_loss": []}
-
+        
     def forward(self, x):
         return self.pinn(x)
 
