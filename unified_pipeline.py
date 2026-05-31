@@ -37,15 +37,15 @@ class PranagPipeline:
         print(f"========================================================\n")
         
         # 1. Build & Train Parametric PINN
-        print("--- Phase 1: Train Parametric PINN ---")
-        pinn_model = self.factory.create(self.domain, input_dim=3, hidden_dim=128, num_layers=6, dynamic=True)
-        alias = f"Parametric_{self.domain.capitalize()}PINN"
+        # Dynamically calculate the correct input dimension for N-Dimensional physics
+        from Model.models.simulation_generator import SimulationGenerator
+        cfg = SimulationGenerator().from_hint(self.domain)
+        # Base physical variables (e.g. t, x, y) + 2 Parametric Targets (T_bound, IC_bound)
+        actual_input_dim = len(cfg.equation_info.independent) + 2
         
-        # Dynamically discover the true input_dim of the instantiated model!
-        try:
-            actual_input_dim = pinn_model.network[0].in_features
-        except AttributeError:
-            actual_input_dim = 3  # Fallback if network structure is non-standard
+        print("--- Phase 1: Train Parametric PINN ---")
+        pinn_model = self.factory.create(self.domain, input_dim=actual_input_dim, hidden_dim=128, num_layers=6, dynamic=True)
+        alias = f"Parametric_{self.domain.capitalize()}PINN"
             
         trained_pinn, _ = train_pinn_model(
             pinn_model=pinn_model,
@@ -60,10 +60,15 @@ class PranagPipeline:
         # 2. On-the-fly Data Generation (In-Memory)
         print("\n--- Phase 2: In-Memory Data Generation ---")
         
-        # Dynamically generate N-dimensional grid
-        grids = [np.linspace(-1, 1, 20) for _ in range(actual_input_dim)]
+        # Dynamically generate N-dimensional grid to avoid RAM crashes
+        # Target ~100,000 total points for the surrogate dataset
+        target_total_points = 100000
+        steps_per_dim = max(2, int(target_total_points ** (1.0 / actual_input_dim)))
+        print(f"Using {steps_per_dim} points per dimension (Total expected: ~{steps_per_dim**actual_input_dim})")
+        
+        grids = [np.linspace(-1, 1, steps_per_dim) for _ in range(actual_input_dim)]
         if actual_input_dim > 0:
-            grids[0] = np.linspace(0, 1, 20)  # Time dimension usually 0 to 1
+            grids[0] = np.linspace(0, 1, steps_per_dim)  # Time dimension usually 0 to 1
             
         mesh = np.meshgrid(*grids, indexing='ij')
         inputs = np.column_stack([m.ravel() for m in mesh])
@@ -113,9 +118,10 @@ class PranagPipeline:
         loss_gen = create_cross_domain_loss_generator()
         preds_tensor = torch.tensor(y_pred, dtype=torch.float32)
         
-        # Safely extract boundary tensor based on dynamic dimensions
-        bound_idx = 2 if actual_input_dim >= 3 else 0
-        bound_temp_tensor = torch.tensor(X_test[:, bound_idx], dtype=torch.float32)
+        # The parametric targets (T_bound, IC_bound) are appended after the physical dimensions.
+        # So the first parametric target is at index: actual_input_dim - 2
+        num_physical_dims = max(0, actual_input_dim - 2)
+        bound_temp_tensor = torch.tensor(X_test[:, num_physical_dims], dtype=torch.float32)
         
         safety_hazard = torch.relu(preds_tensor * bound_temp_tensor) * 100.0
         
@@ -164,7 +170,7 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    domains_to_train = ["burgers","heat"]
+    domains_to_train = ["schrodinger","poisson"]
     # domains_to_train = ["cahn_hilliard" , "elasticity", "hodgkin_huxley"]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:

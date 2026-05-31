@@ -54,8 +54,8 @@ class PINNLightningModule(pl.LightningModule):
             bound_mask = (torch.abs(x_collocation[:, 1]) >= 0.99)
             if bound_mask.any():
                 u_pred = self.pinn(x_collocation[bound_mask])
-                # Target is ALWAYS the last column (the parametric T_bound)
-                u_target = x_collocation[bound_mask, -1:]
+                # Target is the second-to-last column (Parametric T_bound)
+                u_target = x_collocation[bound_mask, -2:-1]
                 boundary_loss = torch.mean((u_pred - u_target)**2)
                 
                 # Weight the boundary loss heavily to force convergence
@@ -69,7 +69,9 @@ class PINNLightningModule(pl.LightningModule):
             ic_mask = (torch.abs(x_collocation[:, 0]) <= 0.01)
             if ic_mask.any():
                 u_pred_ic = self.pinn(x_collocation[ic_mask])
-                ic_loss = torch.mean((u_pred_ic - 0.0)**2)
+                # Target is ALWAYS the last column (Parametric IC_bound)
+                u_target_ic = x_collocation[ic_mask, -1:]
+                ic_loss = torch.mean((u_pred_ic - u_target_ic)**2)
                 
                 total_loss = total_loss + (10.0 * ic_loss)
                 self.log("ic_loss", ic_loss, prog_bar=True, on_epoch=True)

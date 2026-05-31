@@ -543,7 +543,6 @@ class GrayScottPINN(_GenericPINN):
 _BUILTIN_REGISTRY: Dict[str, Tuple[Type[nn.Module], Dict]] = {
     # ── Physics ────────────────────────────────────────────────
     "heat":              (HeatPINN,             {"alpha": 0.01}),
-    "heat_2d":           (HeatPINN,             {"alpha": 0.01}),  # same network, 2D inputs
     "wave":              (WavePINN,             {"c": 1.0}),
     "burgers":           (BurgersPINN,          {"nu": 0.01}),
     "poisson":           (PoissonPINN,          {"f": 1.0}),
