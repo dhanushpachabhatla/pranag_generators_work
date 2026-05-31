@@ -130,6 +130,8 @@ def validate_pinn(pinn_model, input_dim=2, num_points=500):
     """Post-training validation on unseen data across physics constraints."""
     print("\n--- Post-Training Validation ---")
     x_test = (torch.rand(num_points, input_dim) * 2) - 1.0
+    if input_dim > 0:
+        x_test[:, 0] = (x_test[:, 0] + 1) / 2.0  # Time from 0 to 1
     x_test.requires_grad_(True)
     device = next(pinn_model.parameters()).device
     x_test = x_test.to(device)
