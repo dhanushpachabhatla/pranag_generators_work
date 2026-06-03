@@ -197,7 +197,7 @@ EQUATION_PATTERNS = {
         "dependent": ["Ex", "Ey", "Ez", "Bx", "By", "Bz"],
         "params": {"c": 3e8, "mu0": 1.257e-6, "eps0": 8.854e-12},
         "loss_template": "maxwell_3d",
-        "description": "3D Maxwell electromagnetic equations",
+        "description": "Experimental Vector Field Template (Vacuum EM)",
     },
     # ── Reaction-Diffusion ────────────────────────────────────
     "reaction_diffusion": {

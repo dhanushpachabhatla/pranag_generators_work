@@ -46,34 +46,43 @@ class PINNLightningModule(pl.LightningModule):
         
         total_loss = phys_loss
         
+        input_dim = x_collocation.shape[1]
+        base_dim = getattr(self.pinn, 'base_dim', 2)
+        num_params = input_dim - base_dim
+        
         # 2. Dynamic Parametric Boundary Loss
         # We enforce that at physical edges (x = -1 or 1), the prediction matches the parametric T_bound
-        input_dim = x_collocation.shape[1]
-        if input_dim >= 3:
-            # Mask points that are on the physical boundary
+        if num_params >= 1 and base_dim >= 2:
+            # Mask points that are on the physical boundary (assuming x is col 1)
             bound_mask = (torch.abs(x_collocation[:, 1]) >= 0.99)
             if bound_mask.any():
                 u_pred = self.pinn(x_collocation[bound_mask])
-                # Target is the second-to-last column (Parametric T_bound)
-                u_target = x_collocation[bound_mask, -2:-1]
+                # Target is the first parametric column (T_bound)
+                target_idx = base_dim
+                u_target = x_collocation[bound_mask, target_idx:target_idx+1]
                 boundary_loss = torch.mean((u_pred - u_target)**2)
                 
-                # Weight the boundary loss heavily to force convergence
-                total_loss = total_loss + (10.0 * boundary_loss)
+                # Adaptive Constraint Weighting (Dynamic Loss Balancing)
+                # Calculates ratio to prevent gradient pathology without hardcoded weights
+                # Clamped to min=1.0 to prevent the 'Flatline Zero' loophole if phys_loss drops to 0
+                bc_weight = torch.clamp((phys_loss / (boundary_loss + 1e-8)).detach(), min=1.0, max=50.0)
+                total_loss = total_loss + (bc_weight * boundary_loss)
                 self.log("boundary_loss", boundary_loss, prog_bar=True, on_epoch=True)
 
         # 3. Step-Response Initial Condition Loss
         # Enforces that the simulation always starts at a normalized baseline (0.0) at Time = 0
-        if input_dim >= 1:
+        if num_params >= 2 and base_dim >= 1:
             # Mask points that are exactly at the start of the simulation (t = 0)
             ic_mask = (torch.abs(x_collocation[:, 0]) <= 0.01)
             if ic_mask.any():
                 u_pred_ic = self.pinn(x_collocation[ic_mask])
-                # Target is ALWAYS the last column (Parametric IC_bound)
-                u_target_ic = x_collocation[ic_mask, -1:]
+                # Target is the second parametric column (IC_bound)
+                target_idx_ic = base_dim + 1
+                u_target_ic = x_collocation[ic_mask, target_idx_ic:target_idx_ic+1]
                 ic_loss = torch.mean((u_pred_ic - u_target_ic)**2)
                 
-                total_loss = total_loss + (10.0 * ic_loss)
+                ic_weight = torch.clamp((phys_loss / (ic_loss + 1e-8)).detach(), min=1.0, max=50.0)
+                total_loss = total_loss + (ic_weight * ic_loss)
                 self.log("ic_loss", ic_loss, prog_bar=True, on_epoch=True)
                 
         self.log("phys_loss", phys_loss, prog_bar=True, on_epoch=True)

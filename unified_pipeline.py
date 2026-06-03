@@ -61,17 +61,19 @@ class PranagPipeline:
         print("\n--- Phase 2: In-Memory Data Generation ---")
         
         # Dynamically generate N-dimensional grid to avoid RAM crashes
-        # Target ~100,000 total points for the surrogate dataset
+        # Target exactly 100,000 points using Latin Hypercube Sampling to avoid the Curse of Dimensionality
         target_total_points = 100000
-        steps_per_dim = max(2, int(target_total_points ** (1.0 / actual_input_dim)))
-        print(f"Using {steps_per_dim} points per dimension (Total expected: ~{steps_per_dim**actual_input_dim})")
+        print(f"Generating exactly {target_total_points} points using Latin Hypercube Sampling (LHS).")
         
-        grids = [np.linspace(-1, 1, steps_per_dim) for _ in range(actual_input_dim)]
+        from scipy.stats import qmc
+        sampler = qmc.LatinHypercube(d=actual_input_dim)
+        sample = sampler.random(n=target_total_points)
+        
+        # Scale bounds from [0, 1) to [-1, 1] for spatial/parametric dimensions
+        inputs = 2.0 * sample - 1.0
         if actual_input_dim > 0:
-            grids[0] = np.linspace(0, 1, steps_per_dim)  # Time dimension usually 0 to 1
-            
-        mesh = np.meshgrid(*grids, indexing='ij')
-        inputs = np.column_stack([m.ravel() for m in mesh])
+            # Revert time dimension to [0, 1]
+            inputs[:, 0] = (inputs[:, 0] + 1.0) / 2.0
         inputs_tensor = torch.tensor(inputs, dtype=torch.float32)
         
         # Ensure inputs_tensor is on the same device as the trained model (e.g. CUDA)
@@ -170,7 +172,7 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    domains_to_train = ["schrodinger","poisson"]
+    domains_to_train = ["heat"]
     # domains_to_train = ["cahn_hilliard" , "elasticity", "hodgkin_huxley"]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:

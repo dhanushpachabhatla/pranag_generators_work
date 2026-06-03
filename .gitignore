@@ -6,6 +6,9 @@ __pycache__/
 *.pyo
 *.pyd
 
+unified_pipeline_output_1
+heat_analytical_validation.png
+
 # Distribution / packaging
 .Python
 build/

@@ -652,9 +652,16 @@ class PINNFactory:
                 kw["num_layers"] = num_layers
                 
             if has_kwargs:
-                return cls(**kw)
+                model = cls(**kw)
             else:
-                return cls(**{k: v for k, v in kw.items() if k in sig})
+                model = cls(**{k: v for k, v in kw.items() if k in sig})
+                
+            from simulation_generator import EQUATION_PATTERNS
+            if key in EQUATION_PATTERNS:
+                model.base_dim = len(EQUATION_PATTERNS[key].get("independent", ["t", "x"]))
+            else:
+                model.base_dim = 2
+            return model
 
         if dynamic:
             return self._dynamic_create(key, hidden_dim, num_layers, **params)
@@ -703,7 +710,7 @@ class PINNFactory:
             
             def model_builder(**kwargs):
                 runtime_params = {**all_params, **kwargs}
-                return _GenericPINN(
+                model = _GenericPINN(
                     input_dim=cfg.input_dim,
                     output_dim=cfg.output_dim,
                     hidden_dim=hidden_dim,
@@ -712,6 +719,8 @@ class PINNFactory:
                     params=runtime_params,
                     physics_fn=wrapped_physics_fn
                 )
+                model.base_dim = len(cfg.equation_info.independent)
+                return model
                 
             self._dynamic_cache[cache_key] = model_builder
             self._registry[domain] = (model_builder, all_params)
@@ -744,14 +753,16 @@ class PINNFactory:
             # Instantiate with merged parameters
             try:
                 # Try passing params if the generated class accepts them
-                return cls(params=merged_params)
+                instance = cls(params=merged_params)
             except TypeError:
                 # Fallback: the generated class doesn't accept params in __init__
                 # Instantiate and set attributes directly
                 instance = cls()
                 for k, v in merged_params.items():
                     setattr(instance, k, v)
-                return instance
+            
+            instance.base_dim = len(cfg.equation_info.independent)
+            return instance
 
     def build_from_config(
         self,
