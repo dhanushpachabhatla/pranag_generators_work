@@ -173,7 +173,6 @@ class PranagPipeline:
 
 if __name__ == "__main__":
     domains_to_train = [
-    "cardinal_temperature", 
     "arrhenius", 
     "stress", 
     "reaction_diffusion", 

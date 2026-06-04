@@ -544,18 +544,27 @@ class BiologyPINN(_GenericPINN):
 
 
 class ArrheniusPINN(_GenericPINN):
-    """Arrhenius: k = A * exp(-Ea/(R*T))."""
-    def __init__(self, A:float=1e13, Ea:float=50000.0,
-                 R:float=8.314, **kw):
+    """Normalized Arrhenius Equation: k_factor = exp(Ea/R * (1/T_ref - 1/T))"""
+    def __init__(self, Ea:float=50000.0, R:float=8.314, T_ref:float=298.15, **kw):
         input_dim = kw.pop("input_dim", 1)
         super().__init__(input_dim=input_dim, output_dim=1,
-                         params={"A":A,"Ea":Ea,"R":R}, **kw)
+                         params={"Ea":Ea,"R":R,"T_ref":T_ref}, **kw)
     def physics_loss(self, x):
         x = x.clone().requires_grad_(True)
-        k   = self(x)  # predicted reaction rate
-        T   = x[:,0:1]
-        k_pred = self.A * torch.exp(-self.Ea / (self.R * (T * 1000 + 300)))
-        return ((k - k_pred)**2).mean()
+        k_factor = self(x)  # predicted normalized reaction rate [0 to 1+]
+        T = x[:,0:1]
+        
+        # Map generic input T to realistic absolute temperatures (273K - 373K)
+        T_abs = T * 50.0 + 298.15
+        
+        # Normalized Arrhenius (1.0 at T_ref)
+        # k_factor = exp( (Ea/R) * (1/T_ref - 1/T_abs) )
+        exponent = (self.Ea / self.R) * (1.0/self.T_ref - 1.0/T_abs)
+        # Clamp exponent to prevent infinity during bad gradients
+        exponent = torch.clamp(exponent, -20.0, 5.0)
+        
+        k_pred = torch.exp(exponent)
+        return ((k_factor - k_pred)**2).mean()
 
 
 class GrayScottPINN(_GenericPINN):
@@ -613,7 +622,7 @@ _BUILTIN_REGISTRY: Dict[str, Tuple[Type[nn.Module], Dict]] = {
     "stress":            (StressPINN,           {"alpha":0.1,"S_max":1.0}),
     "biology":           (BiologyPINN,          {"r":0.5,"m":0.1}),
     # ── Chemistry ──────────────────────────────────────────────
-    "arrhenius":         (ArrheniusPINN,        {"A":1e13,"Ea":50000.0,"R":8.314}),
+    "arrhenius":         (ArrheniusPINN,        {"Ea":50000.0,"R":8.314,"T_ref":298.15}),
     "reaction_diffusion":(GrayScottPINN,        {"Du":0.16,"Dv":0.08,
                                                   "F":0.035,"k":0.065}),
     "gray_scott":        (GrayScottPINN,        {"Du":0.16,"Dv":0.08,
