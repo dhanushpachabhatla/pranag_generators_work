@@ -35,7 +35,7 @@ class InferenceEngine:
         except Exception:
             return None
 
-    def _build_inputs(self, df: pd.DataFrame, spec: dict, n_features: int) -> np.ndarray:
+    def _build_inputs(self, df: pd.DataFrame, spec: dict, n_features: int, node: dict) -> np.ndarray:
         """
         Dynamically builds the correct input array based on model.n_features_in_.
         Injects initial and boundary conditions (from spec.json and chaining).
@@ -150,11 +150,9 @@ class InferenceEngine:
             domain = node.get("model", "")
             surrogate_path = os.path.join(self.SURROGATE_DIR, f"Surrogate_{domain}.joblib")
             if not os.path.exists(surrogate_path):
-                print(f"\n[CRITICAL HALT] Missing trained surrogate model: '{surrogate_path}'")
-                print(f"The DAG requested '{domain}', but it has not been trained yet.")
-                print(f"ACTION REQUIRED: Add '{domain}' to the 'domains_to_train' list in unified_pipeline.py, run it to pre-train the model, and then restart this inference pipeline.")
-                import sys
-                sys.exit(1)
+                print(f"\n[Warning] The LLM requested '{domain}' but it is not trained. Re-mapping to 'logistic'.")
+                domain = "logistic"
+                node["model"] = "logistic"
             valid_chain.append(node)
             valid_weights[domain] = weights.get(domain, 0.5)
             
@@ -184,14 +182,31 @@ class InferenceEngine:
             df = batch.to_pandas()
             
             # --- Dynamic Semantic Domain Pre-Filter ---
-            # Automatically drop irrelevant encyclopedia entries using LLM-generated keywords
-            semantic_keywords = dag.get("semantic_keywords", [])
-            if semantic_keywords:
-                pattern = r'(?i)(' + '|'.join(semantic_keywords) + ')'
-                semantic_mask = df["description"].astype(str).str.contains(pattern) | \
-                                df.get("tags", pd.Series("")).astype(str).str.contains(pattern)
-                df = df[semantic_mask].copy()
-                df.reset_index(drop=True, inplace=True)
+            # 1. Strict Target Entity Isolation (e.g. only "maize")
+            target_entities = dag.get("target_entities", [])
+            df_filtered = None
+            
+            if target_entities:
+                pattern_strict = r'(?i)\b(' + '|'.join(target_entities) + r')\b'
+                strict_mask = df["name"].astype(str).str.contains(pattern_strict) | \
+                              df["description"].astype(str).str.contains(pattern_strict) | \
+                              df.get("tags", pd.Series("")).astype(str).str.contains(pattern_strict)
+                df_filtered = df[strict_mask].copy()
+                
+            # 2. Graceful Fallback if Strict Isolation yields 0 results (or if no targets given)
+            if df_filtered is None or len(df_filtered) == 0:
+                semantic_keywords = dag.get("semantic_keywords", [])
+                if semantic_keywords:
+                    pattern_broad = r'(?i)\b(' + '|'.join(semantic_keywords) + r')\b'
+                    broad_mask = df["name"].astype(str).str.contains(pattern_broad) | \
+                                 df["description"].astype(str).str.contains(pattern_broad) | \
+                                 df.get("tags", pd.Series("")).astype(str).str.contains(pattern_broad)
+                    df_filtered = df[broad_mask].copy()
+                else:
+                    df_filtered = df.copy()
+                    
+            df = df_filtered
+            df.reset_index(drop=True, inplace=True)
             
             n = len(df)
             if n == 0:

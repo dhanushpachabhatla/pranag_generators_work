@@ -1,0 +1,214 @@
+{
+    "total_evaluated": 16,
+    "total_safe": 16,
+    "top_100": [
+        {
+            "entity_id": "globiint_zea_mays_fusarium_fujikuroi",
+            "name": "Zea mays \u2192 Fusarium fujikuroi (hasPathogen)",
+            "domain": "biology",
+            "viability_score": 0.6678,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2442,
+                "stress_score": 0.2287,
+                "arrhenius_score": 1.0,
+                "logistic_score": 1.0
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_euxoa_niveilinea",
+            "name": "Zea mays \u2192 Euxoa niveilinea (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.6676,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2539,
+                "stress_score": 0.2372,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9921
+            }
+        },
+        {
+            "entity_id": "agristack_andhra_pradesh_maize_2023",
+            "name": "Maize \u2014 Andhra Pradesh",
+            "domain": "environment",
+            "viability_score": 0.6673,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2514,
+                "stress_score": 0.2361,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9928
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_amsacta_moorei",
+            "name": "Zea mays \u2192 Amsacta moorei (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.667,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2517,
+                "stress_score": 0.2361,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9921
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_pleuroptya_ruralis",
+            "name": "Zea mays \u2192 Pleuroptya ruralis (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.667,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2633,
+                "stress_score": 0.2471,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9831
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_darna_pallivitta",
+            "name": "Zea mays \u2192 Darna pallivitta (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.6669,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2624,
+                "stress_score": 0.2463,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9834
+            }
+        },
+        {
+            "entity_id": "globiint_agrobacterium_tumefaciens_zea_mays",
+            "name": "Agrobacterium tumefaciens \u2192 Zea mays (interactsWith)",
+            "domain": "biology",
+            "viability_score": 0.6663,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2704,
+                "stress_score": 0.2542,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9754
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_ziphius_cavirostris",
+            "name": "Zea mays \u2192 Ziphius cavirostris (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.6662,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2576,
+                "stress_score": 0.2421,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9851
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_khuskia_oryzae",
+            "name": "Zea mays \u2192 Khuskia oryzae (interactsWith)",
+            "domain": "biology",
+            "viability_score": 0.6662,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2576,
+                "stress_score": 0.2421,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9851
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_loxostege_sticticalis",
+            "name": "Zea mays \u2192 Loxostege sticticalis (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.6635,
+            "domain_scores": {
+                "heat_score": 0.3678,
+                "darcy_score": 0.2881,
+                "stress_score": 0.2706,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9545
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_cossonus_quadrimacula",
+            "name": "Zea mays \u2192 Cossonus quadrimacula (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.6635,
+            "domain_scores": {
+                "heat_score": 0.3678,
+                "darcy_score": 0.2881,
+                "stress_score": 0.2706,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9545
+            }
+        },
+        {
+            "entity_id": "inat_118492",
+            "name": "Helicoverpa zea",
+            "domain": "biology",
+            "viability_score": 0.6635,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2881,
+                "stress_score": 0.2706,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9545
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_chorthippus_albomarginatus",
+            "name": "Zea mays \u2192 Chorthippus albomarginatus (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.6635,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2881,
+                "stress_score": 0.2706,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9545
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_exserohilum_turcicum",
+            "name": "Zea mays \u2192 Exserohilum turcicum (hasPathogen)",
+            "domain": "biology",
+            "viability_score": 0.6617,
+            "domain_scores": {
+                "heat_score": 0.3677,
+                "darcy_score": 0.2818,
+                "stress_score": 0.2645,
+                "arrhenius_score": 1.0,
+                "logistic_score": 0.9548
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_automeris_io",
+            "name": "Zea mays \u2192 Automeris io (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.6603,
+            "domain_scores": {
+                "heat_score": 0.3679,
+                "darcy_score": 0.2188,
+                "stress_score": 0.205,
+                "arrhenius_score": 1.0,
+                "logistic_score": 1.0
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_curvularia_lunata",
+            "name": "Zea mays \u2192 Curvularia lunata (interactsWith)",
+            "domain": "biology",
+            "viability_score": 0.6602,
+            "domain_scores": {
+                "heat_score": 0.3678,
+                "darcy_score": 0.2188,
+                "stress_score": 0.205,
+                "arrhenius_score": 1.0,
+                "logistic_score": 1.0
+            }
+        }
+    ]
+}

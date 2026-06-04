@@ -45,6 +45,8 @@ class PranagPipeline:
         
         print("--- Phase 1: Train Parametric PINN ---")
         pinn_model = self.factory.create(self.domain, input_dim=actual_input_dim, hidden_dim=128, num_layers=6, dynamic=True)
+        # BUG FIX: Dynamically inject base_dim so pinn_trainer.py enforces Initial Conditions (IC_bound) correctly for 1D ODEs
+        pinn_model.base_dim = len(cfg.equation_info.independent)
         alias = f"Parametric_{self.domain.capitalize()}PINN"
             
         trained_pinn, _ = train_pinn_model(
@@ -100,6 +102,7 @@ class PranagPipeline:
         y_pred = surrogate.predict(X_test)
         r2 = r2_score(y_test, y_pred)
         print(f"Surrogate R2 Score: {r2:.4f}")
+        print(f"DEBUG: Surrogate Prediction StdDev = {np.std(y_pred):.6f} (If 0.0, model is collapsed!)")
         
         # Generate Evaluation Plot
         plot_path = os.path.join(self.plots_dir, f"surrogate_{self.domain}_r2.png")
@@ -172,12 +175,7 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    domains_to_train = [
-    "arrhenius", 
-    "stress", 
-    "reaction_diffusion", 
-    "biology", 
-]
+    domains_to_train = ["arrhenius", "biology", "cardinal_temperature", "reaction_diffusion"]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:
         pipeline = PranagPipeline(domain=d)

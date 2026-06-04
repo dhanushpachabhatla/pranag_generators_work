@@ -26,6 +26,10 @@ Your job is to output a JSON defining the Directed Acyclic Graph (DAG) for surro
 Available Surrogates (from internal registry):
 {', '.join(registry_keys)}
 
+CRITICAL RULE: You MUST choose ONLY from the EXACT Available Surrogates listed above. 
+DO NOT INVENT new domain names (like 'osmotic_stress' or 'thermal_stress'). 
+If a required biological or physical phenomenon isn't listed, map it to the closest existing surrogate (e.g., use 'stress' for any type of stress, or 'biology' for generic biological growth).
+
 Output Format:
 You MUST return a JSON with:
 - "execution_chain": A list of dictionaries defining the strict execution order. Each dict must have:
@@ -35,7 +39,8 @@ You MUST return a JSON with:
     - "target_value": The numerical target extracted from the user's specification (e.g., 45.0 for temperature, 90.0 for maturity). Use 0.0 if not explicitly mentioned.
     - "optimization_goal": Must be "maximize", "minimize", or "target".
 - "weights": A dictionary assigning viability weights to the active models (must sum to 1.0).
-- "semantic_keywords": A list of 4-6 specific keywords related to the domain of the specification (e.g. ["crop", "plant", "seed", "harvest", "agriculture"] or ["cement", "concrete", "structural"]).
+- "target_entities": A list of 1-3 specific target subjects extracted from the specification (e.g., ["maize", "corn", "zea mays"] or ["wheat", "triticum"]). If not explicitly given, derive from context.
+- "semantic_keywords": A list of 4-6 broad keywords related to the domain of the specification (e.g. ["crop", "plant", "seed", "harvest", "agriculture"]).
 
 Example Output:
 {{
@@ -49,6 +54,7 @@ Example Output:
         "darcy": 0.3,
         "logistic": 0.3
     }},
+    "target_entities": ["maize", "corn", "zea mays"],
     "semantic_keywords": ["crop", "plant", "agriculture", "yield", "botany"]
 }}
 """
@@ -116,9 +122,17 @@ Example Output:
             first_key = list(normalized_weights.keys())[0]
             normalized_weights[first_key] = round(normalized_weights[first_key] + diff, 2)
             
+        # Extract target entities from spec for strict filtering
+        target_entities = []
+        if "crop" in spec and spec["crop"]:
+            target_entities = [spec["crop"], spec["crop"].lower()]
+        elif "material" in spec and spec["material"]:
+            target_entities = [spec["material"], spec["material"].lower()]
+            
         return {
             "execution_chain": chain,
             "weights": normalized_weights,
+            "target_entities": list(set(target_entities)),
             "semantic_keywords": ["crop", "plant", "seed", "botany", "agriculture"],
             "context": "Generated via local Mock LLM router based on keyword triggers."
         }
@@ -150,6 +164,26 @@ Example Output:
                 text = text[:-3]
                 
             dag = json.loads(text.strip())
+            
+            # Anti-Hallucination Interceptor
+            factory = PINNFactory()
+            valid_models = list(factory._registry.keys())
+            for node in dag.get("execution_chain", []):
+                model_name = node.get("model", "")
+                if model_name not in valid_models:
+                    old_name = model_name
+                    if "stress" in model_name.lower() or "drought" in model_name.lower():
+                        node["model"] = "stress"
+                    elif "biology" in model_name.lower() or "growth" in model_name.lower() or "yield" in model_name.lower():
+                        node["model"] = "biology"
+                    else:
+                        node["model"] = "logistic"
+                    
+                    new_name = node["model"]
+                    print(f"      => [Router Anti-Hallucination] Mapped '{old_name}' -> '{new_name}'")
+                    if "weights" in dag and old_name in dag["weights"]:
+                        dag["weights"][new_name] = dag["weights"].pop(old_name)
+
             dag["context"] = "Generated via Gemini API."
             return dag
             

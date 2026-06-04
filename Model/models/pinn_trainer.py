@@ -9,7 +9,7 @@ import os
 import torch
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, TensorDataset
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
 # Import the 7-component loss generator
 from loss_generator import create_cross_domain_loss_generator
@@ -209,6 +209,16 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
     dataloader_adam = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     lightning_model = PINNLightningModule(pinn_model, optimizer_type="adam")
     
+    # Early Stopping Callback
+    early_stop_callback = EarlyStopping(
+        monitor="train_loss",
+        min_delta=1e-7,
+        patience=500,           # Wait 500 epochs for improvement
+        verbose=False,
+        mode="min",
+        stopping_threshold=1e-5 # Stop instantly if loss drops below 1e-5
+    )
+    
     print(f"[PINNTrainer] Starting Stage 1 (Adam) for {max_epochs} epochs...")
     trainer_adam = pl.Trainer(
         max_epochs=max_epochs,
@@ -217,7 +227,7 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
         enable_model_summary=False,
         logger=False,
         enable_progress_bar=False,
-        callbacks=[checkpoint_callback]
+        callbacks=[checkpoint_callback, early_stop_callback]
     )
     
     import time
@@ -233,6 +243,16 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
     # Switch optimizer
     lightning_model.optimizer_type = "lbfgs"
     
+    # Fresh Early Stopping for L-BFGS to reset patience
+    early_stop_callback_lbfgs = EarlyStopping(
+        monitor="train_loss",
+        min_delta=1e-7,
+        patience=200,           # L-BFGS converges faster, 200 is plenty
+        verbose=False,
+        mode="min",
+        stopping_threshold=1e-5
+    )
+    
     trainer_lbfgs = pl.Trainer(
         max_epochs=1000,
         accelerator="auto",
@@ -240,7 +260,7 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
         enable_model_summary=False,
         logger=False,
         enable_progress_bar=False,
-        callbacks=[checkpoint_callback]  # Reuse checkpointing to save the ultimate best
+        callbacks=[checkpoint_callback, early_stop_callback_lbfgs]
     )
     
     start_time = time.time()

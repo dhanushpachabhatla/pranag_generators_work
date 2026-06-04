@@ -53,6 +53,8 @@ Validators/feedback_report.json
 Validators/fp_sweep_results.json
 Pipelines/checkpoints/batch_checkpoint.json
 
+scratch
+
 # OS
 .DS_Store
 Thumbs.db

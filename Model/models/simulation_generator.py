@@ -201,7 +201,7 @@ EQUATION_PATTERNS = {
     },
     # ── Reaction-Diffusion ────────────────────────────────────
     "reaction_diffusion": {
-        "keywords": ["reaction diffusion", "activator inhibitor", "turing",
+        "keywords": ["reaction diffusion", "reaction_diffusion", "activator inhibitor", "turing",
                      "gray scott", "fitzhugh", "pattern formation"],
         "eq_hint": "du/dt = Du*laplacian(u) + f(u,v); dv/dt = Dv*laplacian(v) + g(u,v)",
         "domain_class": "biology",
