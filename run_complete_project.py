@@ -1,99 +1,49 @@
-"""
-run_complete_project.py
-Single entrypoint to run complete project flow:
-Srikar output (already trained) -> Aryan pipeline -> Divyanshu validation.
-"""
-
-from __future__ import annotations
-
-import argparse
-import subprocess
-import sys
 import os
-from pathlib import Path
+import sys
 
+# Ensure custom modules can be imported
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'Pipeline_New')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'Validator_New')))
 
-def run_cmd(cmd: list[str], cwd: Path):
-    print(f"\n$ {' '.join(cmd)}")
-    env = os.environ.copy()
-    env["PYTHONIOENCODING"] = "utf-8"
-    result = subprocess.run(cmd, cwd=str(cwd), env=env)
-    if result.returncode != 0:
-        raise RuntimeError(f"Command failed with exit code {result.returncode}: {' '.join(cmd)}")
+from inference_pipeline import InferenceEngine
+from cross_domain_validator import CrossDomainValidator
 
-
-def main():
-    parser = argparse.ArgumentParser(description="Run complete PRANAG-AI workflow")
-    parser.add_argument(
-        "--data",
-        default=str(Path("Model") / "datasrc" / "universal_index_final.parquet"),
-        help="Input parquet for Aryan pipeline",
-    )
-    parser.add_argument(
-        "--models",
-        default=str(Path("Model") / "outputs" / "models"),
-        help="Srikar model checkpoint directory",
-    )
-    parser.add_argument("--resume", action="store_true", help="Resume Aryan pipeline from checkpoint")
-    args = parser.parse_args()
-
-    root = Path(__file__).resolve().parent
-    pipelines = root / "Pipelines"
-    validators = root / "Validators"
-    data_path = Path(args.data)
-    model_path = Path(args.models)
-    if not data_path.is_absolute():
-        data_path = (root / data_path).resolve()
-    if not model_path.is_absolute():
-        model_path = (root / model_path).resolve()
-
-    print("=== COMPLETE PROJECT RUN ===")
-    print(f"Data   : {data_path}")
-    print(f"Models : {model_path}")
-
-    run_cmd(
-        [
-            sys.executable,
-            "run_pipeline.py",
-            "--data",
-            str(data_path),
-            "--models",
-            str(model_path),
-            *(["--resume"] if args.resume else []),
-        ],
-        cwd=pipelines,
-    )
-
-    handoff = pipelines / "results" / "handoff_for_divyanshu.csv"
-    if not handoff.exists():
-        raise FileNotFoundError(f"Handoff not found: {handoff}")
-
-    run_cmd(
-        [
-            sys.executable,
-            "run_validation.py",
-            "--input",
-            str(handoff),
-        ],
-        cwd=validators,
-    )
-
-    run_cmd(
-        [
-            sys.executable,
-            "update_report.py",
-        ],
-        cwd=root,
-    )
-
-    print("\n=== PROJECT COMPLETE ===")
-    print(f"Handoff file      : {handoff}")
-    print(f"Validation report : {validators / 'results' / 'validation_report.json'}")
-    print(f"Dashboard         : {validators / 'results' / 'validation_dashboard.html'}")
-    print(f"FP sweep results  : {validators / 'results' / 'fp_sweep_results.json'}")
-    print(f"Feedback report   : {validators / 'results' / 'feedback_report.json'}")
-    print(f"Completion report : {root / 'PROJECT_COMPLETION_REPORT.md'} (Updated)")
-
+def run_project(spec_path: str):
+    """
+    Master Orchestrator for Phase 2: Downstream Inference & Validation.
+    """
+    print(f"\n=================================================================")
+    print(f"             PRANA-G DOWNSTREAM INFERENCE PIPELINE               ")
+    print(f"=================================================================")
+    print(f"Target Specification: {os.path.basename(spec_path)}")
+    
+    # 1. Run Inference Pipeline
+    engine = InferenceEngine(use_mock_llm=False)  # Tries Gemini API, falls back to Mock
+    engine.run(spec_path)
+    
+    # Check if handoff was created (if a surrogate was missing, it halts)
+    if not os.path.exists(engine.OUTPUT_PATH):
+        print(f"\n[!] Pipeline halted gracefully before validation.")
+        return
+        
+    # 2. Run Cross-Domain Validator
+    output_json = os.path.abspath(os.path.join(os.path.dirname(__file__), 'Validator_New', 'Top_100_Validated_Designs.json'))
+    validator = CrossDomainValidator(engine.OUTPUT_PATH, output_json)
+    validator.validate()
+    
+    print(f"\n=================================================================")
+    print(f"                      PIPELINE COMPLETE                          ")
+    print(f"=================================================================")
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        spec_file = sys.argv[1]
+    else:
+        # Default testing spec
+        spec_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'Model', 'datasrc', 'spec_20260604_062219_5ab7e575.json'))
+        
+    if not os.path.exists(spec_file):
+        print(f"ERROR: Specification file not found: {spec_file}")
+        sys.exit(1)
+        
+    run_project(spec_file)

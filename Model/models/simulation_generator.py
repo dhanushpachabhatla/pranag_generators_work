@@ -343,6 +343,36 @@ EQUATION_PATTERNS = {
         "loss_template": "logistic_ode",
         "description": "Logistic population growth",
     },
+    "cardinal_temperature": {
+        "keywords": ["cardinal", "thermal performance", "temperature stress"],
+        "eq_hint": "dT/dt = -k*(T - Topt)^2",
+        "domain_class": "biology",
+        "independent": ["t"],
+        "dependent": ["T_perf"],
+        "params": {"k": 0.01, "Topt": 25.0},
+        "loss_template": "cardinal_ode",
+        "description": "Cardinal temperature performance curve",
+    },
+    "stress": {
+        "keywords": ["stress", "environmental stress", "tolerance"],
+        "eq_hint": "dS/dt = alpha*S*(1 - S/S_max)",
+        "domain_class": "biology",
+        "independent": ["t"],
+        "dependent": ["S"],
+        "params": {"alpha": 0.1, "S_max": 1.0},
+        "loss_template": "stress_ode",
+        "description": "Environmental stress accumulation",
+    },
+    "biology": {
+        "keywords": ["biology", "adaptive trait", "phenotype"],
+        "eq_hint": "dA/dt = r*A - m*A^2",
+        "domain_class": "biology",
+        "independent": ["t"],
+        "dependent": ["A"],
+        "params": {"r": 0.5, "m": 0.1},
+        "loss_template": "biology_ode",
+        "description": "Generic biological adaptive trait expression",
+    },
     # ── Neuroscience ──────────────────────────────────────────
     "hodgkin_huxley": {
         "keywords": ["hodgkin huxley", "neuron", "action potential", "membrane",
@@ -947,6 +977,36 @@ LOSS_TEMPLATES = {
         residual = u_t * 0.0   # placeholder
         return (residual ** 2).mean()
 ''',
+"cardinal_ode": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.clone().requires_grad_(True)
+        T_perf = self(x)
+        dT = torch.autograd.grad(T_perf, x, grad_outputs=torch.ones_like(T_perf),
+                                 create_graph=True)[0][:,0:1]
+        residual = dT + self.k*(T_perf - self.Topt)**2
+        return (residual ** 2).mean()
+''',
+
+"stress_ode": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.clone().requires_grad_(True)
+        S = self(x)
+        dS = torch.autograd.grad(S, x, grad_outputs=torch.ones_like(S),
+                                 create_graph=True)[0][:,0:1]
+        residual = dS - self.alpha*S*(1 - S/self.S_max)
+        return (residual ** 2).mean()
+''',
+
+"biology_ode": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.clone().requires_grad_(True)
+        A = self(x)
+        dA = torch.autograd.grad(A, x, grad_outputs=torch.ones_like(A),
+                                 create_graph=True)[0][:,0:1]
+        residual = dA - (self.r*A - self.m*A**2)
+        return (residual ** 2).mean()
+''',
+
 }
 
 

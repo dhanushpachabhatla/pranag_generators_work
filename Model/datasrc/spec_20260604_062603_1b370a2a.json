@@ -1,0 +1,46 @@
+{
+  "crop": "tomato",
+  "location": "unknown",
+  "temperature": 25.0,
+  "humidity": null,
+  "rainfall": null,
+  "soil_type": null,
+  "stress_conditions": [],
+  "target_traits": [],
+  "retrieved_traits": [
+    "photosynthetic efficiency under high solar radiation and heat stress tropical crops",
+    "Arrhenius rate adaptation enzymes stable 40-55 degrees C temperature range crop metabolism",
+    "antioxidant enzyme SOD CAT activity elevated under oxidative heat stress all crops",
+    "early vigour germination within 48h at 35-45 degrees C soil temperature for crop establishment",
+    "phytohormone ABA abscisic acid signalling pathway regulates drought response",
+    "arid zone adaptation Jodhpur Barmer Bikaner Rajasthan low rainfall desert crops",
+    "waxy leaf cuticle coating reduces UV radiation and water loss in heat stress",
+    "salinity tolerance sandy loam soils pH 7.5-8.5 Rajasthan alkaline conditions",
+    "high humidity subtropical climate 70-80 percent monsoon season North Indian plains",
+    "nitrogen use efficiency optimised nitrate transporter expression high yield potential"
+  ],
+  "scientific_basis": [
+    "HSP70 and HSP90 expression is strongly correlated with survival rates above 42°C in cereal crops.",
+    "Deep root architecture combined with osmotic adjustment via proline accumulation increases drought survival by 35%.",
+    "Cultivars with Na⁺/K⁺ ratio regulation maintain yield stability in sandy loam soils with ECe > 6 dS/m."
+  ],
+  "research_sources": [
+    "",
+    "",
+    ""
+  ],
+  "constraints": {},
+  "confidence": 0.76,
+  "pipeline_version": "1.0.0",
+  "generated_at": "2026-06-04T06:26:03.931996+00:00",
+  "research_titles": [
+    "Heat Shock Proteins and Crop Thermotolerance",
+    "Drought Tolerance Mechanisms in Wheat",
+    "Salinity Adaptation in Arid Indian Soils"
+  ],
+  "research_years": [
+    null,
+    null,
+    null
+  ]
+}

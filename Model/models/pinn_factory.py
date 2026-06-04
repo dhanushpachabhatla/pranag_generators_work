@@ -95,6 +95,7 @@ class _GenericPINN(nn.Module):
         activation:   str   = "tanh",
         params:       Dict[str, float] = None,
         physics_fn:   Any   = None,   # callable(model, x) -> scalar
+        **kwargs
     ):
         super().__init__()
         # Register physics parameters as model attributes
@@ -499,6 +500,49 @@ class LogisticPINN(_GenericPINN):
         return ((dN - self.r*N*(1 - N/self.K))**2).mean()
 
 
+class CardinalTemperaturePINN(_GenericPINN):
+    """Cardinal temperature performance curve ODE."""
+    def __init__(self, k:float=0.01, Topt:float=25.0, **kw):
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
+                         params={"k":k,"Topt":Topt}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        T_perf  = self(x)
+        dT = torch.autograd.grad(T_perf, x, torch.ones_like(T_perf),
+                                 create_graph=True)[0][:,0:1]
+        return ((dT + self.k*(T_perf - self.Topt)**2)**2).mean()
+
+
+class StressPINN(_GenericPINN):
+    """Environmental stress accumulation ODE."""
+    def __init__(self, alpha:float=0.1, S_max:float=1.0, **kw):
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
+                         params={"alpha":alpha,"S_max":S_max}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        S  = self(x)
+        dS = torch.autograd.grad(S, x, torch.ones_like(S),
+                                 create_graph=True)[0][:,0:1]
+        return ((dS - self.alpha*S*(1 - S/self.S_max))**2).mean()
+
+
+class BiologyPINN(_GenericPINN):
+    """Generic biological adaptive trait expression ODE."""
+    def __init__(self, r:float=0.5, m:float=0.1, **kw):
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1,
+                         params={"r":r,"m":m}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        A  = self(x)
+        dA = torch.autograd.grad(A, x, torch.ones_like(A),
+                                 create_graph=True)[0][:,0:1]
+        return ((dA - (self.r*A - self.m*A**2))**2).mean()
+
+
+
 class ArrheniusPINN(_GenericPINN):
     """Arrhenius: k = A * exp(-Ea/(R*T))."""
     def __init__(self, A:float=1e13, Ea:float=50000.0,
@@ -565,6 +609,9 @@ _BUILTIN_REGISTRY: Dict[str, Tuple[Type[nn.Module], Dict]] = {
     "lotka_volterra":    (LotkaVolterraPINN,    {"alpha":1.0,"beta":0.1,
                                                   "delta":0.075,"gamma":1.5}),
     "logistic":          (LogisticPINN,         {"r":0.3,"K":1000.0}),
+    "cardinal_temperature":(CardinalTemperaturePINN,{"k":0.01,"Topt":25.0}),
+    "stress":            (StressPINN,           {"alpha":0.1,"S_max":1.0}),
+    "biology":           (BiologyPINN,          {"r":0.5,"m":0.1}),
     # ── Chemistry ──────────────────────────────────────────────
     "arrhenius":         (ArrheniusPINN,        {"A":1e13,"Ea":50000.0,"R":8.314}),
     "reaction_diffusion":(GrayScottPINN,        {"Du":0.16,"Dv":0.08,

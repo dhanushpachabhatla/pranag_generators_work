@@ -172,8 +172,13 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    domains_to_train = ["heat"]
-    # domains_to_train = ["cahn_hilliard" , "elasticity", "hodgkin_huxley"]
+    domains_to_train = [
+    "cardinal_temperature", 
+    "arrhenius", 
+    "stress", 
+    "reaction_diffusion", 
+    "biology", 
+]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:
         pipeline = PranagPipeline(domain=d)
