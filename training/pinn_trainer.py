@@ -160,7 +160,16 @@ def validate_pinn(pinn_model, input_dim=2, num_points=500):
         
     return {"physics": phys_loss}, passed
 
-def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, batch_size=256, model_alias=None, checkpoint_dir=None):
+def train_pinn_model(
+    pinn_model, 
+    input_dim=2, 
+    num_points=1000, 
+    max_epochs=100, 
+    batch_size=1024, 
+    model_alias=None, 
+    checkpoint_dir=None,
+    plot_dir=None
+):
     """
     Utility function to automatically train and save a generated PINN model.
     """
@@ -282,7 +291,10 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
             plt.grid(True, which="both", ls="-", alpha=0.2)
             plt.legend()
             
-            if checkpoint_dir is not None:
+            if plot_dir is not None:
+                os.makedirs(plot_dir, exist_ok=True)
+                plot_path = os.path.join(plot_dir, f"{model_alias}_loss_history.png")
+            elif checkpoint_dir is not None:
                 plot_path = os.path.join(checkpoint_dir, f"{model_alias}_loss_history.png")
             else:
                 plot_path = os.path.join(os.path.dirname(__file__), "..", f"{model_alias}_loss_history.png")

@@ -1,5 +1,58 @@
 {
-    "total_evaluated": 367,
-    "total_safe": 0,
-    "top_100": []
+    "total_evaluated": 16,
+    "total_safe": 4,
+    "top_100": [
+        {
+            "entity_id": "agristack_meghalaya_maize_2023",
+            "name": "Maize \u2014 Meghalaya",
+            "domain": "environment",
+            "viability_score": 0.653,
+            "domain_scores": {
+                "heat_score": 0.4634,
+                "darcy_score": 0.4445,
+                "stress_score": 0.8293,
+                "arrhenius_score": 0.6678,
+                "biology_score": 0.8598
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_anicla_ignicans",
+            "name": "Zea mays \u2192 Anicla ignicans (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.6189,
+            "domain_scores": {
+                "heat_score": 0.432,
+                "darcy_score": 0.4723,
+                "stress_score": 0.6068,
+                "arrhenius_score": 0.6872,
+                "biology_score": 0.8963
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_lasioglossum",
+            "name": "Zea mays \u2192 Lasioglossum (flowersVisitedBy)",
+            "domain": "biology",
+            "viability_score": 0.6074,
+            "domain_scores": {
+                "heat_score": 0.2844,
+                "darcy_score": 0.5991,
+                "stress_score": 0.3085,
+                "arrhenius_score": 0.8854,
+                "biology_score": 0.9596
+            }
+        },
+        {
+            "entity_id": "globiint_zea_mays_phidotricha_eregens",
+            "name": "Zea mays \u2192 Phidotricha eregens (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.6073,
+            "domain_scores": {
+                "heat_score": 0.2855,
+                "darcy_score": 0.5906,
+                "stress_score": 0.3234,
+                "arrhenius_score": 1.0,
+                "biology_score": 0.8371
+            }
+        }
+    ]
 }

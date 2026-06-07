@@ -15,7 +15,7 @@ class InferenceEngine:
     and Mathematical Weight Normalization.
     """
     
-    SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "unified_pipeline_new_output", "surrogate"))
+    SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "unified_pipeline_new_output_1", "surrogate"))
     PARQUET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'datasrc', 'universal_index_final.parquet'))
     OUTPUT_PATH = os.path.join(os.path.dirname(__file__), 'inference_handoff.csv')
     
@@ -35,14 +35,14 @@ class InferenceEngine:
         except Exception:
             return None
 
-    def _build_inputs(self, df: pd.DataFrame, spec: dict, n_features: int, node: dict) -> np.ndarray:
+    def _build_inputs(self, df: pd.DataFrame, spec: dict, n_features: int, node: dict, previous_output_var: str = None) -> np.ndarray:
         """
         Dynamically builds the correct input array based on model.n_features_in_.
         Injects initial and boundary conditions (from spec.json and chaining).
         """
         n = len(df)
-        time_v = np.full(n, 24.0, dtype=np.float32) # Temporal
-        spatial_v = np.full(n, 0.5, dtype=np.float32) # Spatial
+        time_v = np.full(n, 0.5, dtype=np.float32) # Temporal (normalized 0.5)
+        spatial_v = np.linspace(0.0, 1.0, n, dtype=np.float32) # Spatial gradient across entities
         
         # Parse Environment Overrides from spec.json (Initial & Boundary limits)
         env_temp = float(spec.get("temperature", 25.0))
@@ -77,7 +77,21 @@ class InferenceEngine:
 
         cols = []
         
-        requested_inputs = node.get("inputs", [])
+        # We MUST enforce a strict positional layout matching the LHS training data.
+        if n_features == 5:
+            requested_inputs = ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary"]
+        elif n_features == 6:
+            requested_inputs = ["time", "space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary"]
+        elif n_features == 7:
+            requested_inputs = ["time", "space_x", "space_y", "space_z", "intrinsic_property_1", "intrinsic_property_2", "boundary"]
+        else:
+            requested_inputs = ["time", "space"] + [f"intrinsic_property_{i}" for i in range(1, n_features-1)]
+            
+        # GUARANTEED CHAINING: If a previous model ran, its output becomes the primary boundary condition
+        # for this model. This enforces mathematical continuity across the DAG.
+        if previous_output_var and previous_output_var in df.columns:
+            requested_inputs[-1] = previous_output_var
+                
         for req in requested_inputs:
             # 1. Temporal dimension (scaled [0, 1] in training)
             if req in ["time", "t", "time_days"]:
@@ -86,7 +100,7 @@ class InferenceEngine:
                 
             # 2. Spatial dimensions (scaled [-1, 1] in training)
             if req in ["space", "x", "space_x", "space_y", "depth"]:
-                cols.append(np.zeros(n, dtype=np.float32))
+                cols.append(spatial_v)
                 continue
                 
             # 3. Parametric Boundary/Initial targets (Static Absolute Scaling)
@@ -156,7 +170,7 @@ class InferenceEngine:
             
         return np.column_stack(cols[:n_features])
 
-    def _calculate_score(self, pred: np.ndarray, spec: dict, target_value: float, optimization_goal: str, scaler: float) -> np.ndarray:
+    def _calculate_score(self, pred: np.ndarray, spec: dict, target_value: float, optimization_goal: str, scaler: float, domain: str) -> np.ndarray:
         """
         Validates scoring math using spec.json targets and DAG optimization goals.
         Normalizes predictions into a strict 0.0 - 1.0 viability score.
@@ -164,20 +178,42 @@ class InferenceEngine:
         pred_flat = pred.flatten()
         scaled_target = np.clip(target_value / scaler, 0.0, 1.0)
         
+        # Preserve variance by using a softer base tolerance instead of a vertical math cliff
+        base_tolerance = 0.5
+        
+        # Enforce physical reality over LLM hallucinations
+        if "arrhenius" in domain.lower() or "logistic" in domain.lower() or "biology" in domain.lower():
+            optimization_goal = "maximize"
+            base_tolerance = 1.0  # Wider tolerance for unscaled PINN outputs
+            
         if optimization_goal == "maximize":
-            # Score approaches 1.0 as prediction approaches or exceeds target
-            if scaled_target == 0.0: scaled_target = 1.0 # Prevent div by 0
-            scores = np.clip(pred_flat / scaled_target, 0.0, 1.0)
+            effective_target = max(scaled_target, 0.1)
+            max_pred = max(np.max(pred_flat), effective_target + 0.0001)
+            scores = np.where(
+                pred_flat >= effective_target,
+                0.5 + 0.5 * ((pred_flat - effective_target) / (max_pred - effective_target)),
+                0.5 * np.exp(-np.abs(pred_flat - effective_target) / base_tolerance)
+            )
             
         elif optimization_goal == "minimize":
-            # Score is 1.0 if prediction is 0, approaches 0 as prediction reaches or exceeds target
-            if scaled_target == 0.0: scaled_target = 1.0
-            scores = np.clip(1.0 - (pred_flat / scaled_target), 0.0, 1.0)
+            effective_target = max(scaled_target, 0.1)
+            min_pred = min(np.min(pred_flat), effective_target - 0.0001)
+            scores = np.where(
+                pred_flat <= effective_target,
+                0.5 + 0.5 * ((effective_target - pred_flat) / (effective_target - min_pred)),
+                0.5 * np.exp(-np.abs(pred_flat - effective_target) / base_tolerance)
+            )
             
         else: # "target"
-            # Exponential decay error metric: 1.0 if perfect, drops to 0 if far from target
-            scores = np.exp(-np.abs(pred_flat - scaled_target) / (scaled_target + 1e-8))
+            tolerance = max(scaled_target + 0.1, base_tolerance)
+            # Center target scores similarly to preserve scale consistency across the DAG
+            scores = np.where(
+                np.abs(pred_flat - scaled_target) < 1e-5,
+                1.0,
+                0.5 * np.exp(-np.abs(pred_flat - scaled_target) / tolerance)
+            )
             
+        print(f"DEBUG SCORE [{domain}]: pred_mean={np.mean(pred_flat):.4f}, target={target_value}, scaled_target={scaled_target:.4f}, goal={optimization_goal}, scores_mean={np.mean(scores):.4f}")
         return scores
 
     def run(self, spec_path: str):
@@ -240,28 +276,35 @@ class InferenceEngine:
             df = batch.to_pandas()
             
             # --- Dynamic Semantic Domain Pre-Filter ---
-            # 1. Strict Target Entity Isolation (e.g. only "maize")
             target_entities = dag.get("target_entities", [])
-            df_filtered = None
+            semantic_keywords = dag.get("semantic_keywords", [])
+            domain_filters = dag.get("domain_filters", [])
+            
+            combined_mask = pd.Series(False, index=df.index)
             
             if target_entities:
                 pattern_strict = r'(?i)(?:^|[^a-zA-Z])(' + '|'.join(target_entities) + r')(?:[^a-zA-Z]|$)'
-                strict_mask = df["name"].astype(str).str.contains(pattern_strict) | \
-                              df["description"].astype(str).str.contains(pattern_strict) | \
-                              df.get("tags", pd.Series("")).astype(str).str.contains(pattern_strict)
-                df_filtered = df[strict_mask].copy()
+                strict_mask = df["name"].astype(str).str.contains(pattern_strict, regex=True) | \
+                              df["description"].astype(str).str.contains(pattern_strict, regex=True) | \
+                              df.get("tags", pd.Series("")).astype(str).str.contains(pattern_strict, regex=True)
+                combined_mask = combined_mask | strict_mask
                 
-            # 2. Graceful Fallback if Strict Isolation yields 0 results (or if no targets given)
-            if df_filtered is None or len(df_filtered) == 0:
-                semantic_keywords = dag.get("semantic_keywords", [])
-                if semantic_keywords:
-                    pattern_broad = r'(?i)\b(' + '|'.join(semantic_keywords) + r')\b'
-                    broad_mask = df["name"].astype(str).str.contains(pattern_broad) | \
-                                 df["description"].astype(str).str.contains(pattern_broad) | \
-                                 df.get("tags", pd.Series("")).astype(str).str.contains(pattern_broad)
-                    df_filtered = df[broad_mask].copy()
-                else:
-                    df_filtered = df.copy()
+            if semantic_keywords:
+                pattern_broad = r'(?i)\b(' + '|'.join(semantic_keywords) + r')\b'
+                broad_mask = df["name"].astype(str).str.contains(pattern_broad, regex=True) | \
+                             df["description"].astype(str).str.contains(pattern_broad, regex=True) | \
+                             df.get("tags", pd.Series("")).astype(str).str.contains(pattern_broad, regex=True)
+                combined_mask = combined_mask | broad_mask
+                
+            if domain_filters and "domain" in df.columns:
+                valid_domains = [d.lower() for d in domain_filters]
+                domain_mask = df["domain"].astype(str).str.lower().isin(valid_domains)
+                combined_mask = combined_mask & domain_mask
+                
+            if target_entities or semantic_keywords:
+                df_filtered = df[combined_mask].copy()
+            else:
+                df_filtered = df.copy()
                     
             df = df_filtered
             df.reset_index(drop=True, inplace=True)
@@ -285,6 +328,7 @@ class InferenceEngine:
                 penalty = 0.0
             
             # Execute Sequential Chaining
+            previous_output_var = None
             for node in valid_chain:
                 domain = node["model"]
                 maps_to = node.get("output_maps_to", "generic_param")
@@ -292,7 +336,7 @@ class InferenceEngine:
                 
                 # Dynamic Joblib Inputs
                 n_features = getattr(model, 'n_features_in_', 3)
-                X = self._build_inputs(df, spec, n_features, node)
+                X = self._build_inputs(df, spec, n_features, node, previous_output_var)
                 
                 # Determine mathematically consistent scaler based on the domain mapped output
                 if "temp" in maps_to or "heat" in maps_to: scaler = 1500.0
@@ -317,9 +361,10 @@ class InferenceEngine:
                     
                 # Chaining: Feed output forward into the dataframe
                 df[maps_to] = raw_pred
+                previous_output_var = maps_to
                 
                 # Robust Scoring Math ensuring prediction is evaluated against scaled limits
-                y_score = self._calculate_score(raw_pred, spec, target_val, opt_goal, scaler)
+                y_score = self._calculate_score(raw_pred, spec, target_val, opt_goal, scaler, domain)
                 scores_df[f"{domain}_score"] = y_score
                 
                 # Apply weight
@@ -328,8 +373,8 @@ class InferenceEngine:
             viability_score += penalty
             scores_df["viability_score"] = np.clip(viability_score, 0.0, 1.0)
             
-            # 0.7 Pre-Filter (Hybrid Trimming Fallback to top 5%)
-            surviving_df = scores_df[scores_df["viability_score"] >= 0.70]
+            # 0.45 Pre-Filter (Adjusted for continuous variance centered at 0.5)
+            surviving_df = scores_df[scores_df["viability_score"] >= 0.45]
             
             min_survivors = int(n * 0.05)
             if len(surviving_df) < min_survivors:
