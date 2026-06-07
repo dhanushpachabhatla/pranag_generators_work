@@ -15,7 +15,7 @@ class InferenceEngine:
     and Mathematical Weight Normalization.
     """
     
-    SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'unified_pipeline_new_output', 'surrogate'))
+    SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "unified_pipeline_new_output", "surrogate"))
     PARQUET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'datasrc', 'universal_index_final.parquet'))
     OUTPUT_PATH = os.path.join(os.path.dirname(__file__), 'inference_handoff.csv')
     

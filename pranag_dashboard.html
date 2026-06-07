@@ -36,7 +36,7 @@
 <body>
     <div class="header">
         <h1>PRANA-G Execution Dashboard</h1>
-        <p>Execution Completed: 2026-06-07 15:39:51 | Runtime: 26.22 seconds</p>
+        <p>Execution Completed: 2026-06-07 16:27:55 | Runtime: 21.96 seconds</p>
     </div>
 
     <div class="container">
@@ -44,26 +44,26 @@
         <div class="metrics-grid">
             <div class="metric-card">
                 <h3>Total Entities Scanned</h3>
-                <p class="value">393</p>
+                <p class="value">414</p>
             </div>
             <div class="metric-card success">
                 <h3>Physics Survivors</h3>
-                <p class="value">16</p>
+                <p class="value">18</p>
             </div>
             <div class="metric-card danger">
                 <h3>Entities Deleted (< 0.7)</h3>
-                <p class="value">377</p>
+                <p class="value">396</p>
             </div>
             <div class="metric-card neutral">
                 <h3>Overall Pass Rate</h3>
-                <p class="value">4.07%</p>
+                <p class="value">4.35%</p>
             </div>
         </div>
 
         <div class="section-box">
             <h2>DAG Execution Sequence</h2>
             <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>heat</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>darcy</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>stress</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>arrhenius</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>biology</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>logistic</span>
+                <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>heat</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>darcy</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>stress</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>logistic</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>arrhenius</span>
             </div>
         </div>
 
@@ -76,136 +76,131 @@
 
             <!-- Top Designs Tab -->
             <div id="top-designs" class="tab-content active">
+                <p style='color:#64748b;'>No designs survived the physics simulation.</p>
+            </div>
+
+            <!-- Failed Designs Tab -->
+            <div id="failed-designs" class="tab-content">
                 <table>
                     <thead>
                         <tr>
-                            <th>Rank</th>
                             <th>Entity Name</th>
                             <th>Viability Score</th>
-                            <th>Domain Specific Scores</th>
+                            <th>Hazard Reason</th>
                         </tr>
                     </thead>
                     <tbody>
                         
         <tr>
-            <td><strong>#1</strong></td>
-            <td>Zea mays → Feltia repleta (hostOf)</td>
-            <td><strong style="color: #059669;">0.431</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.19</strong></div><div><small>Logistic:</small> <strong>0.04</strong></div></td>
+            <td>Veronica arvensis</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#2</strong></td>
             <td>PDB 1E4L: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase</td>
-            <td><strong style="color: #059669;">0.429</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.19</strong></div><div><small>Logistic:</small> <strong>0.02</strong></div></td>
+            <td><strong style="color: #ef4444;">0.748</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#3</strong></td>
+            <td>Zea mays → Feltia repleta (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.748</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Hister (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.747</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Dichomeris granivora (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.745</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
             <td>Zea mays → Ctenicera aeripennis destructor (eatenBy)</td>
-            <td><strong style="color: #059669;">0.396</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.03</strong></div><div><small>Logistic:</small> <strong>0.02</strong></div></td>
+            <td><strong style="color: #ef4444;">0.603</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#4</strong></td>
-            <td>ABI3</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Melanoplus femurrubrum (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.599</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#5</strong></td>
-            <td>Zea mays → Olene inclusa (hostOf)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Phthorimaea operculella (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#6</strong></td>
-            <td>Zea mays → Orgyia osseata (hostOf)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Agrobacterium tumefaciens → Zea mays subsp. mays (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#7</strong></td>
-            <td>Zea mays → Bombus pratorum (flowersVisitedBy)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Spodoptera exempta (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#8</strong></td>
-            <td>Zea mays → Cerotoma trifurcata (eatenBy)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Puccinia sorghi (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#9</strong></td>
-            <td>Zea mays → Carpophilus lugubris (interactsWith)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Alternaria infectoria (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#10</strong></td>
-            <td>Zea mays → Carpophilus (eatenBy)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Spodoptera exigua (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#11</strong></td>
-            <td>Zea mays → Cadra cautella (eatenBy)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Sesamia cretica (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#12</strong></td>
-            <td>Zea mays → Brithys pancratii (hostOf)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Zea mays → Pseudosiobla (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#13</strong></td>
-            <td>Zea mays → Brachypera zoilus (eatenBy)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>abscisic acid binding</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#14</strong></td>
-            <td>Zea mays → Borbo gemella (hostOf)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>obsolete megaspore</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td><strong>#15</strong></td>
-            <td>Zea mays → Bombus terrestris (flowersVisitedBy)</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
-        </tr>
-        
-        <tr>
-            <td><strong>#16</strong></td>
-            <td>Maize — Uttar Pradesh</td>
-            <td><strong style="color: #059669;">0.389</strong></td>
-            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+            <td>Maize — Madhya Pradesh</td>
+            <td><strong style="color: #ef4444;">0.554</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Failed Designs Tab -->
-            <div id="failed-designs" class="tab-content">
-                <p style='color:#10b981; font-weight:600;'>Excellent! No candidates failed the Cross-Domain Hazard Validation.</p>
             </div>
         </div>
     </div>

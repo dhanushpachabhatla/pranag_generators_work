@@ -35,39 +35,31 @@ class CrossDomainValidator:
         safety_mask = pd.Series(True, index=df.index)
         
         # Cross-Domain Hazard Checks with Reason Tracking
-        if "arrhenius_score" in df.columns:
-            chem_fail = df["arrhenius_score"] < 0.2
-            for idx in df[chem_fail].index:
-                failed_reasons.append({
-                    "entity_id": str(df.loc[idx, "entity_id"]),
-                    "name": str(df.loc[idx, "name"]),
-                    "reason": f"Critical chemistry hazard (score {df.loc[idx, 'arrhenius_score']:.2f} < 0.2)"
-                })
-            safety_mask = safety_mask & ~chem_fail
-            
-        if "heat_score" in df.columns:
-            heat_fail = df["heat_score"] < 0.2
-            heat_only_fail = heat_fail & safety_mask
-            for idx in df[heat_only_fail].index:
-                failed_reasons.append({
-                    "entity_id": str(df.loc[idx, "entity_id"]),
-                    "name": str(df.loc[idx, "name"]),
-                    "reason": f"Critical thermal hazard (score {df.loc[idx, 'heat_score']:.2f} < 0.2)"
-                })
-            safety_mask = safety_mask & ~heat_fail
-            
-        if "stress_score" in df.columns:
-            stress_fail = df["stress_score"] < 0.2
-            # Only append if not already failed by chemistry
-            stress_only_fail = stress_fail & safety_mask
-            for idx in df[stress_only_fail].index:
-                failed_reasons.append({
-                    "entity_id": str(df.loc[idx, "entity_id"]),
-                    "name": str(df.loc[idx, "name"]),
-                    "reason": f"Critical stress/structural failure (score {df.loc[idx, 'stress_score']:.2f} < 0.2)"
-                })
-            safety_mask = safety_mask & ~stress_fail
-            
+        domains_to_check = {
+            "arrhenius_score": "Critical chemistry hazard",
+            "heat_score": "Critical thermal hazard",
+            "stress_score": "Critical stress/structural failure",
+            "darcy_score": "Critical flow/permeability hazard",
+            "biology_score": "Critical biological/toxicity hazard",
+            "logistic_score": "Critical population growth failure",
+            "reaction_diffusion_score": "Critical reaction-diffusion pattern failure"
+        }
+        
+        for score_col, reason_text in domains_to_check.items():
+            if score_col in df.columns:
+                fail_mask = df[score_col] < 0.2
+                only_fail = fail_mask & safety_mask
+                for idx in df[only_fail].index:
+                    score_val = df.loc[idx, score_col]
+                    failed_reasons.append({
+                        "entity_id": str(df.loc[idx, "entity_id"]),
+                        "name": str(df.loc[idx, "name"]),
+                        "domain": str(df.loc[idx, "domain"]) if "domain" in df.columns else "Unknown",
+                        "viability_score": round(float(df.loc[idx, "viability_score"]), 4) if "viability_score" in df.columns else 0.0,
+                        "reason": f"{reason_text} (score {score_val:.4f} < 0.2)"
+                    })
+                safety_mask = safety_mask & ~fail_mask
+                
         df_safe = df[safety_mask]
         print(f"   => {len(failed_reasons):,} candidates rejected due to Cross-Domain Hazards.")
         

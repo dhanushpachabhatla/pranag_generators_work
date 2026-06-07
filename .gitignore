@@ -44,7 +44,10 @@ Pipelines/*.mp4
 Model/outputs/models/*.pt
 Model/outputs/surrogates/*.joblib
 
-unified_pipeline_output
+unified_pipeline_new_output
+unified_pipeline_new_output_1
+
+checkpoints
 
 # Data files (managed separately)
 Model/datasrc/*.parquet

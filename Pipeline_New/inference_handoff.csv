@@ -1,17 +1,19 @@
-entity_id,name,domain,heat_score,darcy_score,stress_score,arrhenius_score,biology_score,logistic_score,viability_score
-ncbi_gene_822061,ABI3,biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112112,0.0031234121661089303,0.38922465
-globiint_zea_mays_feltia_repleta,Zea mays → Feltia repleta (hostOf),biology,0.6876957909894083,0.0,1.0,1.0,0.19253315769187979,0.03654777092110864,0.43152794
-pdb_1e4l,PDB 1E4L: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase,biology,0.6876957909894083,0.0,1.0,1.0,0.18877955041877797,0.02366083518443337,0.42884418
-globiint_zea_mays_ctenicera_aeripennis_destructo,Zea mays → Ctenicera aeripennis destructor (eatenBy),biology,0.6876957909894083,0.0,1.0,1.0,0.027430947866544722,0.020615407750887306,0.39611766
-globiint_zea_mays_olene_inclusa,Zea mays → Olene inclusa (hostOf),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_orgyia_osseata,Zea mays → Orgyia osseata (hostOf),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_bombus_pratorum,Zea mays → Bombus pratorum (flowersVisitedBy),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_cerotoma_trifurcata,Zea mays → Cerotoma trifurcata (eatenBy),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_carpophilus_lugubris,Zea mays → Carpophilus lugubris (interactsWith),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_carpophilus,Zea mays → Carpophilus (eatenBy),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_cadra_cautella,Zea mays → Cadra cautella (eatenBy),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_brithys_pancratii,Zea mays → Brithys pancratii (hostOf),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_brachypera_zoilus,Zea mays → Brachypera zoilus (eatenBy),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_borbo_gemella,Zea mays → Borbo gemella (hostOf),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-globiint_zea_mays_bombus_terrestris,Zea mays → Bombus terrestris (flowersVisitedBy),biology,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089303,0.38922465
-agristack_uttar_pradesh_maize_2023,Maize — Uttar Pradesh,environment,0.6876957909894083,0.0,1.0,1.0,0.006084881122112113,0.0031234121661089308,0.38922465
+entity_id,name,domain,heat_score,darcy_score,stress_score,logistic_score,arrhenius_score,viability_score
+inat_55748,Veronica arvensis,biology,0.6876957909894083,0.051288068540446305,1.0,0.031234121661089305,1.0,0.5540436
+pdb_1e4l,PDB 1E4L: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase,biology,0.6876957909894083,0.0512880685404463,1.0,1.0,1.0,0.7477968
+globiint_zea_mays_feltia_repleta,Zea mays → Feltia repleta (hostOf),biology,0.6876957909894083,0.0512880685404463,1.0,1.0,1.0,0.7477968
+globiint_zea_mays_hister,Zea mays → Hister (flowersVisitedBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.9978744667274658,1.0,0.7473717
+globiint_zea_mays_dichomeris_granivora,Zea mays → Dichomeris granivora (hostOf),biology,0.6876957909894083,0.0512880685404463,0.9877974786730558,1.0,1.0,0.74535626
+globiint_zea_mays_ctenicera_aeripennis_destructo,Zea mays → Ctenicera aeripennis destructor (eatenBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.27795800175152846,1.0,0.60338837
+globiint_zea_mays_melanoplus_femurrubrum,Zea mays → Melanoplus femurrubrum (eatenBy),biology,0.6876957909894083,0.0512880685404463,0.8289586849847815,0.424607839185467,1.0,0.5985101
+globiint_zea_mays_phthorimaea_operculella,Zea mays → Phthorimaea operculella (eatenBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_agrobacterium_tumefaciens_zea_mays_subsp._mays,Agrobacterium tumefaciens → Zea mays subsp. mays (interactsWith),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_zea_mays_spodoptera_exempta,Zea mays → Spodoptera exempta (eatenBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_zea_mays_puccinia_sorghi,Zea mays → Puccinia sorghi (interactsWith),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_zea_mays_alternaria_infectoria,Zea mays → Alternaria infectoria (interactsWith),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_zea_mays_spodoptera_exigua,Zea mays → Spodoptera exigua (eatenBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_zea_mays_sesamia_cretica,Zea mays → Sesamia cretica (eatenBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+globiint_zea_mays_pseudosiobla,Zea mays → Pseudosiobla (flowersVisitedBy),biology,0.6876957909894083,0.0512880685404463,1.0,0.031234121661089305,1.0,0.5540436
+go_cc_go_0010427,abscisic acid binding,biology,0.6876957909894084,0.051288068540446305,1.0,0.031234121661089305,1.0,0.5540436
+cl_cl_0000250,obsolete megaspore,biology,0.6876957909894084,0.051288068540446305,1.0,0.031234121661089305,1.0,0.5540436
+agristack_madhya_pradesh_maize_2023,Maize — Madhya Pradesh,environment,0.6876957909894083,0.0512880685404463,1.0,0.0312341216610893,1.0,0.5540436

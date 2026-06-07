@@ -191,19 +191,9 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
     
     dataset = TensorDataset(x_train)
     
-    # Checkpointing: Save the model automatically
-    if checkpoint_dir is None:
-        checkpoint_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "outputs", "checkpoints"))
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    
-    model_name = model_alias if model_alias else type(pinn_model).__name__
-    checkpoint_callback = ModelCheckpoint(
-        dirpath=checkpoint_dir,
-        filename=model_name,
-        save_top_k=1,
-        monitor="train_loss",
-        mode="min"
-    )
+    # Checkpointing is disabled to prevent Windows WinError 1224 locks. 
+    # The pipeline uses the in-memory model anyway.
+    checkpoint_callback = None
     
     # --- STAGE 1: Adam Optimization ---
     dataloader_adam = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -227,7 +217,7 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
         enable_model_summary=False,
         logger=False,
         enable_progress_bar=False,
-        callbacks=[checkpoint_callback, early_stop_callback]
+        callbacks=[early_stop_callback]
     )
     
     import time
@@ -254,13 +244,13 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
     )
     
     trainer_lbfgs = pl.Trainer(
-        max_epochs=1000,
+        max_epochs=200,
         accelerator="auto",
         devices=1,
         enable_model_summary=False,
         logger=False,
         enable_progress_bar=False,
-        callbacks=[checkpoint_callback, early_stop_callback_lbfgs]
+        callbacks=[early_stop_callback_lbfgs]
     )
     
     start_time = time.time()
@@ -269,7 +259,7 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
     
     total_time = adam_time + lbfgs_time
     mins, secs = divmod(total_time, 60)
-    print(f"\n[PINNTrainer] Two-Stage Training completed in {int(mins)}m {int(secs)}s! Best model saved to: {checkpoint_callback.best_model_path}")
+    print(f"\n[PINNTrainer] Two-Stage Training completed in {int(mins)}m {int(secs)}s!")
     
     # --- Generate Loss History Plot ---
     try:
@@ -292,7 +282,10 @@ def train_pinn_model(pinn_model, input_dim=2, num_points=1000, max_epochs=50, ba
             plt.grid(True, which="both", ls="-", alpha=0.2)
             plt.legend()
             
-            plot_path = os.path.join(checkpoint_dir, f"{model_alias}_loss_history.png")
+            if checkpoint_dir is not None:
+                plot_path = os.path.join(checkpoint_dir, f"{model_alias}_loss_history.png")
+            else:
+                plot_path = os.path.join(os.path.dirname(__file__), "..", f"{model_alias}_loss_history.png")
             plt.savefig(plot_path, dpi=300, bbox_inches="tight")
             plt.close()
             print(f"[PINNTrainer] Saved convergence plot to {plot_path}")

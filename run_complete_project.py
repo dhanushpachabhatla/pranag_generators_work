@@ -22,8 +22,12 @@ def run_project(spec_path: str):
     start_time = time.time()
     
     # 1. Run Inference Pipeline
+    print(f"\n[Flow] Executing Phase 1: Heavy AI Inference from Parquet...")
+    inf_start = time.time()
     engine = InferenceEngine(use_mock_llm=False)  # Tries Gemini API, falls back to Mock
     metrics = engine.run(spec_path)
+    inf_end = time.time()
+    print(f"[Flow] Phase 1 Complete in {inf_end - inf_start:.2f} seconds. Found {metrics['total_processed']} relevant entities.")
     
     # Check if handoff was created (if a surrogate was missing, it halts)
     if not os.path.exists(engine.OUTPUT_PATH) or not metrics:
@@ -31,9 +35,13 @@ def run_project(spec_path: str):
         return
         
     # 2. Run Cross-Domain Validator
+    print(f"\n[Flow] Executing Phase 2: Cross-Domain Safety Validation...")
+    val_start = time.time()
     output_json = os.path.abspath(os.path.join(os.path.dirname(__file__), 'Validator_New', 'Top_100_Validated_Designs.json'))
     validator = CrossDomainValidator(engine.OUTPUT_PATH, output_json)
     validator.validate()
+    val_end = time.time()
+    print(f"[Flow] Phase 2 Complete in {val_end - val_start:.2f} seconds.")
     
     end_time = time.time()
     total_time = end_time - start_time

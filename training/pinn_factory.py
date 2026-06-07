@@ -191,7 +191,10 @@ class HeatPINN(_GenericPINN):
         u_t, u_x = g[:,0:1], g[:,1:2]
         u_xx = torch.autograd.grad(u_x, x, grad_outputs=torch.ones_like(u_x),
                                    create_graph=True)[0][:,1:2]
-        return ((u_t - self.alpha * u_xx)**2).mean()
+        alpha = self.alpha
+        if x.shape[1] > 2:
+            alpha = self.alpha + 0.5 * torch.abs(x[:, 2:3])
+        return ((u_t - alpha * u_xx)**2).mean()
 
 
 class WavePINN(_GenericPINN):
@@ -467,7 +470,10 @@ class DarcyPINN(_GenericPINN):
                                    create_graph=True)[0][:,0:1]
         p_yy = torch.autograd.grad(p_y, x, torch.ones_like(p_y),
                                    create_graph=True)[0][:,1:2]
-        return ((-self.K*(p_xx+p_yy) - self.f_src)**2).mean()
+        K = self.K
+        if x.shape[1] > 2:
+            K = self.K + 0.8 * torch.abs(x[:, 2:3])
+        return ((-K*(p_xx+p_yy) - self.f_src)**2).mean()
 
 
 class VanDerPolPINN(_GenericPINN):
@@ -497,7 +503,10 @@ class LogisticPINN(_GenericPINN):
         N  = self(x)
         dN = torch.autograd.grad(N, x, torch.ones_like(N),
                                  create_graph=True)[0][:,0:1]
-        return ((dN - self.r*N*(1 - N/self.K))**2).mean()
+        r = self.r
+        if x.shape[1] > 1:
+            r = self.r + 3.0 * torch.abs(x[:, 1:2])
+        return ((dN - r*N*(1 - N/self.K))**2).mean()
 
 
 class CardinalTemperaturePINN(_GenericPINN):
@@ -525,7 +534,10 @@ class StressPINN(_GenericPINN):
         S  = self(x)
         dS = torch.autograd.grad(S, x, torch.ones_like(S),
                                  create_graph=True)[0][:,0:1]
-        return ((dS - self.alpha*S*(1 - S/self.S_max))**2).mean()
+        alpha = self.alpha
+        if x.shape[1] > 1:
+            alpha = self.alpha + 1.5 * torch.abs(x[:, 1:2])
+        return ((dS - alpha*S*(1 - S/self.S_max))**2).mean()
 
 
 class BiologyPINN(_GenericPINN):
@@ -539,7 +551,10 @@ class BiologyPINN(_GenericPINN):
         A  = self(x)
         dA = torch.autograd.grad(A, x, torch.ones_like(A),
                                  create_graph=True)[0][:,0:1]
-        return ((dA - (self.r*A - self.m*A**2))**2).mean()
+        r = self.r
+        if x.shape[1] > 1:
+            r = self.r + 3.0 * torch.abs(x[:, 1:2])
+        return ((dA - (r*A - self.m*A**2))**2).mean()
 
 
 
@@ -557,9 +572,13 @@ class ArrheniusPINN(_GenericPINN):
         # Map generic input T to realistic absolute temperatures (273K - 373K)
         T_abs = T * 50.0 + 298.15
         
+        Ea = self.Ea
+        if x.shape[1] > 1:
+            Ea = self.Ea * (1.0 - 0.8 * torch.abs(x[:, 1:2]))
+            
         # Normalized Arrhenius (1.0 at T_ref)
         # k_factor = exp( (Ea/R) * (1/T_ref - 1/T_abs) )
-        exponent = (self.Ea / self.R) * (1.0/self.T_ref - 1.0/T_abs)
+        exponent = (Ea / self.R) * (1.0/self.T_ref - 1.0/T_abs)
         # Clamp exponent to prevent infinity during bad gradients
         exponent = torch.clamp(exponent, -20.0, 5.0)
         
@@ -584,8 +603,15 @@ class GrayScottPINN(_GenericPINN):
             g  = G(f); fx, fy = g[:,1:2], g[:,2:3]
             return (G(fx)[:,1:2] + G(fy)[:,2:3])
         def dt(f): return G(f)[:,0:1]
-        r1 = dt(u) - self.Du*lap(u,x) + u*v**2 - self.F*(1-u)
-        r2 = dt(v) - self.Dv*lap(v,x) - u*v**2 + (self.F+self.k)*v
+        
+        F_param = self.F
+        k_param = self.k
+        if x.shape[1] > 3:
+            F_param = self.F + 0.05 * torch.abs(x[:, 3:4])
+            k_param = self.k + 0.05 * torch.abs(x[:, 3:4])
+            
+        r1 = dt(u) - self.Du*lap(u,x) + u*v**2 - F_param*(1-u)
+        r2 = dt(v) - self.Dv*lap(v,x) - u*v**2 + (F_param+k_param)*v
         return (r1**2+r2**2).mean()
 
 

@@ -1,390 +1,407 @@
-# PRANA-G AI — Complete Implementation
+# PRANA-G AI
 
-## Project Overview
+PRANA-G AI is a two-phase physics-guided screening pipeline. The current codebase first trains fast surrogate models from Physics-Informed Neural Networks (PINNs), then uses those surrogates to score candidate entities from a universal parquet index against a prompt-derived specification.
 
-**PRANA-G AI** is a Universal Sovereign Creation Engine that validates any design concept through physics-informed neural networks (PINNs) before physical testing. This implementation covers:
+This README describes the current implementation only.
 
-- **10,000+ simulation types** across 13 domains  
-- **7-component loss function** (Data, Physics, Boundary, Biology, Ecology, Economics, Safety)
-- **169 cross-domain validations** (all domain interactions)
-- **Surrogate models** for 1,000,000× speedup  
-- **Uncertainty quantification** on all predictions  
-- **Batch processing** optimized for millions of entities
+## Current Architecture
 
----
+The active system has two phases:
 
-## Architecture
+1. **Training phase**
+   - Entry point: `unified_pipeline.py`
+   - Batch launcher: `train_all_domains.py`
+   - Code: `training/`
+   - Outputs: `unified_pipeline_new_output/`
 
-### Layer 1: IMAGINATION
-User provides design concept in natural language.
+2. **Inference and validation phase**
+   - Entry point: `run_complete_project.py`
+   - Inference code: `Pipeline_New/`
+   - Validation and dashboard code: `Validator_New/`
+   - Inputs: `datasrc/spec_*.json` and `datasrc/universal_index_final.parquet`
+   - Outputs: `Pipeline_New/inference_handoff.csv`, `Validator_New/*.json`, and `pranag_dashboard.html`
 
-### Layer 2: TRANSLATION (Harshit)
-ParserAI converts concepts into technical specifications with parameters.
+## Setup
 
-### Layer 3: DATA (Kartik)
-Universal data index provides genes, materials, molecules, and environmental data.
+Create and activate a virtual environment, then install dependencies from `requirements.txt`.
 
-### Layer 4: SIMULATION (Srikar + Aryan)
-- **Srikar**: Trains Physics-Informed Neural Networks (PINNs)
-- **Aryan**: Runs batch simulations on 525M entities
-- **Surrogates**: 1,000,000× faster approximations for real-time feedback
-
-### Layer 5: VALIDATION (Divyanshu)
-- Cross-domain validation (all 13 domains)
-- Accuracy verification  
-- Failure analysis
-- Confidence calibration
-
----
-
-## Core Components
-
-### 1. PINN Models (`Model/models/base_pinn.py`)
-Base Physics-Informed Neural Network that embeds physical laws as loss constraints.
-
-```
-QuantumPINN       → Wave functions, coherence time
-NuclearPINN       → Reaction yield, criticality  
-HeatPINN          → Temperature distribution
-FluidPINN         → Velocity, pressure, drag
-StressPINN        → Deformation, stress, failure
-...and 20+ more
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-### 2. Surrogate Models (`Model/models/surrogate_trainer.py`)
-Lightweight Gradient Boosting models trained on PINN data for <0.01s predictions.
+The downstream router can call Gemini to convert a spec into a surrogate execution DAG. Create a `.env` file in the project root and add:
 
-**Target**: R² > 0.95, Speed < 0.01 sec/pred
-
-### 3. Loss Function Generator (`Model/models/loss_generator.py`)
-Automated generation of 7-component loss functions per PRANA-G spec:
-
-```
-Loss_Total = λ₁×Data + λ₂×Physics + λ₃×Boundary + λ₄×Biology + 
-             λ₅×Ecology + λ₆×Economics + λ₇×Safety
+```env
+GEMINI_API_KEY=your_api_key_here
 ```
 
-- **Data Loss**: Match real observations (MSE weighted by source quality)
-- **Physics Loss**: PDE residuals (heat, Navier-Stokes, Maxwell, etc.)
-- **Boundary Loss**: Enforce feasible ranges and limits
-- **Biology Loss**: Genetic code, protein folding, metabolic burden
-- **Ecology Loss**: Containment, invasiveness, ecosystem harm (P_escape × impact)
-- **Economics Loss**: Manufacturing + operating cost vs budget
-- **Safety Loss**: Toxicity, pathogenicity, allergenicity
+If `GEMINI_API_KEY` is missing or the Gemini call fails, `Pipeline_New/dag_router.py` falls back to a local mock router. The pipeline can still run, but routing quality will be simpler and keyword based.
 
-### 4. Uncertainty Quantification (`Model/models/uncertainty_quantifier.py`)
-Every prediction includes confidence bounds:
+## Phase 1: Training Surrogate Models
 
-```json
-{
-  "prediction": 0.87,
-  "uncertainty_lower": 0.82,
-  "uncertainty_upper": 0.91,
-  "confidence": 0.95,
-  "uncertainty_breakdown": {
-    "aleatoric": 0.02,      // data noise
-    "epistemic": 0.03,      // model uncertainty
-    "distributional": [0.80, 0.92],  // 10th-90th percentile
-    "propagated": 0.01      // input uncertainty
-  }
-}
+Run training for all currently configured domains:
+
+```powershell
+python train_all_domains.py
 ```
 
-### 5. Batch Simulator (`Pipelines/batch_simulator.py`)
-Processes 525M entities < 24 hours using:
-- DuckDB for efficient data access
-- Parallel GPU acceleration (1000 GPUs → 1M simulations/sec)
-- Result caching to avoid re-simulating
+Or run the unified trainer directly:
 
-### 6. Multi-Domain Validator (`Pipelines/multi_domain_simulator.py`)
-Sequential validation across 13 domains with early termination.
-
-### 7. Cross-Domain Validator (`Validators/cross_domain_validator.py`)
-Validates all 169 domain pairs:
-
-```
-Quantum → Nuclear → Chemical → Materials → Molecular Bio → 
-Cellular → Organismal → Ecological → Physics → Earth/Planetary → 
-Space → Human/Social → Economic
+```powershell
+python unified_pipeline.py
 ```
 
-Stops at first failure to save compute.
+`unified_pipeline.py` trains one domain at a time through `PranagPipeline`. The current batch launcher trains:
 
----
+- `heat`
+- `darcy`
+- `stress`
+- `arrhenius`
+- `biology`
+- `logistic`
 
-## Key Metrics
+The output folder also currently contains a trained `reaction_diffusion` surrogate.
 
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| Simulation Speed | 525M < 24hrs | ✅ 2.76M/hr | MET |
-| Prediction Accuracy | >85% | ✅ 86% | MET |
-| False Positive Rate | <5% | ✅ 3.12% (optimal) | MET |
-| Cross-Domain Coverage | 169/169 | ✅ 13/13 | MET |
-| Surrogate Accuracy | >95% | ⚠️ 86% | IMPROVING |
-| Uncertainty Calibration | 90% inside 90% CI | ✅ TBD | PENDING |
-| Model Versioning | Full reproducibility | ✅ MLflow + DVC | MET |
+### What Training Does
 
----
+For each domain, the training phase:
 
-## Workflow
+1. Uses `training/simulation_generator.py` to resolve the domain into a physics configuration.
+2. Uses `training/pinn_factory.py` to create the right PINN model.
+3. Uses `training/pinn_trainer.py` to train the PINN with collocation points, boundary constraints, and initial-condition constraints.
+4. Generates synthetic parametric data from the trained PINN using Latin Hypercube Sampling.
+5. Trains a fast `RandomForestRegressor` surrogate on the generated PINN outputs.
+6. Evaluates surrogate accuracy with R2.
+7. Computes PRANA-G diagnostic loss components.
+8. Saves checkpoints, surrogate models, plots, and metrics.
 
-### Daily Workflow (Aryan Pipeline)
+### Training Outputs
 
-```
-1. Check new design specs from Harshit (Translation team)
-2. Query Kartik's data (universal index)
-3. Run batch simulation (Spark + GPU)
-   - Route to appropriate PINNs
-   - Apply 7-component loss function
-   - Filter by viability > 0.7
-4. Run multi-domain validation
-5. Send top designs to Divyanshu for final approval
-6. Handoff to bio team for lab testing
-```
+All training artifacts are written to:
 
-### Weekly Workflow (Validation)
-
-```
-1. Monitor model performance (drift detection)
-2. Collect lab feedback
-3. Identify patterns in failures
-4. Retrain models with new data
-5. Validate improvement (target: >90% lab match)
-6. Generate executive report
+```text
+unified_pipeline_new_output/
+  pinn/        PINN checkpoints and training loss plots
+  surrogate/   Surrogate_<domain>.joblib files used by inference
+  plots/       Surrogate R2 performance plots
+  results/     surrogate_metrics.json
 ```
 
----
+The important runtime artifacts for Phase 2 are the `.joblib` files in:
 
-## Loss Function Weights (Adaptive)
-
-Default:
-```
-λ₁ Data     = 1.0
-λ₂ Physics  = 1.5
-λ₃ Boundary = 1.2
-λ₄ Biology  = 1.8
-λ₅ Ecology  = 1.6
-λ₆ Economics = 0.8
-λ₇ Safety   = 2.0  (highest priority)
+```text
+unified_pipeline_new_output/surrogate/
 ```
 
-Adaptive scenarios:
-- AI too creative → increase λ₁ (data)
-- AI violates physics → increase λ₂ (physics)
-- AI ecologically unsafe → increase λ₅ & λ₇ (ecology + safety)
-- AI too expensive → increase λ₆ (economics)
+`Pipeline_New/inference_pipeline.py` loads these files by name, for example:
 
----
-
-## 13 Domains
-
-| # | Domain | Description | Example |
-|---|--------|-------------|---------|
-| 1 | Quantum | Subatomic particles, wave functions | "Design a quantum computer qubit" |
-| 2 | Nuclear | Atomic nuclei, radioactivity | "Design a fusion reactor" |
-| 3 | Chemical | Molecules, reactions | "Design a better battery electrolyte" |
-| 4 | Materials | Crystals, metals, polymers | "Design room-temp superconductor" |
-| 5 | Molecular Bio | DNA, RNA, proteins | "Design a drought-resistant gene" |
-| 6 | Cellular | Cells, organelles, pathways | "Design cancer-killing immune cell" |
-| 7 | Organismal | Whole organisms, tissues | "Design heat-resistant rice" |
-| 8 | Ecological | Populations, ecosystems | "Design non-invasive bioremediator" |
-| 9 | Physics | Forces, motion, energy | "Design more efficient engine" |
-| 10 | Earth/Planetary | Climate, soil, oceans | "Design carbon-capturing system" |
-| 11 | Space | Orbits, radiation, vacuum | "Design Mars habitat" |
-| 12 | Human/Social | Health, agriculture, cities | "Design nutritious low-cost food" |
-| 13 | Economic | Supply chains, markets, costs | "Design manufacturable product" |
-
----
-
-## Success Criteria
-
-✅ **PASSED**:
-- Simulation speed: 2.76M/hr (target: 24M/hr for 24hr run)
-- Prediction accuracy: 86% (target: >85%)
-- False positive rate: 0-3.12% (target: <5%)
-- Speed test: <500ms (actual: <10ms)
-- Core validation: 100% pass rate
-
-❌ **FAILING**:
-- Accuracy threshold: 86% vs 95% target (relaxed to 85%)
-- Surrogate model training needs optimization
-
-✅ **NOT APPLICABLE** (mock data):
-- Cross-domain validation with all 13 domains
-- 525M entity processing (test: 30 entities)
-- Real lab correlation
-
----
-
-## Files Structure
-
-```
-d:/Internship/Pranag-AI/
-├── Model/                    # Srikar's PINN framework
-│   ├── models/
-│   │   ├── base_pinn.py      # Core PINN class
-│   │   ├── physics_models.py # Domain-specific PINNs
-│   │   ├── surrogate_trainer.py  # Fast surrogate training
-│   │   ├── adaptive_loss.py  # Loss function tuning
-│   │   ├── loss_generator.py # NEW: 7-component loss factory
-│   │   └── uncertainty_quantifier.py # NEW: UQ system
-│   ├── datasrc/
-│   │   └── data_loader.py
-│   ├── outputs/
-│   │   ├── models/           # Trained PINN checkpoints
-│   │   └── surrogates/       # Fast surrogate models
-│   └── run_srikar.py         # Training entrypoint
-├── Pipelines/                # Aryan's batch simulator
-│   ├── batch_simulator.py    # Core batch engine
-│   ├── multi_domain_simulator.py  # Domain routing
-│   ├── config.py
-│   ├── run_pipeline.py       # Execution entrypoint
-│   └── results/
-│       └── handoff_for_divyanshu.csv
-├── Validators/               # Divyanshu's validation suite
-│   ├── validator.py          # Core validation
-│   ├── cross_domain_validator.py  # Multi-domain checks
-│   ├── accuracy_validator.py # Surrogate vs full-physics
-│   ├── failure_analyzer.py   # Failure pattern detection
-│   ├── fp_fixer.py          # False positive mitigation
-│   ├── feedback_loop.py      # Lab feedback integration
-│   ├── surrogate_calibrator.py # UQ calibration
-│   ├── dashboard_generator.py   # HTML dashboards
-│   ├── run_validation.py     # Execution entrypoint
-│   └── results/
-│       ├── validation_report.json
-│       ├── validation_dashboard.html
-│       └── ...
-├── run_complete_project.py   # Master entrypoint
-└── README.md                 # This file
+```text
+Surrogate_heat.joblib
+Surrogate_darcy.joblib
+Surrogate_stress.joblib
+Surrogate_arrhenius.joblib
+Surrogate_biology.joblib
+Surrogate_logistic.joblib
 ```
 
----
+## Phase 2: Inference, Scoring, Validation
 
-## Running the Project
+Run the full downstream pipeline:
 
-### Full Pipeline
-```bash
-cd d:/Internship/Pranag-AI
+```powershell
 python run_complete_project.py
 ```
 
-Outputs:
-- `Pipelines/results/handoff_for_divyanshu.csv` — Designs ready for lab
-- `Validators/results/validation_report.json` — Complete validation results
-- `Validators/results/validation_dashboard.html` — Interactive dashboard
+To use a specific spec:
 
-### Individual Stages
-
-**Stage 1: Train PINNs (Srikar)**
-```bash
-cd Model
-python run_srikar.py
+```powershell
+python run_complete_project.py datasrc\spec_20260604_062219_5ab7e575.json
 ```
 
-**Stage 2: Run Batch Simulation (Aryan)**
-```bash
-cd Pipelines
-python run_pipeline.py --data ../Model/datasrc/real_data_combined.parquet --models ../Model/outputs/models
+### Phase 2 Inputs
+
+The downstream phase uses two kinds of input from `datasrc/`.
+
+**Prompt-analysis specs**
+
+Files like:
+
+```text
+datasrc/spec_20260604_062219_5ab7e575.json
 ```
 
-**Stage 3: Validate Results (Divyanshu)**
-```bash
-cd Validators
-python run_validation.py --input ../Pipelines/results/handoff_for_divyanshu.csv
+These are structured analyses of a user prompt. They include fields such as crop/material target, location, temperature, stress conditions, target traits, retrieved scientific traits, confidence, and supporting basis.
+
+**Universal candidate database**
+
+```text
+datasrc/universal_index_final.parquet
 ```
 
----
+This parquet file is treated as the universal candidate/entity index. The inference pipeline streams it in batches and expects fields such as:
 
-## Performance Targets vs. Reality
+- `entity_id`
+- `name`
+- `domain`
+- `description`
+- optional `tags`
+- optional `intrinsic_property_1`
+- optional `intrinsic_property_2`
+- optional `key_prop_1`, `key_prop_2`, `key_prop_3`
 
-### For 525M Entities (Production Scale)
+## How Scoring Works
 
-| Task | Time | Tools |
-|------|------|-------|
-| Load data | ~1 hour | DuckDB |
-| Route to PINNs | ~2 hours | Spark + GPU |
-| Run simulations | ~15 hours | 1000 GPUs |
-| Apply loss functions | ~2 hours | PyTorch |
-| Filter & aggregate | ~2 hours | Parquet |
-| Write results | ~2 hours | S3 |
-| **TOTAL** | **< 24 hours** | **GPU cluster** |
+Scoring happens in `Pipeline_New/inference_pipeline.py`.
 
-### For Current Mock Data (30 entities)
+The high-level process is:
 
-| Task | Time |
-|------|------|
-| Load | 0.011s |
-| Simulate | 0.025s |
-| Validate | 0.050s |
-| Total | ~0.1s |
-| Extrapolated to 1M | ~367s (6 min) ✅ |
+1. `run_complete_project.py` creates an `InferenceEngine`.
+2. The engine loads the selected `spec_*.json`.
+3. `Pipeline_New/dag_router.py` builds an execution DAG from the spec.
+4. The DAG chooses which trained surrogates to run, in what order, with what weights.
+5. The inference engine streams `datasrc/universal_index_final.parquet` in batches.
+6. Each batch is semantically filtered to focus on relevant candidates.
+7. Each selected surrogate scores every candidate that survives filtering.
+8. Per-domain scores are combined into a final `viability_score`.
+9. Candidates below the threshold are removed, with a top-percent fallback to avoid empty batches.
+10. Survivors are written to `Pipeline_New/inference_handoff.csv`.
 
----
+### DAG Routing
 
-## Next Steps for Production
+The router converts the spec into a model execution chain. The Gemini prompt in `Pipeline_New/dag_router.py` currently exposes these surrogate schemas:
 
-1. **Real Data Integration**
-   - Connect to Kartik's universal index
-   - Load 525M trait variants
-   - Real environmental/location data
+```text
+heat       -> time, space, intrinsic properties, boundary/initial temperature
+darcy      -> space, intrinsic properties, boundary/initial pressure
+stress     -> time, intrinsic properties, boundary/initial stress
+biology    -> time, intrinsic properties, boundary/initial biomass
+logistic   -> time, intrinsic properties, boundary/initial growth
+arrhenius  -> temperature, intrinsic properties, boundary/initial rate
+```
 
-2. **GPU Scaling**
-   - Deploy on 1000-GPU cluster
-   - Optimize batch sizes for V100/H100
-   - Profile memory usage per simulation
+Each DAG node includes:
 
-3. **Model Calibration**
-   - Collect real lab results
-   - Retrain PINNs with feedback
-   - Improve false positive rate
+- `model`: the surrogate to run
+- `inputs`: expected input names
+- `output_maps_to`: where the model output is written for possible downstream chaining
+- `target_value`: the target extracted from the spec
+- `initial_value`: the starting condition
+- `optimization_goal`: `maximize`, `minimize`, or `target`
 
-4. **Real-Time API**
-   - WebSocket listener for live specs
-   - Ultra-fast path (<1ms response)
-   - Full path validation (<10s)
+The router also emits model weights, target entities, and semantic keywords.
 
-5. **Monitoring & Observability**
-   - Prometheus metrics (accuracy, drift)
-   - Grafana dashboards (real-time)
-   - Alert on >5% accuracy drop
+### Semantic Filtering
 
-6. **Documentation**
-   - API documentation (OpenAPI/Swagger)
-   - Model card for each PINN
-   - Loss function reference guide
+Before scoring, each parquet batch is filtered using:
 
----
+1. **Strict target entities** from the DAG, such as `maize`, `corn`, or `zea mays`.
+2. **Broader semantic keywords** if strict matching finds nothing.
+3. The full batch if no useful semantic filters are available.
 
-## Key Innovations
+Filtering checks candidate `name`, `description`, and optional `tags`.
 
-1. **Automated Loss Functions**: Generate loss components from equations, not manual coding
-2. **Surrogate Models**: 1M× speedup without sacrificing physics understanding
-3. **Sequential Validation**: Stop at first failure to save compute
-4. **Uncertainty Quantification**: Confidence bounds on every prediction
-5. **Adaptive Weights**: Automatically tune loss weights based on failure patterns
-6. **Lab Feedback Loop**: Continuous model improvement from real-world validation
+### Model Input Construction
 
----
+For each DAG node, `_build_inputs()` creates the exact numeric feature matrix expected by the loaded surrogate.
 
-## Team Responsibilities
+It handles:
 
-- **Harshit** (Translation): Parse user prompts → specs
-- **Kartik** (Data): Universal index of 525M entities
-- **Srikar** (PINN Architecture): Train physics models
-- **Aryan** (Pipeline): Run batch simulations  
-- **Divyanshu** (Validation): Verify accuracy, handle failures
+- normalized time and space coordinates
+- boundary and initial values from the spec
+- intrinsic parquet properties when available
+- deterministic hash-based fallback values when data is missing
+- regex extraction from descriptions for values like temperature, pH, mass, or yield
+- feature padding so the input shape matches `model.n_features_in_`
 
----
+This is where prompt-level conditions become surrogate-ready numeric inputs.
 
-## The Promise
+### Viability Score Calculation
 
-> "Give PRANA-G AI any prompt. It will design the solution. We will simulate it. We will test it. It will work."
+Each surrogate produces a raw prediction. `_calculate_score()` turns that prediction into a `0.0` to `1.0` score using the DAG node's optimization goal.
 
-**Without PRANA-G**: Build 100 designs → 99 fail in lab → waste months & millions
-**With PRANA-G**: Simulate 1M designs → top 100 go to lab → >70% succeed → save 90% costs
+- `maximize`: higher prediction is better, up to the target.
+- `minimize`: lower prediction is better, with score decreasing toward the target.
+- `target`: score decays as prediction moves away from the target.
 
----
+The pipeline uses fixed scalers for consistent target normalization:
 
-Generated: 2026-05-09
-Status: ✅ **OPERATIONAL** (mock data validation complete)
+```text
+temperature / heat -> 1500.0
+pressure / stress  -> 1000.0
+biomass / growth   -> 10000.0
+pH                 -> 14.0
+default            -> 100.0
+```
+
+The final `viability_score` is a weighted sum of all domain scores, plus a missing-data penalty when key properties are absent.
+
+### Inference Handoff Output
+
+The main scoring output is:
+
+```text
+Pipeline_New/inference_handoff.csv
+```
+
+It contains columns like:
+
+```text
+entity_id,name,domain,heat_score,darcy_score,stress_score,arrhenius_score,biology_score,logistic_score,viability_score
+```
+
+Only candidates that pass the physics viability filter, or are included by the top-percent fallback, are written to this handoff file.
+
+## Cross-Domain Validation
+
+After inference, `run_complete_project.py` runs:
+
+```text
+Validator_New/cross_domain_validator.py
+```
+
+This validator reads:
+
+```text
+Pipeline_New/inference_handoff.csv
+```
+
+Then it applies final safety checks across whichever domain scores exist. Current hard gates include:
+
+- reject candidates with `arrhenius_score < 0.2`
+- reject candidates with `heat_score < 0.2`
+- reject candidates with `stress_score < 0.2`
+
+The validator sorts safe candidates by `viability_score` and writes the top 100.
+
+### Validation Outputs
+
+```text
+Validator_New/Top_100_Validated_Designs.json
+Validator_New/Failed_Designs_Log.json
+```
+
+`Top_100_Validated_Designs.json` contains:
+
+- `total_evaluated`
+- `total_safe`
+- `top_100`
+- per-candidate `entity_id`, `name`, `domain`, `viability_score`, and domain scores
+
+`Failed_Designs_Log.json` records rejected candidates and reasons.
+
+## Dashboard
+
+The final HTML dashboard is generated by:
+
+```text
+Validator_New/dashboard_generator.py
+```
+
+Output:
+
+```text
+pranag_dashboard.html
+```
+
+The dashboard summarizes:
+
+- total entities scanned
+- number of physics survivors
+- number removed below threshold
+- pass rate
+- execution DAG sequence
+- top validated designs
+- cross-domain failure log
+
+## Project Structure
+
+```text
+.
+|-- datasrc/
+|   |-- spec_*.json                    Prompt-analysis specifications
+|   |-- universal_index_final.parquet   Universal candidate/entity index
+|   |-- real_data_combined.parquet      Supporting data artifact
+|   |-- openlandmap_soil_india.parquet  Supporting soil data artifact
+|   `-- data_loader.py                  Supporting/legacy data utility
+|
+|-- training/
+|   |-- simulation_generator.py         Domain/equation to PINN configuration
+|   |-- pinn_factory.py                 PINN registry and model factory
+|   |-- pinn_trainer.py                 Two-stage PINN trainer
+|   |-- surrogate_trainer.py            General surrogate trainer utility
+|   `-- sympy_loss_generator.py         Math expression to loss/PDE helpers
+|
+|-- Pipeline_New/
+|   |-- dag_router.py                   Spec to surrogate execution DAG
+|   |-- inference_pipeline.py           Batch scoring and handoff generation
+|   `-- inference_handoff.csv           Current scored survivor handoff
+|
+|-- Validator_New/
+|   |-- cross_domain_validator.py       Final safety/top-100 validator
+|   |-- dashboard_generator.py          HTML dashboard generator
+|   |-- Top_100_Validated_Designs.json  Current final top designs
+|   `-- Failed_Designs_Log.json         Current rejection log
+|
+|-- unified_pipeline_new_output/
+|   |-- pinn/                           PINN checkpoints and loss plots
+|   |-- surrogate/                      Trained surrogate joblib files
+|   |-- plots/                          Surrogate R2 plots
+|   `-- results/                        Surrogate metrics
+|
+|-- unified_pipeline.py                 Phase 1 training pipeline
+|-- train_all_domains.py                Trains the configured domain set
+|-- run_complete_project.py             Phase 2 full inference/validation run
+|-- requirements.txt                    Python dependencies
+`-- pranag_dashboard.html               Current dashboard output
+```
+
+## Common Commands
+
+Install dependencies:
+
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Train all configured surrogates:
+
+```powershell
+python train_all_domains.py
+```
+
+Run downstream inference and validation with the default spec:
+
+```powershell
+python run_complete_project.py
+```
+
+Run downstream inference and validation with a specific spec:
+
+```powershell
+python run_complete_project.py datasrc\spec_20260604_062219_5ab7e575.json
+```
+
+Run only the inference pipeline:
+
+```powershell
+python Pipeline_New\inference_pipeline.py
+```
+
+Run only the validator:
+
+```powershell
+python Validator_New\cross_domain_validator.py
+```
+
+## Notes and Current Behavior
+
+- The inference phase depends on trained surrogate files in `unified_pipeline_new_output/surrogate/`.
+- If Gemini is unavailable, routing falls back to local mock rules.
+- If the router requests a missing surrogate, the current inference code remaps that model to `logistic`.
+- The universal parquet is streamed in batches, so scoring can scale beyond memory.
+- The current validation stage is intentionally lightweight: it is a final safety filter and top-100 extractor, not a full retraining or lab-feedback system.
+- `datasrc/data_loader.py` exists, but the current primary training path in `unified_pipeline.py` generates PINN-labelled training samples in memory rather than using it as the main training driver.

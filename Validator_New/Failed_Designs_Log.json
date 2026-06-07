@@ -1,4 +1,131 @@
 {
-    "total_failed": 0,
-    "failed_designs": []
+    "total_failed": 18,
+    "failed_designs": [
+        {
+            "entity_id": "inat_55748",
+            "name": "Veronica arvensis",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "pdb_1e4l",
+            "name": "PDB 1E4L: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase",
+            "domain": "biology",
+            "viability_score": 0.7478,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_feltia_repleta",
+            "name": "Zea mays \u2192 Feltia repleta (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.7478,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_hister",
+            "name": "Zea mays \u2192 Hister (flowersVisitedBy)",
+            "domain": "biology",
+            "viability_score": 0.7474,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_dichomeris_granivora",
+            "name": "Zea mays \u2192 Dichomeris granivora (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.7454,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_ctenicera_aeripennis_destructo",
+            "name": "Zea mays \u2192 Ctenicera aeripennis destructor (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.6034,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_melanoplus_femurrubrum",
+            "name": "Zea mays \u2192 Melanoplus femurrubrum (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.5985,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_phthorimaea_operculella",
+            "name": "Zea mays \u2192 Phthorimaea operculella (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_agrobacterium_tumefaciens_zea_mays_subsp._mays",
+            "name": "Agrobacterium tumefaciens \u2192 Zea mays subsp. mays (interactsWith)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_spodoptera_exempta",
+            "name": "Zea mays \u2192 Spodoptera exempta (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_puccinia_sorghi",
+            "name": "Zea mays \u2192 Puccinia sorghi (interactsWith)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_alternaria_infectoria",
+            "name": "Zea mays \u2192 Alternaria infectoria (interactsWith)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_spodoptera_exigua",
+            "name": "Zea mays \u2192 Spodoptera exigua (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_sesamia_cretica",
+            "name": "Zea mays \u2192 Sesamia cretica (eatenBy)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "globiint_zea_mays_pseudosiobla",
+            "name": "Zea mays \u2192 Pseudosiobla (flowersVisitedBy)",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "go_cc_go_0010427",
+            "name": "abscisic acid binding",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "cl_cl_0000250",
+            "name": "obsolete megaspore",
+            "domain": "biology",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        },
+        {
+            "entity_id": "agristack_madhya_pradesh_maize_2023",
+            "name": "Maize \u2014 Madhya Pradesh",
+            "domain": "environment",
+            "viability_score": 0.554,
+            "reason": "Critical flow/permeability hazard (score 0.0513 < 0.2)"
+        }
+    ]
 }

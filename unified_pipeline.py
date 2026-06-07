@@ -23,13 +23,12 @@ class PranagPipeline:
         self.factory = PINNFactory()
         
         # Setup new unified output directory structure
-        self.base_output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "unified_pipeline_new_output"))
-        self.pinn_dir = os.path.join(self.base_output_dir, "pinn")
+        self.base_output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "unified_pipeline_new_output_1"))
         self.surrogate_dir = os.path.join(self.base_output_dir, "surrogate")
         self.plots_dir = os.path.join(self.base_output_dir, "plots")
         self.results_dir = os.path.join(self.base_output_dir, "results")
         
-        for d in [self.pinn_dir, self.surrogate_dir, self.plots_dir, self.results_dir]:
+        for d in [self.surrogate_dir, self.plots_dir, self.results_dir]:
             os.makedirs(d, exist_ok=True)
 
     def run_end_to_end(self):
@@ -50,8 +49,8 @@ class PranagPipeline:
         pinn_model.base_dim = len(cfg.equation_info.independent)
         alias = f"Parametric_{self.domain.capitalize()}PINN"
             
-        max_epochs = 10 if self.test_mode else 5000
-        num_points = 100 if self.test_mode else 10000
+        max_epochs = 10 if self.test_mode else 3000
+        num_points = 100 if self.test_mode else 2000
         batch_size = 10 if self.test_mode else 2048
             
         trained_pinn, _ = train_pinn_model(
@@ -60,15 +59,14 @@ class PranagPipeline:
             num_points=num_points,
             max_epochs=max_epochs,
             batch_size=batch_size,
-            model_alias=alias,
-            checkpoint_dir=self.pinn_dir
+            model_alias=alias
         )
         
         # 2. On-the-fly Data Generation (In-Memory)
         print("\n--- Phase 2: In-Memory Data Generation ---")
         
         # Dynamically generate N-dimensional grid to avoid RAM crashes
-        target_total_points = 1000 if self.test_mode else 100000
+        target_total_points = 1000 if self.test_mode else 10000
         print(f"Generating exactly {target_total_points} points using Latin Hypercube Sampling (LHS).")
         
         from scipy.stats import qmc
