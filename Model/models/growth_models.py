@@ -32,7 +32,7 @@ import sys, pathlib
 
 # Allow running standalone
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from pinn_factory import _GenericPINN as BasePINN
+from training.pinn_factory import _GenericPINN as BasePINN
 
 
 # ═══════════════════════════════════════════════════════════════════════

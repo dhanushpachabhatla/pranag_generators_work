@@ -58,7 +58,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import torch
 import torch.nn as nn
 
-from simulation_generator import SimulationGenerator, SimulationConfig, EQUATION_PATTERNS
+from training.simulation_generator import SimulationGenerator, SimulationConfig, EQUATION_PATTERNS
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -712,7 +712,7 @@ class PINNFactory:
             else:
                 model = cls(**{k: v for k, v in kw.items() if k in sig})
                 
-            from simulation_generator import EQUATION_PATTERNS
+            from training.simulation_generator import EQUATION_PATTERNS
             if key in EQUATION_PATTERNS:
                 model.base_dim = len(EQUATION_PATTERNS[key].get("independent", ["t", "x"]))
             else:
@@ -747,7 +747,7 @@ class PINNFactory:
 
         try:
             # Use the new SymPyLossGenerator to compile the physics loss from the equation
-            from sympy_loss_generator import SymPyLossGenerator
+            from training.sympy_loss_generator import SymPyLossGenerator
             sympy_gen = SymPyLossGenerator()
             eq_str = cfg.equation_info.raw
             # Remove whitespace and replace common patterns for deepxde parsing if needed
@@ -830,7 +830,7 @@ class PINNFactory:
         all_params = {**eq.parameters, **params}
         
         try:
-            from sympy_loss_generator import SymPyLossGenerator
+            from training.sympy_loss_generator import SymPyLossGenerator
             sympy_gen = SymPyLossGenerator()
             eq_str = eq.raw
             input_vars = eq.independent

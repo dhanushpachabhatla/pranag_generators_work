@@ -35,15 +35,26 @@ class CrossDomainValidator:
         safety_mask = pd.Series(True, index=df.index)
         
         # Cross-Domain Hazard Checks with Reason Tracking
-        if "chemistry_score" in df.columns:
-            chem_fail = df["chemistry_score"] < 0.2
+        if "arrhenius_score" in df.columns:
+            chem_fail = df["arrhenius_score"] < 0.2
             for idx in df[chem_fail].index:
                 failed_reasons.append({
                     "entity_id": str(df.loc[idx, "entity_id"]),
                     "name": str(df.loc[idx, "name"]),
-                    "reason": f"Critical chemistry hazard (score {df.loc[idx, 'chemistry_score']:.2f} < 0.2)"
+                    "reason": f"Critical chemistry hazard (score {df.loc[idx, 'arrhenius_score']:.2f} < 0.2)"
                 })
             safety_mask = safety_mask & ~chem_fail
+            
+        if "heat_score" in df.columns:
+            heat_fail = df["heat_score"] < 0.2
+            heat_only_fail = heat_fail & safety_mask
+            for idx in df[heat_only_fail].index:
+                failed_reasons.append({
+                    "entity_id": str(df.loc[idx, "entity_id"]),
+                    "name": str(df.loc[idx, "name"]),
+                    "reason": f"Critical thermal hazard (score {df.loc[idx, 'heat_score']:.2f} < 0.2)"
+                })
+            safety_mask = safety_mask & ~heat_fail
             
         if "stress_score" in df.columns:
             stress_fail = df["stress_score"] < 0.2

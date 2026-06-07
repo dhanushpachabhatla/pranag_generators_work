@@ -15,8 +15,8 @@ class InferenceEngine:
     and Mathematical Weight Normalization.
     """
     
-    SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'unified_pipeline_output', 'surrogate'))
-    PARQUET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Model', 'datasrc', 'universal_index_final.parquet'))
+    SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'unified_pipeline_new_output', 'surrogate'))
+    PARQUET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'datasrc', 'universal_index_final.parquet'))
     OUTPUT_PATH = os.path.join(os.path.dirname(__file__), 'inference_handoff.csv')
     
     def __init__(self, use_mock_llm=False):
@@ -75,13 +75,68 @@ class InferenceEngine:
             final_vals = np.where(np.isnan(extracted), hash_fallback, extracted)
             return final_vals.astype(np.float32)
 
-        time_v = np.ones(n, dtype=np.float32) * 5.0
-        cols = [time_v]
+        cols = []
         
         requested_inputs = node.get("inputs", [])
         for req in requested_inputs:
-            if req in ["time", "space", "t", "x"]: continue
-            
+            # 1. Temporal dimension (scaled [0, 1] in training)
+            if req in ["time", "t", "time_days"]:
+                cols.append(np.ones(n, dtype=np.float32) * 0.5)
+                continue
+                
+            # 2. Spatial dimensions (scaled [-1, 1] in training)
+            if req in ["space", "x", "space_x", "space_y", "depth"]:
+                cols.append(np.zeros(n, dtype=np.float32))
+                continue
+                
+            # 3. Parametric Boundary/Initial targets (Static Absolute Scaling)
+            if "boundary" in req.lower() or "initial" in req.lower():
+                is_boundary = "boundary" in req.lower()
+                raw_val = float(node.get("target_value", 0.0)) if is_boundary else float(node.get("initial_value", -999.0))
+                
+                # Absolute static scaling bounds to ensure mathematical consistency across ALL prompts
+                if "temp" in req.lower() or "heat" in req.lower(): 
+                    scaler = 1500.0  # Safe upper limit for materials and biology
+                    default_init = 25.0
+                elif "pressure" in req.lower() or "stress" in req.lower(): 
+                    scaler = 1000.0  # MPa
+                    default_init = 0.0
+                elif "biomass" in req.lower() or "growth" in req.lower(): 
+                    scaler = 10000.0 # kg/ha
+                    default_init = 10.0
+                elif "ph" in req.lower():
+                    scaler = 14.0
+                    default_init = 7.0
+                else: 
+                    scaler = 100.0
+                    default_init = 0.0
+                    
+                # Apply defaults if LLM did not provide initial state
+                if not is_boundary and raw_val == -999.0:
+                    raw_val = default_init
+                elif is_boundary and raw_val == 0.0:
+                    raw_val = default_init  # Ensure we don't accidentally simulate boundary at absolute zero if unspecified
+                    
+                val = np.clip(raw_val / scaler, 0.0, 1.0)
+                cols.append(np.full(n, val, dtype=np.float32))
+                continue
+                
+            # 4. Handle Intrinsic Properties
+            if req in ["intrinsic_property_1", "intrinsic_property_2"]:
+                if req in df.columns:
+                    # Use the actual normalized values from the Parquet!
+                    val = pd.to_numeric(df[req], errors="coerce").fillna(0.5).values.astype(np.float32)
+                    cols.append(np.clip(val, 0.0, 1.0))
+                else:
+                    # Deterministic random fallback between 0.0 and 1.0 based on entity ID
+                    def hash_to_intrinsic(eid, seed_str):
+                        h = int(hashlib.md5(f"{eid}_{seed_str}".encode()).hexdigest()[:8], 16)
+                        return h / 0xffffffff
+                    
+                    dummy_intrinsic = np.array([hash_to_intrinsic(eid, req) for eid in df.get("entity_id", range(n))])
+                    cols.append(dummy_intrinsic.astype(np.float32))
+                continue
+                
             # Assign regex if it's a known physical property
             pattern = None
             if "temp" in req.lower(): pattern = r'(?i)(?:temp|temperature).*?(\d{2,3})'
@@ -89,7 +144,10 @@ class InferenceEngine:
             elif "mass" in req.lower() or "yield" in req.lower(): pattern = r'(?i)(?:mass|weight|yield).*?([0-9]+\.?[0-9]?)'
             
             # Extract dynamic values based on the LLM's requested input name
-            val_col = get_dynamic_col(req, 1.0, pattern)
+            # Normalized safely for surrogate
+            val_col = get_dynamic_col(req, 0.5, pattern)
+            # Clip between [0, 1] to prevent massive extrapolation from Random Forest
+            val_col = np.clip(val_col / np.max(val_col) if np.max(val_col) > 0 else val_col, 0.0, 1.0)
             cols.append(val_col)
             
         # Pad any remaining expected features with zeros to prevent shape crashes
@@ -98,27 +156,27 @@ class InferenceEngine:
             
         return np.column_stack(cols[:n_features])
 
-    def _calculate_score(self, pred: np.ndarray, spec: dict, target_value: float, optimization_goal: str) -> np.ndarray:
+    def _calculate_score(self, pred: np.ndarray, spec: dict, target_value: float, optimization_goal: str, scaler: float) -> np.ndarray:
         """
         Validates scoring math using spec.json targets and DAG optimization goals.
         Normalizes predictions into a strict 0.0 - 1.0 viability score.
         """
         pred_flat = pred.flatten()
-        scores = np.zeros_like(pred_flat)
+        scaled_target = np.clip(target_value / scaler, 0.0, 1.0)
         
         if optimization_goal == "maximize":
             # Score approaches 1.0 as prediction approaches or exceeds target
-            if target_value == 0.0: target_value = 1.0 # Prevent div by 0
-            scores = np.clip(pred_flat / target_value, 0.0, 1.0)
+            if scaled_target == 0.0: scaled_target = 1.0 # Prevent div by 0
+            scores = np.clip(pred_flat / scaled_target, 0.0, 1.0)
             
         elif optimization_goal == "minimize":
             # Score is 1.0 if prediction is 0, approaches 0 as prediction reaches or exceeds target
-            if target_value == 0.0: target_value = 1.0
-            scores = np.clip(1.0 - (pred_flat / target_value), 0.0, 1.0)
+            if scaled_target == 0.0: scaled_target = 1.0
+            scores = np.clip(1.0 - (pred_flat / scaled_target), 0.0, 1.0)
             
         else: # "target"
             # Exponential decay error metric: 1.0 if perfect, drops to 0 if far from target
-            scores = np.exp(-np.abs(pred_flat - target_value) / (target_value + 1e-8))
+            scores = np.exp(-np.abs(pred_flat - scaled_target) / (scaled_target + 1e-8))
             
         return scores
 
@@ -187,7 +245,7 @@ class InferenceEngine:
             df_filtered = None
             
             if target_entities:
-                pattern_strict = r'(?i)\b(' + '|'.join(target_entities) + r')\b'
+                pattern_strict = r'(?i)(?:^|[^a-zA-Z])(' + '|'.join(target_entities) + r')(?:[^a-zA-Z]|$)'
                 strict_mask = df["name"].astype(str).str.contains(pattern_strict) | \
                               df["description"].astype(str).str.contains(pattern_strict) | \
                               df.get("tags", pd.Series("")).astype(str).str.contains(pattern_strict)
@@ -236,6 +294,13 @@ class InferenceEngine:
                 n_features = getattr(model, 'n_features_in_', 3)
                 X = self._build_inputs(df, spec, n_features, node)
                 
+                # Determine mathematically consistent scaler based on the domain mapped output
+                if "temp" in maps_to or "heat" in maps_to: scaler = 1500.0
+                elif "pressure" in maps_to or "stress" in maps_to: scaler = 1000.0
+                elif "biomass" in maps_to or "growth" in maps_to: scaler = 10000.0
+                elif "ph" in maps_to: scaler = 14.0
+                else: scaler = 100.0
+                
                 # Dynamic Targets & Optimization Goal
                 target_val = float(node.get("target_value", 0.0))
                 opt_goal = node.get("optimization_goal", "target")
@@ -253,8 +318,8 @@ class InferenceEngine:
                 # Chaining: Feed output forward into the dataframe
                 df[maps_to] = raw_pred
                 
-                # Robust Scoring Math
-                y_score = self._calculate_score(raw_pred, spec, target_val, opt_goal)
+                # Robust Scoring Math ensuring prediction is evaluated against scaled limits
+                y_score = self._calculate_score(raw_pred, spec, target_val, opt_goal, scaler)
                 scores_df[f"{domain}_score"] = y_score
                 
                 # Apply weight
@@ -283,8 +348,15 @@ class InferenceEngine:
         print(f"   => Deleted {total_processed - total_survivors:,} failed candidates (< 0.7).")
         print(f"   => {total_survivors:,} highly viable candidates survived the physics.")
         print(f"\nInference Complete! Handoff saved to: {self.OUTPUT_PATH}")
+        
+        return {
+            "execution_chain": [n["model"] for n in valid_chain],
+            "total_processed": total_processed,
+            "total_survivors": total_survivors,
+            "handoff_path": self.OUTPUT_PATH
+        }
 
 if __name__ == "__main__":
     engine = InferenceEngine(use_mock_llm=False)
-    test_spec = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Model', 'datasrc', 'spec_20260604_062219_5ab7e575.json'))
+    test_spec = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'datasrc', 'spec_20260604_062219_5ab7e575.json'))
     engine.run(test_spec)

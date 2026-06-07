@@ -113,7 +113,7 @@ EQUATION_PATTERNS = {
                      "alpha.*d2u", "du/dt.*d2u"],
         "eq_hint": "du/dt = alpha * d2u/dx2",
         "domain_class": "physics",
-        "independent": ["t", "x"],
+        "independent": ["t", "x", "p1", "p2"],
         "dependent": ["u"],
         "params": {"alpha": 0.01},
         "loss_template": "heat_1d",
@@ -205,7 +205,7 @@ EQUATION_PATTERNS = {
                      "gray scott", "fitzhugh", "pattern formation"],
         "eq_hint": "du/dt = Du*laplacian(u) + f(u,v); dv/dt = Dv*laplacian(v) + g(u,v)",
         "domain_class": "biology",
-        "independent": ["t", "x", "y"],
+        "independent": ["t", "x", "y", "p1", "p2"],
         "dependent": ["u", "v"],
         "params": {"Du": 0.16, "Dv": 0.08, "F": 0.035, "k": 0.065},
         "loss_template": "gray_scott_2d",
@@ -282,7 +282,7 @@ EQUATION_PATTERNS = {
         "keywords": ["darcy", "porous media", "groundwater", "permeability"],
         "eq_hint": "div(K*grad(p)) = f",
         "domain_class": "physics",
-        "independent": ["x", "y"],
+        "independent": ["x", "y", "p1", "p2"],
         "dependent": ["p"],
         "params": {"K": 1.0, "f_src": 0.0},
         "loss_template": "darcy_2d",
@@ -337,7 +337,7 @@ EQUATION_PATTERNS = {
         "keywords": ["logistic", "verhulst", "population growth", "carrying capacity"],
         "eq_hint": "dN/dt = r*N*(1 - N/K)",
         "domain_class": "biology",
-        "independent": ["t"],
+        "independent": ["t", "p1", "p2"],
         "dependent": ["N"],
         "params": {"r": 0.3, "K": 1000.0},
         "loss_template": "logistic_ode",
@@ -357,7 +357,7 @@ EQUATION_PATTERNS = {
         "keywords": ["stress", "environmental stress", "tolerance"],
         "eq_hint": "dS/dt = alpha*S*(1 - S/S_max)",
         "domain_class": "biology",
-        "independent": ["t"],
+        "independent": ["t", "p1", "p2"],
         "dependent": ["S"],
         "params": {"alpha": 0.1, "S_max": 1.0},
         "loss_template": "stress_ode",
@@ -367,7 +367,7 @@ EQUATION_PATTERNS = {
         "keywords": ["biology", "adaptive trait", "phenotype"],
         "eq_hint": "dA/dt = r*A - m*A^2",
         "domain_class": "biology",
-        "independent": ["t"],
+        "independent": ["t", "p1", "p2"],
         "dependent": ["A"],
         "params": {"r": 0.5, "m": 0.1},
         "loss_template": "biology_ode",
@@ -402,7 +402,7 @@ EQUATION_PATTERNS = {
                      "chemical kinetics"],
         "eq_hint": "k = A * exp(-Ea/(R*T))",
         "domain_class": "chemistry",
-        "independent": ["T"],
+        "independent": ["T", "p1", "p2"],
         "dependent": ["k"],
         "params": {"A": 1e13, "Ea": 50000.0, "R": 8.314},
         "loss_template": "arrhenius_ode",
@@ -489,7 +489,8 @@ LOSS_TEMPLATES = {
         u_x  = grads[:, 1:2]
         u_xx = torch.autograd.grad(u_x, x, grad_outputs=torch.ones_like(u_x),
                                    create_graph=True)[0][:, 1:2]
-        residual = u_t - self.alpha * u_xx
+        alpha = x[:, 2:3]
+        residual = u_t - alpha * u_xx
         return (residual ** 2).mean()
 ''',
 
@@ -666,8 +667,13 @@ LOSS_TEMPLATES = {
         """Placeholder residual for Arrhenius reaction rate."""
         x = x.clone().requires_grad_(True)
         k = self(x)
-        T = x[:,0:1]
-        target = self.A * torch.exp(-self.Ea / (self.R * T))
+        # Ensure T is strictly positive to prevent divide-by-zero
+        T = torch.abs(x[:, 0:1]) + 0.1
+        A_param = x[:, 1:2]
+        # Ensure Activation Energy is strictly positive
+        Ea_param = torch.abs(x[:, 2:3]) + 0.1
+        
+        target = A_param * torch.exp(-Ea_param / (self.R * T))
         residual = k - target
         return (residual ** 2).mean()
 ''',
@@ -728,7 +734,9 @@ LOSS_TEMPLATES = {
         N  = self(x)
         dN = torch.autograd.grad(N, x, grad_outputs=torch.ones_like(N),
                                   create_graph=True)[0][:,0:1]
-        residual = dN - self.r * N * (1 - N / self.K)
+        r_param = x[:, 1:2]
+        K_param = x[:, 2:3]
+        residual = dN - r_param * N * (1 - N / K_param)
         return (residual ** 2).mean()
 ''',
 
@@ -942,8 +950,10 @@ LOSS_TEMPLATES = {
         def grad_t(f):
             return torch.autograd.grad(f, x, grad_outputs=torch.ones_like(f),
                                         create_graph=True)[0][:,0:1]
-        r1 = grad_t(u) - self.Du*laplacian_2d(u,x) + u*v**2 - self.F*(1-u)
-        r2 = grad_t(v) - self.Dv*laplacian_2d(v,x) - u*v**2 + (self.F+self.k)*v
+        F_param = x[:, 3:4]
+        k_param = x[:, 4:5]
+        r1 = grad_t(u) - self.Du*laplacian_2d(u,x) + u*v**2 - F_param*(1-u)
+        r2 = grad_t(v) - self.Dv*laplacian_2d(v,x) - u*v**2 + (F_param+k_param)*v
         return (r1**2 + r2**2).mean()
 ''',
 
@@ -959,7 +969,9 @@ LOSS_TEMPLATES = {
                                     create_graph=True)[0][:,0:1]
         p_yy = torch.autograd.grad(p_y, x, grad_outputs=torch.ones_like(p_y),
                                     create_graph=True)[0][:,1:2]
-        residual = -self.K * (p_xx + p_yy) - self.f_src
+        K_param = x[:, 2:3]
+        f_param = x[:, 3:4]
+        residual = -K_param * (p_xx + p_yy) - f_param
         return (residual ** 2).mean()
 ''',
 
@@ -993,7 +1005,9 @@ LOSS_TEMPLATES = {
         S = self(x)
         dS = torch.autograd.grad(S, x, grad_outputs=torch.ones_like(S),
                                  create_graph=True)[0][:,0:1]
-        residual = dS - self.alpha*S*(1 - S/self.S_max)
+        alpha_param = x[:, 1:2]
+        S_max_param = x[:, 2:3]
+        residual = dS - alpha_param*S*(1 - S/S_max_param)
         return (residual ** 2).mean()
 ''',
 
@@ -1003,7 +1017,9 @@ LOSS_TEMPLATES = {
         A = self(x)
         dA = torch.autograd.grad(A, x, grad_outputs=torch.ones_like(A),
                                  create_graph=True)[0][:,0:1]
-        residual = dA - (self.r*A - self.m*A**2)
+        r_param = x[:, 1:2]
+        m_param = x[:, 2:3]
+        residual = dA - (r_param*A - m_param*A**2)
         return (residual ** 2).mean()
 ''',
 

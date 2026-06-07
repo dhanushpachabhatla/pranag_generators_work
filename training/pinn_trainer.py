@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
 # Import the 7-component loss generator
-from loss_generator import create_cross_domain_loss_generator
+from Model.models.loss_generator import create_cross_domain_loss_generator
 
 class PINNLightningModule(pl.LightningModule):
     def __init__(self, pinn_model, learning_rate=1e-3, optimizer_type="adam"):

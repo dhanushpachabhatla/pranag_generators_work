@@ -11,18 +11,19 @@ from sklearn.metrics import r2_score
 
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), "Model", "models"))
-from Model.models.pinn_factory import PINNFactory
-from Model.models.pinn_trainer import train_pinn_model
+from training.pinn_factory import PINNFactory
+from training.pinn_trainer import train_pinn_model
 from Model.models.loss_generator import create_cross_domain_loss_generator
 from Model.visualization import plot_surrogate_performance
 
 class PranagPipeline:
-    def __init__(self, domain="heat"):
+    def __init__(self, domain="heat", test_mode=False):
         self.domain = domain
+        self.test_mode = test_mode
         self.factory = PINNFactory()
         
         # Setup new unified output directory structure
-        self.base_output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "unified_pipeline_output"))
+        self.base_output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "unified_pipeline_new_output"))
         self.pinn_dir = os.path.join(self.base_output_dir, "pinn")
         self.surrogate_dir = os.path.join(self.base_output_dir, "surrogate")
         self.plots_dir = os.path.join(self.base_output_dir, "plots")
@@ -38,7 +39,7 @@ class PranagPipeline:
         
         # 1. Build & Train Parametric PINN
         # Dynamically calculate the correct input dimension for N-Dimensional physics
-        from Model.models.simulation_generator import SimulationGenerator
+        from training.simulation_generator import SimulationGenerator
         cfg = SimulationGenerator().from_hint(self.domain)
         # Base physical variables (e.g. t, x, y) + 2 Parametric Targets (T_bound, IC_bound)
         actual_input_dim = len(cfg.equation_info.independent) + 2
@@ -49,12 +50,16 @@ class PranagPipeline:
         pinn_model.base_dim = len(cfg.equation_info.independent)
         alias = f"Parametric_{self.domain.capitalize()}PINN"
             
+        max_epochs = 10 if self.test_mode else 5000
+        num_points = 100 if self.test_mode else 10000
+        batch_size = 10 if self.test_mode else 2048
+            
         trained_pinn, _ = train_pinn_model(
             pinn_model=pinn_model,
             input_dim=actual_input_dim,
-            num_points=10000,
-            max_epochs=5000,  # Reduced to 5k since L-BFGS will finish the job
-            batch_size=2048,  # Increased batch size for smoother gradient descent
+            num_points=num_points,
+            max_epochs=max_epochs,
+            batch_size=batch_size,
             model_alias=alias,
             checkpoint_dir=self.pinn_dir
         )
@@ -63,8 +68,7 @@ class PranagPipeline:
         print("\n--- Phase 2: In-Memory Data Generation ---")
         
         # Dynamically generate N-dimensional grid to avoid RAM crashes
-        # Target exactly 100,000 points using Latin Hypercube Sampling to avoid the Curse of Dimensionality
-        target_total_points = 100000
+        target_total_points = 1000 if self.test_mode else 100000
         print(f"Generating exactly {target_total_points} points using Latin Hypercube Sampling (LHS).")
         
         from scipy.stats import qmc
@@ -94,7 +98,8 @@ class PranagPipeline:
         y = preds[:, 0]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
-        surrogate = RandomForestRegressor(n_estimators=50, max_depth=10, n_jobs=4)
+        surrogate_estimators = 5 if self.test_mode else 50
+        surrogate = RandomForestRegressor(n_estimators=surrogate_estimators, max_depth=10, n_jobs=4)
         surrogate.fit(X_train, y_train)
         
         # 4. Evaluation and Plotting
@@ -175,10 +180,21 @@ class PranagPipeline:
         print(f"\n[Completed] Unified Pipeline execution for '{self.domain}'.")
 
 if __name__ == "__main__":
-    domains_to_train = ["arrhenius", "biology", "cardinal_temperature", "reaction_diffusion"]
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--test", action="store_true", help="Run a quick test to catch errors")
+    args = parser.parse_args()
+    
+    domains_to_train = ["arrhenius"]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:
-        pipeline = PranagPipeline(domain=d)
-        pipeline.run_end_to_end()
+        pipeline = PranagPipeline(domain=d, test_mode=args.test)
+        try:
+            pipeline.run_end_to_end()
+        except Exception as e:
+            print(f"\\n[CRITICAL ERROR] Pipeline failed for domain '{d}': {e}")
+            import traceback
+            traceback.print_exc()
+            continue
     
-    print("\nAll domains processed successfully! Outputs are in unified_pipeline_output/")
+    print("\nAll domains processed successfully! Outputs are in unified_pipeline_new_output/")

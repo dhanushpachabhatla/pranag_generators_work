@@ -5,7 +5,7 @@ import sys
 # Ensure Model directories are in path to import registry
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Model', 'models')))
-from pinn_factory import PINNFactory
+from training.pinn_factory import PINNFactory
 
 
 class DAGRouter:
@@ -16,27 +16,35 @@ class DAGRouter:
     
     @property
     def LLM_SYSTEM_PROMPT(self):
-        factory = PINNFactory()
-        registry_keys = list(factory._registry.keys())
         return f"""
 You are the Master Orchestrator for the PRANA-G Physical Simulation Pipeline.
 You will receive a user specification for a biological or material design.
 Your job is to output a JSON defining the Directed Acyclic Graph (DAG) for surrogate execution.
 
-Available Surrogates (from internal registry):
-{', '.join(registry_keys)}
+Available Surrogates & Strict Input Schemas:
+(Note: `intrinsic_property_1` represents the entity's normalized Capability/Baseline Performance like Yield or Strength. `intrinsic_property_2` represents the entity's normalized Resilience/Stability like Drought Tolerance or Weathering Resistance).
+{{
+  "heat": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"]}},
+  "darcy": {{"inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"]}},
+  "stress": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_stress", "initial_stress"]}},
+  "biology": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_biomass", "initial_biomass"]}},
+  "logistic": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"]}},
+  "arrhenius": {{"inputs": ["temperature", "intrinsic_property_1", "intrinsic_property_2", "boundary_rate", "initial_rate"]}}
+}}
 
 CRITICAL RULE: You MUST choose ONLY from the EXACT Available Surrogates listed above. 
-DO NOT INVENT new domain names (like 'osmotic_stress' or 'thermal_stress'). 
+DO NOT INVENT new domain names (like 'osmotic_stress' or 'growth'). 
 If a required biological or physical phenomenon isn't listed, map it to the closest existing surrogate (e.g., use 'stress' for any type of stress, or 'biology' for generic biological growth).
+You MUST strictly use the exact input names specified in the schema for the chosen model. DO NOT invent input names.
 
 Output Format:
 You MUST return a JSON with:
 - "execution_chain": A list of dictionaries defining the strict execution order. Each dict must have:
-    - "model": The name of the surrogate to activate (from the list above).
-    - "inputs": A list of physical parameters this model requires (e.g., ["temperature", "water_retention"]). First model in chain typically takes baseline params.
+    - "model": The name of the surrogate to activate (from the schema above).
+    - "inputs": A list of physical parameters this model requires (MUST EXACTLY MATCH the schema inputs for that model).
     - "output_maps_to": The physical parameter name that this model's prediction will overwrite for subsequent models (e.g., "temperature", "biomass", "ph").
     - "target_value": The numerical target extracted from the user's specification (e.g., 45.0 for temperature, 90.0 for maturity). Use 0.0 if not explicitly mentioned.
+    - "initial_value": The baseline or starting state extracted from the user's specification (e.g., 25.0 for standard room temp, 0.0 for zero stress). Use -999.0 if not explicitly mentioned.
     - "optimization_goal": Must be "maximize", "minimize", or "target".
 - "weights": A dictionary assigning viability weights to the active models (must sum to 1.0).
 - "target_entities": A list of 1-3 specific target subjects extracted from the specification (e.g., ["maize", "corn", "zea mays"] or ["wheat", "triticum"]). If not explicitly given, derive from context.
@@ -45,9 +53,9 @@ You MUST return a JSON with:
 Example Output:
 {{
     "execution_chain": [
-        {{"model": "heat", "inputs": ["time", "temperature"], "output_maps_to": "temperature", "target_value": 45.0, "optimization_goal": "target"}},
-        {{"model": "darcy", "inputs": ["time", "water_volume"], "output_maps_to": "water_retention", "target_value": 0.0, "optimization_goal": "minimize"}},
-        {{"model": "logistic", "inputs": ["time", "temperature", "water_retention"], "output_maps_to": "biomass", "target_value": 1000.0, "optimization_goal": "maximize"}}
+        {{"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "initial_value": 25.0, "optimization_goal": "target"}},
+        {{"model": "darcy", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "water_retention", "target_value": 0.0, "initial_value": -999.0, "optimization_goal": "minimize"}},
+        {{"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 1000.0, "initial_value": 10.0, "optimization_goal": "maximize"}}
     ],
     "weights": {{
         "heat": 0.4,
@@ -89,15 +97,15 @@ Example Output:
         
         # Rule-based routing simulating the LLM's logic
         if "heat" in combined_text or "temperature" in combined_text:
-            chain.append({"model": "heat", "inputs": ["time", "temperature"], "output_maps_to": "temperature", "target_value": 45.0, "optimization_goal": "target"})
+            chain.append({"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "optimization_goal": "target"})
             weights["heat"] = 0.3
             
         if "drought" in combined_text or "flood" in combined_text or "disease" in combined_text:
-            chain.append({"model": "darcy", "inputs": ["time", "water_retention"], "output_maps_to": "water_retention", "target_value": 0.0, "optimization_goal": "minimize"})
+            chain.append({"model": "darcy", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "water_retention", "target_value": 0.0, "optimization_goal": "minimize"})
             weights["darcy"] = 0.4
             
         if "yield" in combined_text or "growth" in combined_text:
-            chain.append({"model": "logistic", "inputs": ["time", "temperature", "water_retention"], "output_maps_to": "biomass", "target_value": 100.0, "optimization_goal": "maximize"})
+            chain.append({"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 100.0, "optimization_goal": "maximize"})
             weights["logistic"] = 0.3
             
         if "salinity" in combined_text or "ph" in combined_text or "soil" in combined_text:
@@ -107,8 +115,8 @@ Example Output:
         # Fallback if spec is incredibly vague
         if not chain:
             chain = [
-                {"model": "heat", "inputs": ["time", "temperature"], "output_maps_to": "temperature", "target_value": 25.0, "optimization_goal": "target"},
-                {"model": "logistic", "inputs": ["time", "temperature", "biomass"], "output_maps_to": "biomass", "target_value": 50.0, "optimization_goal": "maximize"}
+                {"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 25.0, "optimization_goal": "target"},
+                {"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 50.0, "optimization_goal": "maximize"}
             ]
             weights = {"heat": 0.5, "logistic": 0.5}
             

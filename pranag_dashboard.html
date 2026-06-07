@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRANA-G Execution Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #1e293b; }
+        .header { background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: white; padding: 30px 40px; }
+        .header h1 { margin: 0 0 10px 0; font-size: 28px; font-weight: 600; letter-spacing: 1px; }
+        .header p { margin: 0; color: #cbd5e1; font-size: 14px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .metric-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-top: 4px solid #3b82f6; }
+        .metric-card.success { border-top-color: #10b981; }
+        .metric-card.danger { border-top-color: #ef4444; }
+        .metric-card.neutral { border-top-color: #8b5cf6; }
+        .metric-card h3 { margin: 0 0 10px 0; font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-card .value { font-size: 32px; font-weight: 700; color: #0f172a; margin: 0; }
+        
+        .section-box { background: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .section-box h2 { margin-top: 0; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; color: #0f172a; font-size: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 13px; }
+        tr:hover { background-color: #f1f5f9; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 16px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 6px; }
+        .tab-btn.active { background: #eff6ff; color: #2563eb; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PRANA-G Execution Dashboard</h1>
+        <p>Execution Completed: 2026-06-07 15:39:51 | Runtime: 26.22 seconds</p>
+    </div>
+
+    <div class="container">
+        <!-- Overview Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>Total Entities Scanned</h3>
+                <p class="value">393</p>
+            </div>
+            <div class="metric-card success">
+                <h3>Physics Survivors</h3>
+                <p class="value">16</p>
+            </div>
+            <div class="metric-card danger">
+                <h3>Entities Deleted (< 0.7)</h3>
+                <p class="value">377</p>
+            </div>
+            <div class="metric-card neutral">
+                <h3>Overall Pass Rate</h3>
+                <p class="value">4.07%</p>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h2>DAG Execution Sequence</h2>
+            <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>heat</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>darcy</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>stress</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>arrhenius</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>biology</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>logistic</span>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="section-box">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('top-designs')">Top Validated Designs</button>
+                <button class="tab-btn" onclick="switchTab('failed-designs')">Cross-Domain Failures Log</button>
+            </div>
+
+            <!-- Top Designs Tab -->
+            <div id="top-designs" class="tab-content active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Entity Name</th>
+                            <th>Viability Score</th>
+                            <th>Domain Specific Scores</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td><strong>#1</strong></td>
+            <td>Zea mays → Feltia repleta (hostOf)</td>
+            <td><strong style="color: #059669;">0.431</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.19</strong></div><div><small>Logistic:</small> <strong>0.04</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#2</strong></td>
+            <td>PDB 1E4L: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase</td>
+            <td><strong style="color: #059669;">0.429</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.19</strong></div><div><small>Logistic:</small> <strong>0.02</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#3</strong></td>
+            <td>Zea mays → Ctenicera aeripennis destructor (eatenBy)</td>
+            <td><strong style="color: #059669;">0.396</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.03</strong></div><div><small>Logistic:</small> <strong>0.02</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#4</strong></td>
+            <td>ABI3</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#5</strong></td>
+            <td>Zea mays → Olene inclusa (hostOf)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#6</strong></td>
+            <td>Zea mays → Orgyia osseata (hostOf)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#7</strong></td>
+            <td>Zea mays → Bombus pratorum (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#8</strong></td>
+            <td>Zea mays → Cerotoma trifurcata (eatenBy)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#9</strong></td>
+            <td>Zea mays → Carpophilus lugubris (interactsWith)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#10</strong></td>
+            <td>Zea mays → Carpophilus (eatenBy)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#11</strong></td>
+            <td>Zea mays → Cadra cautella (eatenBy)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#12</strong></td>
+            <td>Zea mays → Brithys pancratii (hostOf)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#13</strong></td>
+            <td>Zea mays → Brachypera zoilus (eatenBy)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#14</strong></td>
+            <td>Zea mays → Borbo gemella (hostOf)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#15</strong></td>
+            <td>Zea mays → Bombus terrestris (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#16</strong></td>
+            <td>Maize — Uttar Pradesh</td>
+            <td><strong style="color: #059669;">0.389</strong></td>
+            <td><div><small>Heat:</small> <strong>0.69</strong></div><div><small>Darcy:</small> <strong>0.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.01</strong></div><div><small>Logistic:</small> <strong>0.00</strong></div></td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Failed Designs Tab -->
+            <div id="failed-designs" class="tab-content">
+                <p style='color:#10b981; font-weight:600;'>Excellent! No candidates failed the Cross-Domain Hazard Validation.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show target
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>

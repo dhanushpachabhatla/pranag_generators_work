@@ -23,11 +23,15 @@ matplotlib>=3.7.0             # Plots and charts (visualization.py, dashboard_ge
 # ── System / Utilities ───────────────────────
 psutil>=5.9.0                 # CPU/RAM monitoring (performance_monitor.py)
 requests>=2.31.0              # HTTP calls (feedback_loop.py)
-
+google-generativeai           # Gemini API for DAG Router
+python-dotenv                 # Loading .env files
+pandas
 deepxde
 sympy
 pytorch_lightning
 
+
+joblib
 # ─────────────────────────────────────────────
 # NOTES
 # ─────────────────────────────────────────────

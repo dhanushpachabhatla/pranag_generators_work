@@ -6,7 +6,10 @@ __pycache__/
 *.pyo
 *.pyd
 
+datasrc
+
 unified_pipeline_output_1
+unified_pipeline_new_output
 heat_analytical_validation.png
 
 # Distribution / packaging
