@@ -48,7 +48,7 @@ You MUST return a JSON with:
     - "optimization_goal": Must be "maximize", "minimize", or "target".
 - "weights": A dictionary assigning viability weights to the active models (must sum to 1.0).
 - "target_entities": A list of 1-3 specific target subjects extracted from the specification (e.g., ["maize", "corn", "zea mays"]). If not explicitly given, derive from context.
-- "semantic_keywords": A list of 10-15 broad, inclusive keywords covering the entire relevant scientific family (e.g., if it's about a crop, include ["plant", "crop", "agriculture", "botany", "seed", "leaf", "root", "flora", "vegetation", "corn", "maize"]). DO NOT use overly generic terms like "biology", "growth", "development", "cell", or "animal" as they will pull in irrelevant human/animal false positives!
+- "semantic_keywords": A list of 5-8 EXACT synonyms, scientific names, and specific taxonomic identifiers for the requested entity. (e.g., if it's about corn, include ["corn", "maize", "zea mays", "sweet corn", "field corn"]). DO NOT use generic category terms like "crop", "grain", "plant", "biology", or "development" as they will pull in completely irrelevant false positives!
 - "domain_filters": A list of 1-3 broad data domains to restrict the search to, chosen from exactly these options: ["biology", "chemistry", "environment", "physics", "materials", "economics"].
 
 Example Output:
@@ -64,7 +64,7 @@ Example Output:
         "logistic": 0.50
     }},
     "target_entities": ["corn", "maize"],
-    "semantic_keywords": ["crop", "plant", "agriculture", "botany", "seed", "leaf", "flora", "vegetation", "corn", "maize"],
+    "semantic_keywords": ["corn", "maize", "zea mays", "sweet corn", "field corn"],
     "domain_filters": ["biology", "environment"]
 }}
 """

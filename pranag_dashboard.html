@@ -36,7 +36,7 @@
 <body>
     <div class="header">
         <h1>PRANA-G Execution Dashboard</h1>
-        <p>Execution Completed: 2026-06-07 22:23:40 | Runtime: 27.25 seconds</p>
+        <p>Execution Completed: 2026-06-07 22:30:09 | Runtime: 26.4 seconds</p>
     </div>
 
     <div class="container">
@@ -44,26 +44,26 @@
         <div class="metrics-grid">
             <div class="metric-card">
                 <h3>Total Entities Scanned</h3>
-                <p class="value">368</p>
+                <p class="value">376</p>
             </div>
             <div class="metric-card success">
                 <h3>Physics Survivors</h3>
-                <p class="value">16</p>
+                <p class="value">208</p>
             </div>
             <div class="metric-card danger">
                 <h3>Entities Deleted (< 0.7)</h3>
-                <p class="value">352</p>
+                <p class="value">168</p>
             </div>
             <div class="metric-card neutral">
                 <h3>Overall Pass Rate</h3>
-                <p class="value">4.35%</p>
+                <p class="value">55.32%</p>
             </div>
         </div>
 
         <div class="section-box">
             <h2>DAG Execution Sequence</h2>
             <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>heat</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>darcy</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>stress</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>arrhenius</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>biology</span>
+                <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>heat</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>darcy</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>stress</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>arrhenius</span> &rarr; <span style='background:#e2e8f0; padding:2px 8px; border-radius:12px; font-size:14px;'>logistic</span>
             </div>
         </div>
 
@@ -89,30 +89,660 @@
                         
         <tr>
             <td><strong>#1</strong></td>
-            <td>Maize — Meghalaya</td>
-            <td><strong style="color: #059669;">0.653</strong></td>
-            <td><div><small>Heat:</small> <strong>0.46</strong></div><div><small>Darcy:</small> <strong>0.44</strong></div><div><small>Stress:</small> <strong>0.83</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Biology:</small> <strong>0.86</strong></div></td>
+            <td>Zea mays → Anicla ignicans (hostOf)</td>
+            <td><strong style="color: #059669;">0.823</strong></td>
+            <td><div><small>Heat:</small> <strong>0.42</strong></div><div><small>Darcy:</small> <strong>1.00</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Logistic:</small> <strong>0.94</strong></div></td>
         </tr>
         
         <tr>
             <td><strong>#2</strong></td>
-            <td>Zea mays → Anicla ignicans (hostOf)</td>
-            <td><strong style="color: #059669;">0.619</strong></td>
-            <td><div><small>Heat:</small> <strong>0.43</strong></div><div><small>Darcy:</small> <strong>0.47</strong></div><div><small>Stress:</small> <strong>0.61</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Biology:</small> <strong>0.90</strong></div></td>
+            <td>Maize — Meghalaya</td>
+            <td><strong style="color: #059669;">0.787</strong></td>
+            <td><div><small>Heat:</small> <strong>0.46</strong></div><div><small>Darcy:</small> <strong>1.00</strong></div><div><small>Stress:</small> <strong>0.83</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.91</strong></div></td>
         </tr>
         
         <tr>
             <td><strong>#3</strong></td>
-            <td>Zea mays → Lasioglossum (flowersVisitedBy)</td>
-            <td><strong style="color: #059669;">0.607</strong></td>
-            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.60</strong></div><div><small>Stress:</small> <strong>0.31</strong></div><div><small>Arrhenius:</small> <strong>0.89</strong></div><div><small>Biology:</small> <strong>0.96</strong></div></td>
+            <td>Maize — Kerala</td>
+            <td><strong style="color: #059669;">0.747</strong></td>
+            <td><div><small>Heat:</small> <strong>0.46</strong></div><div><small>Darcy:</small> <strong>0.93</strong></div><div><small>Stress:</small> <strong>0.66</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Logistic:</small> <strong>0.94</strong></div></td>
         </tr>
         
         <tr>
             <td><strong>#4</strong></td>
+            <td>Zea mays → Estigmene acrea (eatenBy)</td>
+            <td><strong style="color: #059669;">0.618</strong></td>
+            <td><div><small>Heat:</small> <strong>0.39</strong></div><div><small>Darcy:</small> <strong>0.49</strong></div><div><small>Stress:</small> <strong>0.44</strong></div><div><small>Arrhenius:</small> <strong>0.72</strong></div><div><small>Logistic:</small> <strong>0.99</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#5</strong></td>
+            <td>Zea mays → Andrena carlini (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.592</strong></td>
+            <td><div><small>Heat:</small> <strong>0.37</strong></div><div><small>Darcy:</small> <strong>0.47</strong></div><div><small>Stress:</small> <strong>0.43</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#6</strong></td>
+            <td>Zea mays → Euxoa tessellata (hostOf)</td>
+            <td><strong style="color: #059669;">0.591</strong></td>
+            <td><div><small>Heat:</small> <strong>0.36</strong></div><div><small>Darcy:</small> <strong>0.43</strong></div><div><small>Stress:</small> <strong>0.37</strong></div><div><small>Arrhenius:</small> <strong>0.73</strong></div><div><small>Logistic:</small> <strong>1.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#7</strong></td>
+            <td>Zea mays → Borbo gemella (hostOf)</td>
+            <td><strong style="color: #059669;">0.589</strong></td>
+            <td><div><small>Heat:</small> <strong>0.38</strong></div><div><small>Darcy:</small> <strong>0.48</strong></div><div><small>Stress:</small> <strong>0.43</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#8</strong></td>
+            <td>Maize — Madhya Pradesh</td>
+            <td><strong style="color: #059669;">0.577</strong></td>
+            <td><div><small>Heat:</small> <strong>0.38</strong></div><div><small>Darcy:</small> <strong>0.46</strong></div><div><small>Stress:</small> <strong>0.42</strong></div><div><small>Arrhenius:</small> <strong>0.66</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#9</strong></td>
+            <td>Maize — Manipur</td>
+            <td><strong style="color: #059669;">0.572</strong></td>
+            <td><div><small>Heat:</small> <strong>0.36</strong></div><div><small>Darcy:</small> <strong>0.44</strong></div><div><small>Stress:</small> <strong>0.38</strong></div><div><small>Arrhenius:</small> <strong>0.68</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#10</strong></td>
+            <td>Maize — Sikkim</td>
+            <td><strong style="color: #059669;">0.566</strong></td>
+            <td><div><small>Heat:</small> <strong>0.36</strong></div><div><small>Darcy:</small> <strong>0.38</strong></div><div><small>Stress:</small> <strong>0.30</strong></div><div><small>Arrhenius:</small> <strong>0.73</strong></div><div><small>Logistic:</small> <strong>1.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#11</strong></td>
+            <td>Apis cerana → Zea mays (eats)</td>
+            <td><strong style="color: #059669;">0.566</strong></td>
+            <td><div><small>Heat:</small> <strong>0.37</strong></div><div><small>Darcy:</small> <strong>0.44</strong></div><div><small>Stress:</small> <strong>0.37</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#12</strong></td>
+            <td>Zea mays → Lasioglossum (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.561</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.35</strong></div><div><small>Stress:</small> <strong>0.31</strong></div><div><small>Arrhenius:</small> <strong>0.89</strong></div><div><small>Logistic:</small> <strong>0.96</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#13</strong></td>
             <td>Zea mays → Phidotricha eregens (hostOf)</td>
-            <td><strong style="color: #059669;">0.607</strong></td>
-            <td><div><small>Heat:</small> <strong>0.29</strong></div><div><small>Darcy:</small> <strong>0.59</strong></div><div><small>Stress:</small> <strong>0.32</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Biology:</small> <strong>0.84</strong></div></td>
+            <td><strong style="color: #059669;">0.558</strong></td>
+            <td><div><small>Heat:</small> <strong>0.29</strong></div><div><small>Darcy:</small> <strong>0.36</strong></div><div><small>Stress:</small> <strong>0.32</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#14</strong></td>
+            <td>Anthemis arvensis</td>
+            <td><strong style="color: #059669;">0.550</strong></td>
+            <td><div><small>Heat:</small> <strong>0.36</strong></div><div><small>Darcy:</small> <strong>0.41</strong></div><div><small>Stress:</small> <strong>0.33</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.91</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#15</strong></td>
+            <td>Zea mays</td>
+            <td><strong style="color: #059669;">0.549</strong></td>
+            <td><div><small>Heat:</small> <strong>0.35</strong></div><div><small>Darcy:</small> <strong>0.41</strong></div><div><small>Stress:</small> <strong>0.33</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#16</strong></td>
+            <td>PDB 1E56: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase</td>
+            <td><strong style="color: #059669;">0.547</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.31</strong></div><div><small>Stress:</small> <strong>0.28</strong></div><div><small>Arrhenius:</small> <strong>0.89</strong></div><div><small>Logistic:</small> <strong>0.96</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#17</strong></td>
+            <td>Zea mays → Bombus pratorum (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.545</strong></td>
+            <td><div><small>Heat:</small> <strong>0.35</strong></div><div><small>Darcy:</small> <strong>0.39</strong></div><div><small>Stress:</small> <strong>0.30</strong></div><div><small>Arrhenius:</small> <strong>0.68</strong></div><div><small>Logistic:</small> <strong>0.94</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#18</strong></td>
+            <td>Maize — Maharashtra</td>
+            <td><strong style="color: #059669;">0.545</strong></td>
+            <td><div><small>Heat:</small> <strong>0.31</strong></div><div><small>Darcy:</small> <strong>0.37</strong></div><div><small>Stress:</small> <strong>1.00</strong></div><div><small>Arrhenius:</small> <strong>0.53</strong></div><div><small>Logistic:</small> <strong>0.51</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#19</strong></td>
+            <td>Mentha arvensis</td>
+            <td><strong style="color: #059669;">0.543</strong></td>
+            <td><div><small>Heat:</small> <strong>0.34</strong></div><div><small>Darcy:</small> <strong>0.38</strong></div><div><small>Stress:</small> <strong>0.29</strong></div><div><small>Arrhenius:</small> <strong>0.77</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#20</strong></td>
+            <td>Zea mays → Euxoa albipennis (hostOf)</td>
+            <td><strong style="color: #059669;">0.539</strong></td>
+            <td><div><small>Heat:</small> <strong>0.31</strong></div><div><small>Darcy:</small> <strong>0.35</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>0.72</strong></div><div><small>Logistic:</small> <strong>0.98</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#21</strong></td>
+            <td>Zea mays → Loscopia velata (hostOf)</td>
+            <td><strong style="color: #059669;">0.534</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.32</strong></div><div><small>Stress:</small> <strong>0.28</strong></div><div><small>Arrhenius:</small> <strong>0.90</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#22</strong></td>
+            <td>Zea mays → Fusarium lateritium (interactsWith)</td>
+            <td><strong style="color: #059669;">0.533</strong></td>
+            <td><div><small>Heat:</small> <strong>0.31</strong></div><div><small>Darcy:</small> <strong>0.32</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.73</strong></div><div><small>Logistic:</small> <strong>1.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#23</strong></td>
+            <td>Zea mays → Meliponula bocandei (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.532</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#24</strong></td>
+            <td>Zea mays → Blissus leucopterus (eatenBy)</td>
+            <td><strong style="color: #059669;">0.532</strong></td>
+            <td><div><small>Heat:</small> <strong>0.33</strong></div><div><small>Darcy:</small> <strong>0.36</strong></div><div><small>Stress:</small> <strong>0.29</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#25</strong></td>
+            <td>Zea mays → Phyllotreta undulata (eatenBy)</td>
+            <td><strong style="color: #059669;">0.531</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>0.99</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#26</strong></td>
+            <td>PDB 1GAW: CRYSTAL STRUCTURE ANALYSIS OF THE FERREDOXIN-NADP+ REDUCTASE FROM MAIZE LEAF</td>
+            <td><strong style="color: #059669;">0.531</strong></td>
+            <td><div><small>Heat:</small> <strong>0.34</strong></div><div><small>Darcy:</small> <strong>0.38</strong></div><div><small>Stress:</small> <strong>0.30</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.91</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#27</strong></td>
+            <td>Zea mays → Pseudaletia unipuncta (eatenBy)</td>
+            <td><strong style="color: #059669;">0.530</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.88</strong></div><div><small>Logistic:</small> <strong>0.95</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#28</strong></td>
+            <td>Zea mays → Brachypera zoilus (eatenBy)</td>
+            <td><strong style="color: #059669;">0.529</strong></td>
+            <td><div><small>Heat:</small> <strong>0.32</strong></div><div><small>Darcy:</small> <strong>0.37</strong></div><div><small>Stress:</small> <strong>0.29</strong></div><div><small>Arrhenius:</small> <strong>0.68</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#29</strong></td>
+            <td>Zea mays → Lipotriches langi (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.528</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>0.90</strong></div><div><small>Logistic:</small> <strong>0.91</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#30</strong></td>
+            <td>Zea mays → Apamea vulgaris (hostOf)</td>
+            <td><strong style="color: #059669;">0.527</strong></td>
+            <td><div><small>Heat:</small> <strong>0.32</strong></div><div><small>Darcy:</small> <strong>0.35</strong></div><div><small>Stress:</small> <strong>0.28</strong></div><div><small>Arrhenius:</small> <strong>0.70</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#31</strong></td>
+            <td>Zea mays → Bombus terrestris (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.526</strong></td>
+            <td><div><small>Heat:</small> <strong>0.32</strong></div><div><small>Darcy:</small> <strong>0.37</strong></div><div><small>Stress:</small> <strong>0.29</strong></div><div><small>Arrhenius:</small> <strong>0.67</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#32</strong></td>
+            <td>Zea mays</td>
+            <td><strong style="color: #059669;">0.523</strong></td>
+            <td><div><small>Heat:</small> <strong>0.32</strong></div><div><small>Darcy:</small> <strong>0.37</strong></div><div><small>Stress:</small> <strong>0.30</strong></div><div><small>Arrhenius:</small> <strong>0.66</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#33</strong></td>
+            <td>Zea mays → Leucania secta (hostOf)</td>
+            <td><strong style="color: #059669;">0.523</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.89</strong></div><div><small>Logistic:</small> <strong>0.96</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#34</strong></td>
+            <td>Zea mays → Grammia arge (hostOf)</td>
+            <td><strong style="color: #059669;">0.521</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>0.93</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#35</strong></td>
+            <td>Maize — Karnataka</td>
+            <td><strong style="color: #059669;">0.521</strong></td>
+            <td><div><small>Heat:</small> <strong>0.31</strong></div><div><small>Darcy:</small> <strong>0.34</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#36</strong></td>
+            <td>Zea mays → Ziphius cavirostris (eatenBy)</td>
+            <td><strong style="color: #059669;">0.520</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.87</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#37</strong></td>
+            <td>Zea mays → Pelopidas conjuncta conjuncta (hostOf)</td>
+            <td><strong style="color: #059669;">0.519</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.96</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#38</strong></td>
+            <td>Zea mays → Trogoderma glabrum (eatenBy)</td>
+            <td><strong style="color: #059669;">0.519</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.27</strong></div><div><small>Arrhenius:</small> <strong>0.85</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#39</strong></td>
+            <td>Zea mays → Mythimna separata (eatenBy)</td>
+            <td><strong style="color: #059669;">0.518</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#40</strong></td>
+            <td>ABI3</td>
+            <td><strong style="color: #059669;">0.517</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#41</strong></td>
+            <td>Zea mays → Fusarium culmorum (interactsWith)</td>
+            <td><strong style="color: #059669;">0.517</strong></td>
+            <td><div><small>Heat:</small> <strong>0.29</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.73</strong></div><div><small>Logistic:</small> <strong>1.00</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#42</strong></td>
+            <td>Zea mays → Aspergillus fischeri (interactsWith)</td>
+            <td><strong style="color: #059669;">0.516</strong></td>
+            <td><div><small>Heat:</small> <strong>0.31</strong></div><div><small>Darcy:</small> <strong>0.34</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.70</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#43</strong></td>
+            <td>Zea mays → Lophoruza semiscripta (hostOf)</td>
+            <td><strong style="color: #059669;">0.515</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.28</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.90</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#44</strong></td>
+            <td>Zea mays → Phthorimaea operculella (eatenBy)</td>
+            <td><strong style="color: #059669;">0.515</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.99</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#45</strong></td>
+            <td>Zea mays → Phyllophaga futilis (eatenBy)</td>
+            <td><strong style="color: #059669;">0.515</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.99</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#46</strong></td>
+            <td>Zea mays → Ascochyta straminea (interactsWith)</td>
+            <td><strong style="color: #059669;">0.514</strong></td>
+            <td><div><small>Heat:</small> <strong>0.31</strong></div><div><small>Darcy:</small> <strong>0.33</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.70</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#47</strong></td>
+            <td>Zea mays → Tipula vittata (eatenBy)</td>
+            <td><strong style="color: #059669;">0.514</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.87</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#48</strong></td>
+            <td>Zea mays → Grammia phyllira (hostOf)</td>
+            <td><strong style="color: #059669;">0.514</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.93</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#49</strong></td>
+            <td>Maize — Haryana</td>
+            <td><strong style="color: #059669;">0.513</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.23</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.89</strong></div><div><small>Logistic:</small> <strong>0.96</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#50</strong></td>
+            <td>Zea mays → Machaeris (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.513</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.26</strong></div><div><small>Arrhenius:</small> <strong>0.90</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#51</strong></td>
+            <td>Zea mays → Pseudoleucania minna (hostOf)</td>
+            <td><strong style="color: #059669;">0.512</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.28</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.94</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#52</strong></td>
+            <td>Zea mays → Gibberella zeae (hasPathogen)</td>
+            <td><strong style="color: #059669;">0.512</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.26</strong></div><div><small>Arrhenius:</small> <strong>0.91</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#53</strong></td>
+            <td>Zea mays → Zenonia zeno (hostOf)</td>
+            <td><strong style="color: #059669;">0.512</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.86</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#54</strong></td>
+            <td>Zea mays → Cryptophlebia leucotreta (eatenBy)</td>
+            <td><strong style="color: #059669;">0.511</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.28</strong></div><div><small>Stress:</small> <strong>0.20</strong></div><div><small>Arrhenius:</small> <strong>0.73</strong></div><div><small>Logistic:</small> <strong>0.99</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#55</strong></td>
+            <td>Maize — Telangana</td>
+            <td><strong style="color: #059669;">0.510</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.24</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#56</strong></td>
+            <td>Zea mays → Parnara guttatus apostata (hostOf)</td>
+            <td><strong style="color: #059669;">0.510</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.94</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#57</strong></td>
+            <td>Zea mays → Vespula germanica (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.509</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.86</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#58</strong></td>
+            <td>Zea mays → Helotropha reniformis (hostOf)</td>
+            <td><strong style="color: #059669;">0.508</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.94</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#59</strong></td>
+            <td>Zea mays → Parasa semperi (hostOf)</td>
+            <td><strong style="color: #059669;">0.508</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.94</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#60</strong></td>
+            <td>Zea mays → Delia platura (eatenBy)</td>
+            <td><strong style="color: #059669;">0.508</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.28</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.74</strong></div><div><small>Logistic:</small> <strong>0.97</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#61</strong></td>
+            <td>Zea mays → Heterogramma circumflexalis (hostOf)</td>
+            <td><strong style="color: #059669;">0.507</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.94</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#62</strong></td>
+            <td>Zea mays → Exserohilum turcicum (hasPathogen)</td>
+            <td><strong style="color: #059669;">0.507</strong></td>
+            <td><div><small>Heat:</small> <strong>0.27</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.72</strong></div><div><small>Logistic:</small> <strong>0.98</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#63</strong></td>
+            <td>Zea mays → Schizaphis graminum (eatenBy)</td>
+            <td><strong style="color: #059669;">0.506</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.30</strong></div><div><small>Stress:</small> <strong>0.26</strong></div><div><small>Arrhenius:</small> <strong>0.83</strong></div><div><small>Logistic:</small> <strong>0.87</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#64</strong></td>
+            <td>Zea mays → Spallanzania hesperidarum (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.506</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.31</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.79</strong></div><div><small>Logistic:</small> <strong>0.89</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#65</strong></td>
+            <td>Zea mays → Trupanea signata (interactsWith)</td>
+            <td><strong style="color: #059669;">0.505</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.85</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#66</strong></td>
+            <td>Zea mays → Pleuroptya ruralis (eatenBy)</td>
+            <td><strong style="color: #059669;">0.505</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.25</strong></div><div><small>Stress:</small> <strong>0.22</strong></div><div><small>Arrhenius:</small> <strong>0.99</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#67</strong></td>
+            <td>Zea mays → Rachiplusia ou (eatenBy)</td>
+            <td><strong style="color: #059669;">0.505</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.31</strong></div><div><small>Stress:</small> <strong>0.26</strong></div><div><small>Arrhenius:</small> <strong>0.83</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#68</strong></td>
+            <td>Zea mays → Musca domestica (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.504</strong></td>
+            <td><div><small>Heat:</small> <strong>0.24</strong></div><div><small>Darcy:</small> <strong>0.24</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#69</strong></td>
+            <td>Zea mays → Urocystis maydis (hostOf)</td>
+            <td><strong style="color: #059669;">0.504</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.85</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#70</strong></td>
+            <td>Zea mays → Acronicta oblinita (eatenBy)</td>
+            <td><strong style="color: #059669;">0.504</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.31</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.76</strong></div><div><small>Logistic:</small> <strong>0.89</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#71</strong></td>
+            <td>Maize — Uttar Pradesh</td>
+            <td><strong style="color: #059669;">0.503</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.23</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#72</strong></td>
+            <td>Zea mays → Luperina dumerilii (hostOf)</td>
+            <td><strong style="color: #059669;">0.502</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.24</strong></div><div><small>Arrhenius:</small> <strong>0.90</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#73</strong></td>
+            <td>Zea mays → Sesamia nonagrioides (eatenBy)</td>
+            <td><strong style="color: #059669;">0.501</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.81</strong></div><div><small>Logistic:</small> <strong>0.89</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#74</strong></td>
+            <td>Zea mays → Nephelodes minians (eatenBy)</td>
+            <td><strong style="color: #059669;">0.501</strong></td>
+            <td><div><small>Heat:</small> <strong>0.24</strong></div><div><small>Darcy:</small> <strong>0.24</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#75</strong></td>
+            <td>Zea mays → Mocis frugalis (eatenBy)</td>
+            <td><strong style="color: #059669;">0.501</strong></td>
+            <td><div><small>Heat:</small> <strong>0.24</strong></div><div><small>Darcy:</small> <strong>0.24</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>1.00</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#76</strong></td>
+            <td>Zea mays → Sesamia inferens (eatenBy)</td>
+            <td><strong style="color: #059669;">0.500</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.81</strong></div><div><small>Logistic:</small> <strong>0.89</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#77</strong></td>
+            <td>Zea mays → Dinemasporium gramineum var. atrigosulum (hostOf)</td>
+            <td><strong style="color: #059669;">0.500</strong></td>
+            <td><div><small>Heat:</small> <strong>0.27</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.75</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#78</strong></td>
+            <td>Zea mays → Rhopalosiphum maidis (eatenBy)</td>
+            <td><strong style="color: #059669;">0.497</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.25</strong></div><div><small>Arrhenius:</small> <strong>0.83</strong></div><div><small>Logistic:</small> <strong>0.85</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#79</strong></td>
+            <td>Zea mays → Mamestra brassicae (interactsWith)</td>
+            <td><strong style="color: #059669;">0.497</strong></td>
+            <td><div><small>Heat:</small> <strong>0.24</strong></div><div><small>Darcy:</small> <strong>0.25</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.94</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#80</strong></td>
+            <td>Zea mays → Toxomerus politus (interactsWith)</td>
+            <td><strong style="color: #059669;">0.496</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.84</strong></div><div><small>Logistic:</small> <strong>0.87</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#81</strong></td>
+            <td>Zea mays → Pyrausta (interactsWith)</td>
+            <td><strong style="color: #059669;">0.495</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.28</strong></div><div><small>Stress:</small> <strong>0.22</strong></div><div><small>Arrhenius:</small> <strong>0.82</strong></div><div><small>Logistic:</small> <strong>0.88</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#82</strong></td>
+            <td>Maize — Jammu and Kashmir</td>
+            <td><strong style="color: #059669;">0.495</strong></td>
+            <td><div><small>Heat:</small> <strong>0.28</strong></div><div><small>Darcy:</small> <strong>0.24</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.90</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#83</strong></td>
+            <td>Zea mays → Ruspolia nitidula (eatenBy)</td>
+            <td><strong style="color: #059669;">0.493</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.83</strong></div><div><small>Logistic:</small> <strong>0.87</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#84</strong></td>
+            <td>Maize — Andaman and Nicobar Islands</td>
+            <td><strong style="color: #059669;">0.492</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.23</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.85</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#85</strong></td>
+            <td>Zea mays → Alternaria infectoria (interactsWith)</td>
+            <td><strong style="color: #059669;">0.490</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.28</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.78</strong></div><div><small>Logistic:</small> <strong>0.89</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#86</strong></td>
+            <td>Zea mays → Spodoptera frugiperda (eatenBy)</td>
+            <td><strong style="color: #059669;">0.490</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.20</strong></div><div><small>Arrhenius:</small> <strong>0.80</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#87</strong></td>
+            <td>Zea mays → Spodoptera eridania (eatenBy)</td>
+            <td><strong style="color: #059669;">0.489</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.20</strong></div><div><small>Arrhenius:</small> <strong>0.80</strong></div><div><small>Logistic:</small> <strong>0.89</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#88</strong></td>
+            <td>Zea mays → Rhizoctonia nigricans (hostOf)</td>
+            <td><strong style="color: #059669;">0.488</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.27</strong></div><div><small>Stress:</small> <strong>0.23</strong></div><div><small>Arrhenius:</small> <strong>0.83</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#89</strong></td>
+            <td>Zea mays → Pyrilla perpusilla (eatenBy)</td>
+            <td><strong style="color: #059669;">0.488</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.26</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.82</strong></div><div><small>Logistic:</small> <strong>0.88</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#90</strong></td>
+            <td>Zea mays → Bombus (flowersVisitedBy)</td>
+            <td><strong style="color: #059669;">0.486</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.69</strong></div><div><small>Logistic:</small> <strong>0.93</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#91</strong></td>
+            <td>Dicentra canadensis</td>
+            <td><strong style="color: #059669;">0.483</strong></td>
+            <td><div><small>Heat:</small> <strong>0.25</strong></div><div><small>Darcy:</small> <strong>0.29</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.68</strong></div><div><small>Logistic:</small> <strong>0.92</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#92</strong></td>
+            <td>PDB 1JB9: Crystal Structure of The Ferredoxin:NADP+ Reductase From Maize Root AT 1.7 Angst</td>
+            <td><strong style="color: #059669;">0.481</strong></td>
+            <td><div><small>Heat:</small> <strong>0.32</strong></div><div><small>Darcy:</small> <strong>0.37</strong></div><div><small>Stress:</small> <strong>0.30</strong></div><div><small>Arrhenius:</small> <strong>0.66</strong></div><div><small>Logistic:</small> <strong>0.73</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#93</strong></td>
+            <td>Maize — Arunachal Pradesh</td>
+            <td><strong style="color: #059669;">0.478</strong></td>
+            <td><div><small>Heat:</small> <strong>0.26</strong></div><div><small>Darcy:</small> <strong>0.23</strong></div><div><small>Stress:</small> <strong>0.21</strong></div><div><small>Arrhenius:</small> <strong>0.83</strong></div><div><small>Logistic:</small> <strong>0.86</strong></div></td>
+        </tr>
+        
+        <tr>
+            <td><strong>#94</strong></td>
+            <td>PDB 1HXJ: CRYSTAL STRUCTURE OF THE MAIZE ZM-P60.1 BETA-GLUCOSIDASE</td>
+            <td><strong style="color: #059669;">0.467</strong></td>
+            <td><div><small>Heat:</small> <strong>0.23</strong></div><div><small>Darcy:</small> <strong>0.25</strong></div><div><small>Stress:</small> <strong>0.22</strong></div><div><small>Arrhenius:</small> <strong>0.66</strong></div><div><small>Logistic:</small> <strong>0.90</strong></div></td>
         </tr>
         
                     </tbody>
@@ -132,74 +762,686 @@
                     <tbody>
                         
         <tr>
-            <td>PDB 1FK3: STRUCTURAL BASIS OF NON-SPECIFIC LIPID BINDING IN MAIZE LIPID-TRANSFER PROTEIN C</td>
-            <td><strong style="color: #ef4444;">0.601</strong></td>
+            <td>PDB 1FK0: STRUCTURAL BASIS OF NON-SPECIFIC LIPID BINDING IN MAIZE LIPID-TRANSFER PROTEIN C</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td>Zea mays → Leucania humidicola (hostOf)</td>
-            <td><strong style="color: #ef4444;">0.612</strong></td>
+            <td>Zea mays → no name (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.458</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td>Zea mays → Orgyia osseata (hostOf)</td>
-            <td><strong style="color: #ef4444;">0.612</strong></td>
+            <td>Zea mays → Ostrinia nubilalis (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td>Zea mays → Mesapamea concinnata (hostOf)</td>
-            <td><strong style="color: #ef4444;">0.611</strong></td>
+            <td>Zea mays → Psalis pennatula (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.460</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td>Zea mays → Leucania loreyi (eatenBy)</td>
-            <td><strong style="color: #ef4444;">0.610</strong></td>
+            <td>Zea mays → Phaseolus vulgaris (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td>Zea mays → Linnaemya (flowersVisitedBy)</td>
-            <td><strong style="color: #ef4444;">0.609</strong></td>
-            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
-        </tr>
-        
-        <tr>
-            <td>Zea mays → Popillia japonica (eatenBy)</td>
-            <td><strong style="color: #ef4444;">0.608</strong></td>
-            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
-        </tr>
-        
-        <tr>
-            <td>Zea mays → Phragmatiphila truncata (hostOf)</td>
-            <td><strong style="color: #ef4444;">0.607</strong></td>
-            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
-        </tr>
-        
-        <tr>
-            <td>Zea mays → Oulema (interactsWith)</td>
-            <td><strong style="color: #ef4444;">0.607</strong></td>
-            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
-        </tr>
-        
-        <tr>
-            <td>Zea mays → Megachile (flowersVisitedBy)</td>
-            <td><strong style="color: #ef4444;">0.606</strong></td>
+            <td>Zea mays → Patanga succincta (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
             <td>Zea mays → Limonius californicus (eatenBy)</td>
-            <td><strong style="color: #ef4444;">0.606</strong></td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
         <tr>
-            <td>Zea mays → Liotrigona bottegoi (flowersVisitedBy)</td>
-            <td><strong style="color: #ef4444;">0.606</strong></td>
+            <td>Zea mays → Leucania venalba (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.455</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Fusarium proliferatum (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.456</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Fusarium fujikuroi (hasPathogen)</td>
+            <td><strong style="color: #ef4444;">0.454</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>KNAT1</td>
+            <td><strong style="color: #ef4444;">0.494</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>MP</td>
+            <td><strong style="color: #ef4444;">0.461</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>KNAT2</td>
+            <td><strong style="color: #ef4444;">0.471</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>DEK1</td>
+            <td><strong style="color: #ef4444;">0.476</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>APY1</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>C4 photosynthesis</td>
+            <td><strong style="color: #ef4444;">0.486</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>PDB 1E55: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase</td>
+            <td><strong style="color: #ef4444;">0.459</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>PDB 1FK1: STRUCTURAL BASIS OF NON-SPECIFIC LIPID BINDING IN MAIZE LIPID-TRANSFER PROTEIN C</td>
+            <td><strong style="color: #ef4444;">0.487</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>PDB 1FK4: STRUCTURAL BASIS OF NON-SPECIFIC LIPID BINDING IN MAIZE LIPID-TRANSFER PROTEIN C</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>PDB 1FK5: STRUCTURAL BASIS OF NON-SPECIFIC LIPID BINDING IN MAIZE LIPID-TRANSFER PROTEIN C</td>
+            <td><strong style="color: #ef4444;">0.462</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>PDB 1FK6: STRUCTURAL BASIS OF NON-SPECIFIC LIPID BINDING IN MAIZE LIPID-TRANSFER PROTEIN C</td>
+            <td><strong style="color: #ef4444;">0.459</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>PDB 1H49: CRYSTAL STRUCTURE OF THE INACTIVE DOUBLE MUTANT OF THE MAIZE BETA-GLUCOSIDASE ZM</td>
+            <td><strong style="color: #ef4444;">0.454</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Spergula arvensis</td>
+            <td><strong style="color: #ef4444;">0.466</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Veratrum californicum</td>
+            <td><strong style="color: #ef4444;">0.494</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Spodoptera frugiperda herbivory Zea mays</td>
+            <td><strong style="color: #ef4444;">0.470</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Mycorrhiza mutualism Zea mays</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>ATG6</td>
+            <td><strong style="color: #ef4444;">0.482</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Maladera castanea (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.496</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Olene inclusa (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.461</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Nomia granulata (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.463</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Nigrospora oryzae (hasPathogen)</td>
+            <td><strong style="color: #ef4444;">0.495</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Mythimna zeae (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.480</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Mythimna unipunctata (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.494</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Mythimna convecta (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.460</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Mocis latipes (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.495</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Mibora (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.481</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Metopolophium dirhodum (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.484</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Mesapamea stipata (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.482</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Melanoplus femurrubrum (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.461</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Megachile torrida (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.473</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Oscinella frit (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.494</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Ostrinia furnacalis (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.498</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Protaphis middletonii (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.498</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Prosopis (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.472</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Peregrinus maidis (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.455</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Holomelina aurantiaca (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Helicoverpa punctigera (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.465</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Helicoverpa assulta (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Gonytrichum macrocladium (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.472</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Gonatobotrys zeae (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.468</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Gibberella pulicaris (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.468</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Hydraecia amurensis (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.469</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Lipotriches notabilis (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.478</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Lipotriches clavata (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.474</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Liotrigona gabonensis (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.495</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Laelia suffusa (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.470</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Waitea circinata (hasPathogen)</td>
+            <td><strong style="color: #ef4444;">0.488</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Typocerus lugubris (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.470</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Thermoascus aurantiacus (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Scolia nobilitata (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.460</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Pyroderces badia (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.460</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Pyroderces amphisaris (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Tehama bonifatellus (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.459</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Striga hermonthica (hasParasite)</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Spodoptera ornithogalli (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.464</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Spodoptera exigua (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Spodoptera exempta (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Spilosoma nigricosta (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.468</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Spilosoma lutescens (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Spilarctia obliqua (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.467</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Sphrageidus producta (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.486</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Sphacelotheca reiliana (hasPathogen)</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Sogatella furcifera (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.465</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Amsacta moorei (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.463</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Amphipoea burrowsi (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Alternaria (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Agrotis ipsilon (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.465</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Actebia praecox (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.481</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Anaphothrips obscurus (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.456</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Anas fulvigula (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.457</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Encaumaptera (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.488</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Elasmopalpus lignosella (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.467</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Diplophlyctis intestina (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.457</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Diplodia zeae (hasPathogen)</td>
+            <td><strong style="color: #ef4444;">0.489</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Diatraea saccharalis (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.468</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Diabrotica virgifera virgifera (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.480</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Darna ochracea (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.463</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Dargida grammivora (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.455</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Ctenicera aeripennis destructor (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.488</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Fusarium chlamydosporum (interactsWith)</td>
+            <td><strong style="color: #ef4444;">0.505</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Ferdinandea buccata (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.489</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Faronta albilinea (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.485</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Euxoa niveilinea (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.494</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Eupithecia scopariata (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.469</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Eublemma dimidialis (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.469</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Bathytricha aethalion (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Automeris io (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Apamea lateritia (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.466</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Bombus pascuorum (flowersVisitedBy)</td>
+            <td><strong style="color: #ef4444;">0.453</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Cladosporium viride (hostOf)</td>
+            <td><strong style="color: #ef4444;">0.451</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Chilo zacconius (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.479</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Zea mays → Chilo suppressalis (eatenBy)</td>
+            <td><strong style="color: #ef4444;">0.463</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Uttarakhand</td>
+            <td><strong style="color: #ef4444;">0.476</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — West Bengal</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Jharkhand</td>
+            <td><strong style="color: #ef4444;">0.482</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Himachal Pradesh</td>
+            <td><strong style="color: #ef4444;">0.473</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Assam</td>
+            <td><strong style="color: #ef4444;">0.463</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Chhattisgarh</td>
+            <td><strong style="color: #ef4444;">0.482</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Dadra and Nagar Haveli</td>
+            <td><strong style="color: #ef4444;">0.478</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Bihar</td>
+            <td><strong style="color: #ef4444;">0.475</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Odisha</td>
+            <td><strong style="color: #ef4444;">0.480</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Nagaland</td>
+            <td><strong style="color: #ef4444;">0.477</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Ladakh</td>
+            <td><strong style="color: #ef4444;">0.452</strong></td>
+            <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
+        </tr>
+        
+        <tr>
+            <td>Maize — Lakshadweep</td>
+            <td><strong style="color: #ef4444;">0.454</strong></td>
             <td><span style="color:#b91c1c;">Failed Physics Thresholds</span></td>
         </tr>
         
