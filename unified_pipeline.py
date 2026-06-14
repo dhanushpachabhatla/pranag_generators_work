@@ -13,9 +13,11 @@ sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), "Model", "models"))
 from training.pinn_factory import PINNFactory
 from training.pinn_trainer import train_pinn_model
-from Model.models.loss_generator import create_cross_domain_loss_generator
-from Model.visualization import plot_surrogate_performance
-
+# Optional: Try to import plotting if available, otherwise ignore
+try:
+    from Model.visualization import plot_surrogate_performance
+except ImportError:
+    plot_surrogate_performance = None
 class PranagPipeline:
     def __init__(self, domain="heat", test_mode=False):
         self.domain = domain
@@ -41,8 +43,8 @@ class PranagPipeline:
         # Dynamically calculate the correct input dimension for N-Dimensional physics
         from training.simulation_generator import SimulationGenerator
         cfg = SimulationGenerator().from_hint(self.domain)
-        # Base physical variables (e.g. t, x, y) + 2 Parametric Targets (T_bound, IC_bound)
-        actual_input_dim = len(cfg.equation_info.independent) + 2
+        # Base physical variables (e.g. t, x, y) + 2 Parametric Targets (T_bound, IC_bound) + 2 Intrinsic Properties
+        actual_input_dim = len(cfg.equation_info.independent) + 4
         
         print("--- Phase 1: Train Parametric PINN ---")
         pinn_model = self.factory.create(self.domain, input_dim=actual_input_dim, hidden_dim=128, num_layers=6, dynamic=True)
@@ -63,6 +65,11 @@ class PranagPipeline:
             model_alias=alias,
             plot_dir=self.pinn_dir
         )
+        
+        # Save the trained PyTorch PINN model weights
+        pinn_save_path = os.path.join(self.pinn_dir, f"{alias}.pt")
+        torch.save(trained_pinn.state_dict(), pinn_save_path)
+        print(f"Saved trained PINN weights to {pinn_save_path}")
         
         # 2. On-the-fly Data Generation (In-Memory)
         print("\n--- Phase 2: In-Memory Data Generation ---")
@@ -95,11 +102,27 @@ class PranagPipeline:
         # 3. Train Surrogate Model
         print("\n--- Phase 3: Train Surrogate Model ---")
         X = inputs
-        y = preds[:, 0]
+        y = preds  # Keep all dimensions for Multi-Output Regression
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
-        surrogate_estimators = 5 if self.test_mode else 50
-        surrogate = RandomForestRegressor(n_estimators=surrogate_estimators, max_depth=10, n_jobs=4)
+        # Dynamically scale RF capacity based on physics complexity
+        # Complexity = Input dimensions * Output dimensions
+        complexity = actual_input_dim * (preds.shape[1] if preds.ndim > 1 else 1)
+        
+        if complexity <= 5: 
+            # 1D/2D simple equations (e.g., Heat, Biology)
+            surrogate_estimators = 50
+            surrogate_depth = 15
+        else:
+            # Complex 3D/6D outputs (e.g., Navier-Stokes, Maxwell)
+            surrogate_estimators = 100
+            surrogate_depth = None
+            
+        if self.test_mode:
+            surrogate_estimators = 5
+            surrogate_depth = 5
+            
+        surrogate = RandomForestRegressor(n_estimators=surrogate_estimators, max_depth=surrogate_depth, n_jobs=4)
         surrogate.fit(X_train, y_train)
         
         # 4. Evaluation and Plotting
@@ -109,11 +132,14 @@ class PranagPipeline:
         print(f"Surrogate R2 Score: {r2:.4f}")
         print(f"DEBUG: Surrogate Prediction StdDev = {np.std(y_pred):.6f} (If 0.0, model is collapsed!)")
         
-        # Generate Evaluation Plot
+        # Generate Evaluation Plot (using Primary Variable for 2D visuals)
+        y_test_primary = y_test[:, 0] if y_test.ndim > 1 else y_test
+        y_pred_primary = y_pred[:, 0] if y_pred.ndim > 1 else y_pred
+        
         plot_path = os.path.join(self.plots_dir, f"surrogate_{self.domain}_r2.png")
         plt.figure(figsize=(6, 6))
-        plt.scatter(y_test, y_pred, alpha=0.3, color='blue', label='Predictions vs Truth')
-        plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', label='Perfect Fit')
+        plt.scatter(y_test_primary, y_pred_primary, alpha=0.3, color='blue', label='Predictions vs Truth (Primary Var)')
+        plt.plot([y_test_primary.min(), y_test_primary.max()], [y_test_primary.min(), y_test_primary.max()], 'r--', label='Perfect Fit')
         plt.title(f"Surrogate Performance ({self.domain})\nR2 Score: {r2:.4f}")
         plt.xlabel("PINN Physics Truth")
         plt.ylabel("Surrogate Prediction")
@@ -125,8 +151,16 @@ class PranagPipeline:
         
         # 5. Evaluate PRANA-G Constraints
         print("\n--- Phase 5: PRANA-G 7-Component Diagnostics ---")
-        loss_gen = create_cross_domain_loss_generator()
-        preds_tensor = torch.tensor(y_pred, dtype=torch.float32)
+        try:
+            from Model.models.loss_generator import create_cross_domain_loss_generator
+            loss_gen = create_cross_domain_loss_generator()
+        except ImportError:
+            print("WARNING: Model.models.loss_generator not found. Skipping Phase 5 PRANA-G Diagnostics.")
+            loss_gen = None
+            
+        # Use primary variable for safety tensor to avoid broadcast crashing
+        preds_primary = y_pred[:, 0] if y_pred.ndim > 1 else y_pred
+        preds_tensor = torch.tensor(preds_primary, dtype=torch.float32)
         
         # The parametric targets (T_bound, IC_bound) are appended after the physical dimensions.
         # So the first parametric target is at index: actual_input_dim - 2
@@ -145,15 +179,19 @@ class PranagPipeline:
             "safety": safety_hazard
         }
         
-        total_loss = loss_gen.compute_total_loss(inputs_dict)
-        print(f"Average Total Biological/Economic Constraint Cost: {total_loss.item():.4f}")
-        
-        breakdown_dict = {}
-        for name, comp in loss_gen.components.items():
-            try:
-                breakdown_dict[name] = round(comp.compute_fn(inputs_dict.get(name)).item(), 4)
-            except:
-                breakdown_dict[name] = 0.0
+        if loss_gen is not None:
+            total_loss = loss_gen.compute_total_loss(inputs_dict)
+            print(f"Average Total Biological/Economic Constraint Cost: {total_loss.item():.4f}")
+            
+            breakdown_dict = {}
+            for name, comp in loss_gen.components.items():
+                try:
+                    breakdown_dict[name] = round(comp.compute_fn(inputs_dict.get(name)).item(), 4)
+                except:
+                    breakdown_dict[name] = 0.0
+        else:
+            total_loss = torch.tensor(0.0)
+            breakdown_dict = {}
         
         # 6. Save the Surrogate Model and Metrics
         surrogate_path = os.path.join(self.surrogate_dir, f"Surrogate_{self.domain}.joblib")
@@ -183,9 +221,10 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--test", action="store_true", help="Run a quick test to catch errors")
+    parser.add_argument("--domain", type=str, default="arrhenius", help="Domain to train")
     args = parser.parse_args()
     
-    domains_to_train = ["arrhenius"]
+    domains_to_train = [args.domain]
     print("Initializing Automated Multi-Domain Pipeline...")
     for d in domains_to_train:
         pipeline = PranagPipeline(domain=d, test_mode=args.test)

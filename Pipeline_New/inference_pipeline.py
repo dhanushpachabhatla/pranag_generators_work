@@ -78,19 +78,46 @@ class InferenceEngine:
         cols = []
         
         # We MUST enforce a strict positional layout matching the LHS training data.
-        if n_features == 5:
-            requested_inputs = ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary"]
-        elif n_features == 6:
-            requested_inputs = ["time", "space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary"]
-        elif n_features == 7:
-            requested_inputs = ["time", "space_x", "space_y", "space_z", "intrinsic_property_1", "intrinsic_property_2", "boundary"]
+        from training.simulation_generator import EQUATION_PATTERNS
+        domain_name = node.get("pinn_type", "heat")
+        
+        # Determine base variables dynamically
+        if domain_name in EQUATION_PATTERNS:
+            independent_vars = EQUATION_PATTERNS[domain_name]["independent"]
         else:
-            requested_inputs = ["time", "space"] + [f"intrinsic_property_{i}" for i in range(1, n_features-1)]
+            # Fallback based on n_features if domain not found
+            independent_vars = ["t", "x"] if n_features == 4 else ["t", "x", "y"] if n_features == 5 else ["t"]
             
+        requested_inputs = []
+        for var in independent_vars:
+            if var in ["t", "time", "time_days"]:
+                requested_inputs.append("time")
+            elif var in ["x", "space", "depth", "S", "r"]:
+                requested_inputs.append("space_x")
+            elif var == "y":
+                requested_inputs.append("space_y")
+            elif var == "z":
+                requested_inputs.append("space_z")
+            else:
+                requested_inputs.append("space_x") # default spatial
+                
+        # The remaining columns are parameters (targets/boundaries/intrinsics)
+        # unified_pipeline adds +4 dimensions: Boundary, IC, Intrinsic 1, Intrinsic 2
+        remaining = n_features - len(requested_inputs)
+        if remaining > 0:
+            if remaining >= 1: requested_inputs.append("boundary")
+            if remaining >= 2: requested_inputs.append("initial_condition")
+            if remaining >= 3: requested_inputs.append("intrinsic_property_1")
+            if remaining >= 4: requested_inputs.append("intrinsic_property_2")
+            for i in range(5, remaining + 1):
+                requested_inputs.append(f"intrinsic_property_{i-2}")
+
         # GUARANTEED CHAINING: If a previous model ran, its output becomes the primary boundary condition
         # for this model. This enforces mathematical continuity across the DAG.
         if previous_output_var and previous_output_var in df.columns:
-            requested_inputs[-1] = previous_output_var
+            if "boundary" in requested_inputs:
+                idx = requested_inputs.index("boundary")
+                requested_inputs[idx] = previous_output_var
                 
         for req in requested_inputs:
             # 1. Temporal dimension (scaled [0, 1] in training)
@@ -356,15 +383,26 @@ class InferenceEngine:
                     print(f"      -> ERROR running '{domain}': {e}. Skipping.")
                     continue
                     
-                if raw_pred.ndim > 1:
-                    raw_pred = raw_pred[:, 0]
-                    
-                # Chaining: Feed output forward into the dataframe
-                df[maps_to] = raw_pred
-                previous_output_var = maps_to
+                if raw_pred.ndim > 1 and raw_pred.shape[1] > 1:
+                    # Multi-Output mapping
+                    from training.simulation_generator import EQUATION_PATTERNS
+                    domain_outputs = EQUATION_PATTERNS.get(domain, {}).get("dependent", [])
+                    primary_pred = raw_pred[:, 0]
+                    for i in range(raw_pred.shape[1]):
+                        var_name = domain_outputs[i] if i < len(domain_outputs) else f"out_{i}"
+                        df[f"{maps_to}_{var_name}"] = raw_pred[:, i]
+                        if i == 0:
+                            df[maps_to] = raw_pred[:, i] # Legacy fallback chaining
+                            previous_output_var = maps_to
+                else:
+                    if raw_pred.ndim > 1: raw_pred = raw_pred[:, 0]
+                    primary_pred = raw_pred
+                    df[maps_to] = raw_pred
+                    previous_output_var = maps_to
                 
                 # Robust Scoring Math ensuring prediction is evaluated against scaled limits
-                y_score = self._calculate_score(raw_pred, spec, target_val, opt_goal, scaler, domain)
+                # Always score based on the primary physical variable
+                y_score = self._calculate_score(primary_pred, spec, target_val, opt_goal, scaler, domain)
                 scores_df[f"{domain}_score"] = y_score
                 
                 # Apply weight

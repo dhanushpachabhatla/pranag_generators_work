@@ -11,9 +11,11 @@ import pytorch_lightning as pl
 from torch.utils.data import DataLoader, TensorDataset
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
-# Import the 7-component loss generator
-from Model.models.loss_generator import create_cross_domain_loss_generator
-
+# Import the 7-component loss generator (if it exists)
+try:
+    from Model.models.loss_generator import create_cross_domain_loss_generator
+except ImportError:
+    create_cross_domain_loss_generator = None
 class PINNLightningModule(pl.LightningModule):
     def __init__(self, pinn_model, learning_rate=1e-3, optimizer_type="adam"):
         super().__init__()
@@ -57,10 +59,12 @@ class PINNLightningModule(pl.LightningModule):
             bound_mask = (torch.abs(x_collocation[:, 1]) >= 0.99)
             if bound_mask.any():
                 u_pred = self.pinn(x_collocation[bound_mask])
+                # Slice prediction to first variable to avoid broadcasting across multi-dim outputs
+                u_pred_primary = u_pred[:, 0:1]
                 # Target is the first parametric column (T_bound)
                 target_idx = base_dim
                 u_target = x_collocation[bound_mask, target_idx:target_idx+1]
-                boundary_loss = torch.mean((u_pred - u_target)**2)
+                boundary_loss = torch.mean((u_pred_primary - u_target)**2)
                 
                 # Adaptive Constraint Weighting (Dynamic Loss Balancing)
                 # Calculates ratio to prevent gradient pathology without hardcoded weights
@@ -76,10 +80,11 @@ class PINNLightningModule(pl.LightningModule):
             ic_mask = (torch.abs(x_collocation[:, 0]) <= 0.01)
             if ic_mask.any():
                 u_pred_ic = self.pinn(x_collocation[ic_mask])
+                u_pred_ic_primary = u_pred_ic[:, 0:1]
                 # Target is the second parametric column (IC_bound)
                 target_idx_ic = base_dim + 1
                 u_target_ic = x_collocation[ic_mask, target_idx_ic:target_idx_ic+1]
-                ic_loss = torch.mean((u_pred_ic - u_target_ic)**2)
+                ic_loss = torch.mean((u_pred_ic_primary - u_target_ic)**2)
                 
                 ic_weight = torch.clamp((phys_loss / (ic_loss + 1e-8)).detach(), min=1.0, max=50.0)
                 total_loss = total_loss + (ic_weight * ic_loss)

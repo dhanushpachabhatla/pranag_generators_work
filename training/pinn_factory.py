@@ -192,8 +192,8 @@ class HeatPINN(_GenericPINN):
         u_xx = torch.autograd.grad(u_x, x, grad_outputs=torch.ones_like(u_x),
                                    create_graph=True)[0][:,1:2]
         alpha = self.alpha
-        if x.shape[1] > 2:
-            alpha = self.alpha + 0.5 * torch.abs(x[:, 2:3])
+        if x.shape[1] > 4:
+            alpha = self.alpha + 0.5 * torch.abs(x[:, 4:5])
         return ((u_t - alpha * u_xx)**2).mean()
 
 
@@ -264,7 +264,12 @@ class NavierStokesPINN(_GenericPINN):
         p_x, p_y    = gp[:,1:2], gp[:,2:3]
         u_xx=G(u_x)[:,1:2]; u_yy=G(u_y)[:,2:3]
         v_xx=G(v_x)[:,1:2]; v_yy=G(v_y)[:,2:3]
-        re = 1.0 / self.Re
+        
+        re_param = self.Re
+        if x.shape[1] > 5:
+            re_param = self.Re * (1.0 + 0.5 * torch.abs(x[:, 5:6]))
+        re = 1.0 / re_param
+        
         r1 = u_t + u*u_x + v*u_y + p_x - re*(u_xx+u_yy)
         r2 = v_t + u*v_x + v*v_y + p_y - re*(v_xx+v_yy)
         r3 = u_x + v_y
@@ -471,8 +476,8 @@ class DarcyPINN(_GenericPINN):
         p_yy = torch.autograd.grad(p_y, x, torch.ones_like(p_y),
                                    create_graph=True)[0][:,1:2]
         K = self.K
-        if x.shape[1] > 2:
-            K = self.K + 0.8 * torch.abs(x[:, 2:3])
+        if x.shape[1] > 4:
+            K = self.K + 0.8 * torch.abs(x[:, 4:5])
         return ((-K*(p_xx+p_yy) - self.f_src)**2).mean()
 
 
@@ -504,8 +509,8 @@ class LogisticPINN(_GenericPINN):
         dN = torch.autograd.grad(N, x, torch.ones_like(N),
                                  create_graph=True)[0][:,0:1]
         r = self.r
-        if x.shape[1] > 1:
-            r = self.r + 3.0 * torch.abs(x[:, 1:2])
+        if x.shape[1] > 3:
+            r = self.r + 3.0 * torch.abs(x[:, 3:4])
         return ((dN - r*N*(1 - N/self.K))**2).mean()
 
 
@@ -535,8 +540,8 @@ class StressPINN(_GenericPINN):
         dS = torch.autograd.grad(S, x, torch.ones_like(S),
                                  create_graph=True)[0][:,0:1]
         alpha = self.alpha
-        if x.shape[1] > 1:
-            alpha = self.alpha + 1.5 * torch.abs(x[:, 1:2])
+        if x.shape[1] > 3:
+            alpha = self.alpha + 1.5 * torch.abs(x[:, 3:4])
         return ((dS - alpha*S*(1 - S/self.S_max))**2).mean()
 
 
@@ -552,8 +557,8 @@ class BiologyPINN(_GenericPINN):
         dA = torch.autograd.grad(A, x, torch.ones_like(A),
                                  create_graph=True)[0][:,0:1]
         r = self.r
-        if x.shape[1] > 1:
-            r = self.r + 3.0 * torch.abs(x[:, 1:2])
+        if x.shape[1] > 3:
+            r = self.r + 3.0 * torch.abs(x[:, 3:4])
         return ((dA - (r*A - self.m*A**2))**2).mean()
 
 
@@ -573,8 +578,8 @@ class ArrheniusPINN(_GenericPINN):
         T_abs = T * 50.0 + 298.15
         
         Ea = self.Ea
-        if x.shape[1] > 1:
-            Ea = self.Ea * (1.0 - 0.8 * torch.abs(x[:, 1:2]))
+        if x.shape[1] > 3:
+            Ea = self.Ea * (1.0 - 0.8 * torch.abs(x[:, 3:4]))
             
         # Normalized Arrhenius (1.0 at T_ref)
         # k_factor = exp( (Ea/R) * (1/T_ref - 1/T_abs) )
@@ -606,13 +611,109 @@ class GrayScottPINN(_GenericPINN):
         
         F_param = self.F
         k_param = self.k
-        if x.shape[1] > 3:
-            F_param = self.F + 0.05 * torch.abs(x[:, 3:4])
-            k_param = self.k + 0.05 * torch.abs(x[:, 3:4])
+        if x.shape[1] > 5:
+            F_param = self.F + 0.05 * torch.abs(x[:, 5:6])
+            k_param = self.k + 0.05 * torch.abs(x[:, 5:6])
             
         r1 = dt(u) - self.Du*lap(u,x) + u*v**2 - F_param*(1-u)
         r2 = dt(v) - self.Dv*lap(v,x) - u*v**2 + (F_param+k_param)*v
         return (r1**2+r2**2).mean()
+
+
+class MaxwellPINN(_GenericPINN):
+    """3D Maxwell equations (vacuum, source-free)."""
+    def __init__(self, mu0: float = 1.0, eps0: float = 1.0, **kw):
+        input_dim = kw.pop("input_dim", 4)
+        super().__init__(input_dim=input_dim, output_dim=6, params={"mu0": mu0, "eps0": eps0}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        Ex, Ey, Ez, Bx, By, Bz = (
+            out[:,0:1], out[:,1:2], out[:,2:3], out[:,3:4], out[:,4:5], out[:,5:6]
+        )
+        def G(f):
+            return torch.autograd.grad(f, x, grad_outputs=torch.ones_like(f), create_graph=True)[0]
+        gEx, gEy, gEz = G(Ex), G(Ey), G(Ez)
+        gBx, gBy, gBz = G(Bx), G(By), G(Bz)
+        Ex_t, Ey_t, Ez_t = gEx[:,0:1], gEy[:,0:1], gEz[:,0:1]
+        Bx_t, By_t, Bz_t = gBx[:,0:1], gBy[:,0:1], gBz[:,0:1]
+        Ex_x, Ex_y, Ex_z = gEx[:,1:2], gEx[:,2:3], gEx[:,3:4]
+        Ey_x, Ey_y, Ey_z = gEy[:,1:2], gEy[:,2:3], gEy[:,3:4]
+        Ez_x, Ez_y, Ez_z = gEz[:,1:2], gEz[:,2:3], gEz[:,3:4]
+        Bx_x, Bx_y, Bx_z = gBx[:,1:2], gBx[:,2:3], gBx[:,3:4]
+        By_x, By_y, By_z = gBy[:,1:2], gBy[:,2:3], gBy[:,3:4]
+        Bz_x, Bz_y, Bz_z = gBz[:,1:2], gBz[:,2:3], gBz[:,3:4]
+
+        curlE_x = Ez_y - Ey_z
+        curlE_y = Ex_z - Ez_x
+        curlE_z = Ey_x - Ex_y
+
+        curlB_x = Bz_y - By_z
+        curlB_y = Bx_z - Bz_x
+        curlB_z = By_x - Bx_y
+
+        divE = Ex_x + Ey_y + Ez_z
+        divB = Bx_x + By_y + Bz_z
+
+        r1 = curlE_x + Bx_t
+        r2 = curlE_y + By_t
+        r3 = curlE_z + Bz_t
+
+        r4 = curlB_x - self.mu0 * self.eps0 * Ex_t
+        r5 = curlB_y - self.mu0 * self.eps0 * Ey_t
+        r6 = curlB_z - self.mu0 * self.eps0 * Ez_t
+
+        return (r1**2 + r2**2 + r3**2 + r4**2 + r5**2 + r6**2 + divE**2 + divB**2).mean()
+
+class OrbitalPINN(_GenericPINN):
+    """Orbital mechanics (2-body problem)."""
+    def __init__(self, mu: float = 1.0, **kw):
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=2, params={"mu": mu}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        rx, ry = out[:,0:1], out[:,1:2]
+        def G(f): return torch.autograd.grad(f, x, grad_outputs=torch.ones_like(f), create_graph=True)[0][:,0:1]
+        vx, vy = G(rx), G(ry)
+        ax, ay = G(vx), G(vy)
+        r3 = (rx**2 + ry**2)**1.5 + 1e-6
+        mu_param = self.mu
+        if x.shape[1] > 3:
+            mu_param = self.mu * (1.0 + 0.1 * torch.abs(x[:, 3:4]))
+        r1 = ax + mu_param * rx / r3
+        r2 = ay + mu_param * ry / r3
+        return (r1**2 + r2**2).mean()
+
+class RadiationPINN(_GenericPINN):
+    """Radiation transport/decay."""
+    def __init__(self, alpha: float = 1.0, **kw):
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1, params={"alpha": alpha}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        I = self(x)
+        g = torch.autograd.grad(I, x, grad_outputs=torch.ones_like(I), create_graph=True)[0]
+        I_t, I_x = g[:,0:1], g[:,1:2]
+        alpha_param = self.alpha
+        if x.shape[1] > 4:
+            alpha_param = self.alpha * (1.0 + 0.5 * torch.abs(x[:, 4:5]))
+        return ((I_t + I_x + alpha_param * I)**2).mean()
+
+class EconomicsPINN(_GenericPINN):
+    """Cost/Supply dynamics."""
+    def __init__(self, decay: float = 0.1, **kw):
+        input_dim = kw.pop("input_dim", 1)
+        super().__init__(input_dim=input_dim, output_dim=1, params={"decay": decay}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        C = self(x)
+        dC = torch.autograd.grad(C, x, grad_outputs=torch.ones_like(C), create_graph=True)[0][:,0:1]
+        decay_param = self.decay
+        if x.shape[1] > 3:
+            decay_param = self.decay * (1.0 + 0.5 * torch.abs(x[:, 3:4]))
+        return ((dC + decay_param * C)**2).mean()
+
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -636,8 +737,12 @@ _BUILTIN_REGISTRY: Dict[str, Tuple[Type[nn.Module], Dict]] = {
     # ── Quantum / Electromagnetism ─────────────────────────────
     "schrodinger":       (SchrodingerPINN,      {"hbar": 1.0, "m": 1.0}),
     "klein_gordon":      (WavePINN,             {"c": 1.0}),        # same structure
-    # ── Finance ────────────────────────────────────────────────
+    "maxwell":           (MaxwellPINN,          {"mu0": 1.0, "eps0": 1.0}),
+    "radiation":         (RadiationPINN,        {"alpha": 1.0}),
+    "orbital":           (OrbitalPINN,          {"mu": 1.0}),
+    # ── Finance / Economics ────────────────────────────────────
     "black_scholes":     (BlackScholesPINN,     {"r": 0.05, "sigma": 0.2}),
+    "economics":         (EconomicsPINN,        {"decay": 0.1}),
     # ── Biology / Epidemiology ─────────────────────────────────
     "sir":               (SIRPINN,              {"beta":0.3,"gamma":0.1,"N":1000.0}),
     "seir":              (SEIRPINN,             {"b":0.3,"sigma":0.2,"gamma":0.1}),

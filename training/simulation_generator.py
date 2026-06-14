@@ -113,7 +113,7 @@ EQUATION_PATTERNS = {
                      "alpha.*d2u", "du/dt.*d2u"],
         "eq_hint": "du/dt = alpha * d2u/dx2",
         "domain_class": "physics",
-        "independent": ["t", "x", "p1", "p2"],
+        "independent": ["t", "x"],
         "dependent": ["u"],
         "params": {"alpha": 0.01},
         "loss_template": "heat_1d",
@@ -205,7 +205,7 @@ EQUATION_PATTERNS = {
                      "gray scott", "fitzhugh", "pattern formation"],
         "eq_hint": "du/dt = Du*laplacian(u) + f(u,v); dv/dt = Dv*laplacian(v) + g(u,v)",
         "domain_class": "biology",
-        "independent": ["t", "x", "y", "p1", "p2"],
+        "independent": ["t", "x", "y"],
         "dependent": ["u", "v"],
         "params": {"Du": 0.16, "Dv": 0.08, "F": 0.035, "k": 0.065},
         "loss_template": "gray_scott_2d",
@@ -282,7 +282,7 @@ EQUATION_PATTERNS = {
         "keywords": ["darcy", "porous media", "groundwater", "permeability"],
         "eq_hint": "div(K*grad(p)) = f",
         "domain_class": "physics",
-        "independent": ["x", "y", "p1", "p2"],
+        "independent": ["x", "y"],
         "dependent": ["p"],
         "params": {"K": 1.0, "f_src": 0.0},
         "loss_template": "darcy_2d",
@@ -337,7 +337,7 @@ EQUATION_PATTERNS = {
         "keywords": ["logistic", "verhulst", "population growth", "carrying capacity"],
         "eq_hint": "dN/dt = r*N*(1 - N/K)",
         "domain_class": "biology",
-        "independent": ["t", "p1", "p2"],
+        "independent": ["t"],
         "dependent": ["N"],
         "params": {"r": 0.3, "K": 1000.0},
         "loss_template": "logistic_ode",
@@ -357,7 +357,7 @@ EQUATION_PATTERNS = {
         "keywords": ["stress", "environmental stress", "tolerance"],
         "eq_hint": "dS/dt = alpha*S*(1 - S/S_max)",
         "domain_class": "biology",
-        "independent": ["t", "p1", "p2"],
+        "independent": ["t"],
         "dependent": ["S"],
         "params": {"alpha": 0.1, "S_max": 1.0},
         "loss_template": "stress_ode",
@@ -367,7 +367,7 @@ EQUATION_PATTERNS = {
         "keywords": ["biology", "adaptive trait", "phenotype"],
         "eq_hint": "dA/dt = r*A - m*A^2",
         "domain_class": "biology",
-        "independent": ["t", "p1", "p2"],
+        "independent": ["t"],
         "dependent": ["A"],
         "params": {"r": 0.5, "m": 0.1},
         "loss_template": "biology_ode",
@@ -402,7 +402,7 @@ EQUATION_PATTERNS = {
                      "chemical kinetics"],
         "eq_hint": "k = A * exp(-Ea/(R*T))",
         "domain_class": "chemistry",
-        "independent": ["T", "p1", "p2"],
+        "independent": ["T"],
         "dependent": ["k"],
         "params": {"A": 1e13, "Ea": 50000.0, "R": 8.314},
         "loss_template": "arrhenius_ode",
@@ -450,6 +450,37 @@ EQUATION_PATTERNS = {
         "params": {"mu0": 1.0, "nu": 0.01},
         "loss_template": "mhd_3d",
         "description": "3D MHD (plasma physics)",
+    },
+    # ── Miscellaneous (Added to match PINN Factory) ───────────
+    "orbital": {
+        "keywords": ["orbital", "astrodynamics", "gravity", "orbit"],
+        "eq_hint": "d2r/dt2 + mu * r / |r|^3 = 0",
+        "domain_class": "physics",
+        "independent": ["t"],
+        "dependent": ["rx", "ry"],
+        "params": {"mu": 1.0},
+        "loss_template": "orbital_ode",
+        "description": "Orbital mechanics 2-body problem",
+    },
+    "radiation": {
+        "keywords": ["radiation", "decay", "transport"],
+        "eq_hint": "dI/dt + dI/dx + alpha * I = 0",
+        "domain_class": "physics",
+        "independent": ["t", "x"],
+        "dependent": ["I"],
+        "params": {"alpha": 1.0},
+        "loss_template": "radiation_pde",
+        "description": "Radiation transport/decay",
+    },
+    "economics": {
+        "keywords": ["cost", "economics", "supply", "decay"],
+        "eq_hint": "dC/dt + decay * C = 0",
+        "domain_class": "economics",
+        "independent": ["t"],
+        "dependent": ["C"],
+        "params": {"decay": 0.1},
+        "loss_template": "economics_ode",
+        "description": "Cost decay dynamics",
     },
 }
 
@@ -827,6 +858,50 @@ LOSS_TEMPLATES = {
                     + self.r * S * V_S - self.r * V)
         return (residual ** 2).mean()
 ''',
+
+"orbital_ode": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Residual of orbital mechanics"""
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        rx, ry = out[:,0:1], out[:,1:2]
+        def G(f): return torch.autograd.grad(f, x, grad_outputs=torch.ones_like(f), create_graph=True)[0][:,0:1]
+        vx, vy = G(rx), G(ry)
+        ax, ay = G(vx), G(vy)
+        r3 = (rx**2 + ry**2)**1.5 + 1e-6
+        mu_param = self.mu
+        if x.shape[1] > 1:
+            mu_param = self.mu * (1.0 + 0.1 * torch.abs(x[:, 1:2]))
+        r1 = ax + mu_param * rx / r3
+        r2 = ay + mu_param * ry / r3
+        return (r1**2 + r2**2).mean()
+''',
+
+"radiation_pde": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Residual of radiation transport"""
+        x = x.clone().requires_grad_(True)
+        I = self(x)
+        g = torch.autograd.grad(I, x, grad_outputs=torch.ones_like(I), create_graph=True)[0]
+        I_t, I_x = g[:,0:1], g[:,1:2]
+        alpha_param = self.alpha
+        if x.shape[1] > 2:
+            alpha_param = self.alpha * (1.0 + 0.5 * torch.abs(x[:, 2:3]))
+        return ((I_t + I_x + alpha_param * I)**2).mean()
+''',
+
+"economics_ode": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Residual of economics decay"""
+        x = x.clone().requires_grad_(True)
+        C = self(x)
+        dC = torch.autograd.grad(C, x, grad_outputs=torch.ones_like(C), create_graph=True)[0][:,0:1]
+        decay_param = self.decay
+        if x.shape[1] > 1:
+            decay_param = self.decay * (1.0 + 0.5 * torch.abs(x[:, 1:2]))
+        return ((dC + decay_param * C)**2).mean()
+''',
+
 
 "allen_cahn_1d": '''
     def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
