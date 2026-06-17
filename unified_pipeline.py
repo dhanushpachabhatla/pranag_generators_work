@@ -34,49 +34,63 @@ class PranagPipeline:
         for d in [self.pinn_dir, self.surrogate_dir, self.plots_dir, self.results_dir]:
             os.makedirs(d, exist_ok=True)
 
-    def run_end_to_end(self):
-        print(f"\n========================================================")
-        print(f"=== Unified PRANA-G Pipeline for Domain: '{self.domain}' ===")
-        print(f"========================================================\n")
-        
-        # 1. Build & Train Parametric PINN
-        # Dynamically calculate the correct input dimension for N-Dimensional physics
+    def run_end_to_end(self, use_existing_pinn=False):
+        """Execute the complete training pipeline."""
         from training.simulation_generator import SimulationGenerator
+        
+        print("\n" + "="*56)
+        print(f"=== Unified PRANA-G Pipeline for Domain: '{self.domain}' ===")
+        print("="*56)
+        
         cfg = SimulationGenerator().from_hint(self.domain)
         # Base physical variables (e.g. t, x, y) + 2 Parametric Targets (T_bound, IC_bound) + 2 Intrinsic Properties
         actual_input_dim = len(cfg.equation_info.independent) + 4
         
-        print("--- Phase 1: Train Parametric PINN ---")
         pinn_model = self.factory.create(self.domain, input_dim=actual_input_dim, hidden_dim=128, num_layers=6, dynamic=True)
         # BUG FIX: Dynamically inject base_dim so pinn_trainer.py enforces Initial Conditions (IC_bound) correctly for 1D ODEs
         pinn_model.base_dim = len(cfg.equation_info.independent)
         alias = f"Parametric_{self.domain.capitalize()}PINN"
+        pinn_save_path = os.path.join(self.pinn_dir, f"{alias}.pt")
             
         max_epochs = 10 if self.test_mode else 3000
         num_points = 100 if self.test_mode else 10000
         batch_size = 10 if self.test_mode else 2048
             
-        trained_pinn, _ = train_pinn_model(
-            pinn_model=pinn_model,
-            input_dim=actual_input_dim,
-            num_points=num_points,
-            max_epochs=max_epochs,
-            batch_size=batch_size,
-            model_alias=alias,
-            plot_dir=self.pinn_dir
-        )
-        
-        # Save the trained PyTorch PINN model weights
-        pinn_save_path = os.path.join(self.pinn_dir, f"{alias}.pt")
-        torch.save(trained_pinn.state_dict(), pinn_save_path)
-        print(f"Saved trained PINN weights to {pinn_save_path}")
+        print("\n--- Phase 1: Train Parametric PINN ---")
+        if use_existing_pinn and os.path.exists(pinn_save_path):
+            print(f"Found existing PINN weights at {pinn_save_path}. Skipping Stage 1 & 2 PyTorch training!")
+            pinn_model.load_state_dict(torch.load(pinn_save_path, map_location=torch.device('cpu')))
+            trained_pinn = pinn_model
+            # Move to CUDA if available to speed up inference in Phase 2
+            if torch.cuda.is_available():
+                trained_pinn = trained_pinn.cuda()
+        else:
+            trained_pinn, _ = train_pinn_model(
+                pinn_model=pinn_model,
+                input_dim=actual_input_dim,
+                num_points=num_points,
+                max_epochs=max_epochs,
+                batch_size=batch_size,
+                model_alias=alias,
+                plot_dir=self.pinn_dir
+            )
+            
+            # Save the trained PyTorch PINN model weights
+            torch.save(trained_pinn.state_dict(), pinn_save_path)
+            print(f"Saved trained PINN weights to {pinn_save_path}")
         
         # 2. On-the-fly Data Generation (In-Memory)
         print("\n--- Phase 2: In-Memory Data Generation ---")
         
-        # Dynamically generate N-dimensional grid to avoid RAM crashes
-        target_total_points = 1000 if self.test_mode else 100000
-        print(f"Generating exactly {target_total_points} points using Latin Hypercube Sampling (LHS).")
+        # Dynamically scale data points based on mathematical complexity
+        complexity = actual_input_dim * pinn_model.output_dim
+        if self.test_mode:
+            target_total_points = 1000
+        else:
+            # Boost points for highly complex PDE mappings (like Maxwell 8D->6D)
+            target_total_points = 1000000 if complexity > 30 else 100000
+            
+        print(f"Complexity Score: {complexity}. Generating exactly {target_total_points} points using Latin Hypercube Sampling (LHS).")
         
         from scipy.stats import qmc
         sampler = qmc.LatinHypercube(d=actual_input_dim)
@@ -113,10 +127,14 @@ class PranagPipeline:
             # 1D/2D simple equations (e.g., Heat, Biology)
             surrogate_estimators = 50
             surrogate_depth = 15
+        elif complexity <= 30 :
+            # Complex 3D/6D outputs (e.g., Navier-Stokes, Maxwell)
+            surrogate_estimators = 100
+            surrogate_depth = 20
         else:
             # Complex 3D/6D outputs (e.g., Navier-Stokes, Maxwell)
             surrogate_estimators = 100
-            surrogate_depth = None
+            surrogate_depth = 25
             
         if self.test_mode:
             surrogate_estimators = 5

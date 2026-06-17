@@ -98,6 +98,7 @@ class _GenericPINN(nn.Module):
         **kwargs
     ):
         super().__init__()
+        self.output_dim = output_dim
         # Register physics parameters as model attributes
         # First apply defaults, then override with provided params
         merged_params = {**self._DEFAULTS}
@@ -695,10 +696,16 @@ class RadiationPINN(_GenericPINN):
         I = self(x)
         g = torch.autograd.grad(I, x, grad_outputs=torch.ones_like(I), create_graph=True)[0]
         I_t, I_x = g[:,0:1], g[:,1:2]
+        
+        # Calculate artificial viscosity to prevent collocation overfitting
+        I_xx = torch.autograd.grad(I_x, x, grad_outputs=torch.ones_like(I_x), create_graph=True)[0][:,1:2]
+        
         alpha_param = self.alpha
         if x.shape[1] > 4:
             alpha_param = self.alpha * (1.0 + 0.5 * torch.abs(x[:, 4:5]))
-        return ((I_t + I_x + alpha_param * I)**2).mean()
+            
+        # Add 0.01 * I_xx (Artificial Diffusion) to force smooth convergence
+        return ((I_t + I_x + alpha_param * I - 0.01 * I_xx)**2).mean()
 
 class EconomicsPINN(_GenericPINN):
     """Cost/Supply dynamics."""

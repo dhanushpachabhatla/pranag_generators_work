@@ -1,7 +1,7 @@
 import sys
 from unified_pipeline import PranagPipeline
 
-new_domains = ["navier_stokes", "maxwell", "schrodinger", "orbital", "radiation", "economics"]
+new_domains = ["radiation"]
 
 for d in new_domains:
     print(f"\n================ STARTING TRAINING FOR {d} ================")
