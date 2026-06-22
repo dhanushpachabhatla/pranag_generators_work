@@ -53,16 +53,13 @@ Or run the unified trainer directly:
 python unified_pipeline.py
 ```
 
-`unified_pipeline.py` trains one domain at a time through `PranagPipeline`. The current batch launcher trains:
+`unified_pipeline.py` trains one domain at a time through `PranagPipeline`. The current batch launcher trains a wide suite of domains including:
 
-- `heat`
-- `darcy`
-- `stress`
-- `arrhenius`
-- `biology`
-- `logistic`
-
-The output folder also currently contains a trained `reaction_diffusion` surrogate.
+- **Fluid & Thermal:** `heat`, `navier_stokes`
+- **Electromagnetism & Quantum:** `maxwell`, `schrodinger`
+- **Mechanics & Space:** `stress`, `orbital`, `darcy`
+- **Biology & Epidemiology:** `biology`, `logistic`, `sir`
+- **Chemistry & Radiation:** `arrhenius`, `reaction_diffusion`, `radiation`
 
 ### What Training Does
 
