@@ -87,8 +87,12 @@ class PranagPipeline:
         if self.test_mode:
             target_total_points = 1000
         else:
-            # Boost points for highly complex PDE mappings (like Maxwell 8D->6D)
-            target_total_points = 1000000 if complexity > 30 else 100000
+            if self.domain == 'maxwell':
+                target_total_points = 300000
+            elif self.domain == 'navier_stokes':
+                target_total_points = 200000
+            else:
+                target_total_points = 150000 if complexity > 30 else 100000
             
         print(f"Complexity Score: {complexity}. Generating exactly {target_total_points} points using Latin Hypercube Sampling (LHS).")
         
@@ -125,16 +129,22 @@ class PranagPipeline:
         
         if complexity <= 5: 
             # 1D/2D simple equations (e.g., Heat, Biology)
-            surrogate_estimators = 50
-            surrogate_depth = 15
+            surrogate_estimators = 20
+            surrogate_depth = 10
         elif complexity <= 30 :
             # Complex 3D/6D outputs (e.g., Navier-Stokes, Maxwell)
-            surrogate_estimators = 100
-            surrogate_depth = 20
-        else:
-            # Complex 3D/6D outputs (e.g., Navier-Stokes, Maxwell)
-            surrogate_estimators = 100
+            surrogate_estimators = 30
+            surrogate_depth = 15
+        elif self.domain == 'maxwell':
+            surrogate_estimators = 80
             surrogate_depth = 25
+        elif self.domain == 'navier_stokes':
+            surrogate_estimators = 60
+            surrogate_depth = 22
+        else:
+            # Complex 3D/6D outputs
+            surrogate_estimators = 50
+            surrogate_depth = 20
             
         if self.test_mode:
             surrogate_estimators = 5

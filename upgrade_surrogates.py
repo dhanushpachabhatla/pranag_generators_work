@@ -3,7 +3,7 @@ import os
 from unified_pipeline import PranagPipeline
 
 # Combined list of all domains
-all_domains = ["maxwell"]
+all_domains = ["navier_stokes", "maxwell"]
 
 print("========================================================")
 print("=== FAST SURROGATE UPGRADE SCRIPT ===")
