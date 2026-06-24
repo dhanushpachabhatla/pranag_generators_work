@@ -134,30 +134,61 @@ class InferenceEngine:
             if "boundary" in req.lower() or "initial" in req.lower():
                 is_boundary = "boundary" in req.lower()
                 raw_val = float(node.get("target_value", 0.0)) if is_boundary else float(node.get("initial_value", -999.0))
-                
+                assumed_fields = node.get("assumed_defaults", []) or []
+                field_name = "target_value" if is_boundary else "initial_value"
+                was_assumed_by_router = field_name in assumed_fields
+
+                req_lower = req.lower()
+                is_boundary_pressure = is_boundary and ("pressure" in req_lower)
+
                 # Absolute static scaling bounds to ensure mathematical consistency across ALL prompts
-                if "temp" in req.lower() or "heat" in req.lower(): 
-                    scaler = 1500.0  # Safe upper limit for materials and biology
-                    default_init = 25.0
-                elif "pressure" in req.lower() or "stress" in req.lower(): 
-                    scaler = 1000.0  # MPa
-                    default_init = 0.0
-                elif "biomass" in req.lower() or "growth" in req.lower(): 
-                    scaler = 10000.0 # kg/ha
-                    default_init = 10.0
-                elif "ph" in req.lower():
+                # NOTE: existing scaler treats pressure/stress on a 0-1000 (MPa-style) scale.
+                # Aryan's "1.0 atm" reference for boundary_pressure is a raw physical-unit
+                # number, not yet on this scale — flagging this unit mismatch rather than
+                # silently inventing a conversion. Plugging the value in as given for now.
+                if "temp" in req_lower or "heat" in req_lower:
+                    scaler = 1500.0
+                    default_init   = 25.0
+                    default_target = 45.0  # no explicit Aryan guidance for target; keep prior behavior
+                elif "ph" in req_lower:
                     scaler = 14.0
-                    default_init = 7.0
-                else: 
+                    default_init   = 7.0
+                    default_target = 7.0
+                elif "rate" in req_lower:
                     scaler = 100.0
-                    default_init = 0.0
-                    
-                # Apply defaults if LLM did not provide initial state
-                if not is_boundary and raw_val == -999.0:
+                    default_init   = 1.0
+                    goal = node.get("optimization_goal", "target")
+                    default_target = 0.1 if goal == "minimize" else 10.0
+                elif "infected" in req_lower:
+                    scaler = 100.0
+                    default_init   = 0.01
+                    default_target = 0.01
+                elif "biomass" in req_lower or "growth" in req_lower:
+                    scaler = 10000.0
+                    default_init   = 1.0      # seedling/initial culture, NOT 0.0
+                    default_target = 100.0    # full maturity / 100% yield
+                elif "pressure" in req_lower or "stress" in req_lower:
+                    scaler = 1000.0
+                    if is_boundary_pressure:
+                        default_init   = 1.0  # atmospheric baseline (Darcy/fluid boundary)
+                        default_target = 1.0
+                    else:
+                        default_init   = 0.0  # no applied external load
+                        default_target = 1.0  # pipeline normalizes max critical stress to 1.0
+                else:
+                    scaler = 100.0
+                    default_init   = 0.0
+                    default_target = 0.0
+
+                # Apply defaults only when we KNOW the value is unspecified — either the
+                # router explicitly flagged it (preferred), or it's the unambiguous legacy
+                # sentinel -999.0 for initial_value. target_value's old 0.0-means-missing
+                # heuristic is retired since 0.0 can be a real, intentional target.
+                if was_assumed_by_router:
+                    raw_val = default_target if is_boundary else default_init
+                elif not is_boundary and raw_val == -999.0:
                     raw_val = default_init
-                elif is_boundary and raw_val == 0.0:
-                    raw_val = default_init  # Ensure we don't accidentally simulate boundary at absolute zero if unspecified
-                    
+
                 val = np.clip(raw_val / scaler, 0.0, 1.0)
                 cols.append(np.full(n, val, dtype=np.float32))
                 continue
@@ -183,11 +214,27 @@ class InferenceEngine:
             if "temp" in req.lower(): pattern = r'(?i)(?:temp|temperature).*?(\d{2,3})'
             elif "ph" in req.lower(): pattern = r'(?i)ph.*?([0-9]{1,2}\.?[0-9]?)'
             elif "mass" in req.lower() or "yield" in req.lower(): pattern = r'(?i)(?:mass|weight|yield).*?([0-9]+\.?[0-9]?)'
-            
-            # Extract dynamic values based on the LLM's requested input name
-            # Normalized safely for surrogate
-            val_col = get_dynamic_col(req, 0.5, pattern)
-            # Clip between [0, 1] to prevent massive extrapolation from Random Forest
+
+            # Scientific category defaults for any req name not already handled above —
+            # values normalized to [0,1] as a "no information" baseline.
+            GENERIC_NORMALIZED_DEFAULTS = {
+                "rate":          0.3,
+                "energy":        0.4,
+                "infected":      0.01,
+                "concentration": 0.5,
+                "humidity":      0.5,
+                "salinity":      0.2,
+                "density":       0.5,
+                "viscosity":     0.5,
+            }
+            req_lower = req.lower()
+            generic_default = 0.5
+            for key, val in GENERIC_NORMALIZED_DEFAULTS.items():
+                if key in req_lower:
+                    generic_default = val
+                    break
+
+            val_col = get_dynamic_col(req, generic_default, pattern)
             val_col = np.clip(val_col / np.max(val_col) if np.max(val_col) > 0 else val_col, 0.0, 1.0)
             cols.append(val_col)
             

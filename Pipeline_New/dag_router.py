@@ -43,9 +43,37 @@ You MUST return a JSON with:
     - "model": The name of the surrogate to activate (from the schema above).
     - "inputs": A list of physical parameters this model requires (MUST EXACTLY MATCH the schema inputs for that model).
     - "output_maps_to": The physical parameter name that this model's prediction will overwrite for subsequent models (e.g., "temperature", "biomass", "ph").
-    - "target_value": The numerical target extracted from the user's specification (e.g., 45.0 for temperature, 90.0 for maturity). Use 0.0 if not explicitly mentioned.
-    - "initial_value": The baseline or starting state extracted from the user's specification (e.g., 25.0 for standard room temp, 0.0 for zero stress). Use -999.0 if not explicitly mentioned.
+    - "target_value": The numerical target extracted from the user's specification (e.g., 45.0 for temperature, 90.0 for maturity).
+        If the user specification does not explicitly provide a numerical value, you MUST use your
+        scientific knowledge to infer a realistic standard physical baseline rather than outputting
+        an arbitrary placeholder. Use these standard references depending on the model:
+          - biology / logistic (target_biomass, boundary_growth): 100.0 (full maturity / 100% yield capacity)
+          - arrhenius (target_rate): 0.1 if optimization_goal implies decay/stability (minimize),
+            or 10.0 if it implies catalysis/speed (maximize)
+          - stress (target_stress): 1.0 (the pipeline normalizes maximum critical stress to 1.0)
+        If the specification genuinely implies a target of exactly zero (e.g. "minimize stress to
+        zero", "no water retention"), use 0.0 — that is a real value, not a missing one.
+        You MUST add "target_value" to this node's "assumed_defaults" list whenever you used a
+        standard baseline above instead of a number extracted directly from the specification.
+    - "initial_value": The baseline or starting state extracted from the user's specification (e.g., 25.0 for standard room temp, 0.0 for zero stress).
+        If not explicitly provided, use your scientific knowledge to infer a realistic standard
+        baseline. Use these standard references:
+          - heat / arrhenius (initial_temperature, boundary_temperature): 25.0 (standard room
+            temperature in Celsius)
+          - arrhenius (initial_ph): 7.0 (neutral baseline)
+          - arrhenius (initial_rate): 1.0 (normalized baseline reaction rate)
+          - biology / logistic (initial_biomass, initial_growth): 1.0 (seedling / initial culture —
+            do NOT use 0.0, since growth equations often stall at exactly zero)
+          - biology disease/infection state (initial_infected): 0.01 (a small initial outbreak)
+          - stress / darcy (initial_stress, initial_pressure): 0.0 (no applied external load)
+          - darcy boundary (boundary_pressure): 1.0 (standard atmospheric pressure baseline)
+        DO NOT output arbitrary placeholders like -999.0 under any circumstance.
+        You MUST add "initial_value" to this node's "assumed_defaults" list whenever you used a
+        standard baseline above instead of a number extracted directly from the specification.
     - "optimization_goal": Must be "maximize", "minimize", or "target".
+    - "assumed_defaults": A list of field names in THIS node (choose only from "target_value",
+        "initial_value") that you filled using standard scientific baselines rather than reading
+        directly from the user's specification. Use an empty list [] if every field was explicit.
 - "weights": A dictionary assigning viability weights to the active models (must sum to 1.0).
 - "target_entities": A list of 1-3 specific target subjects extracted from the specification (e.g., ["maize", "corn", "zea mays"]). If not explicitly given, derive from context.
 - "semantic_keywords": A list of 5-8 EXACT synonyms, scientific names, and specific taxonomic identifiers for the requested entity. (e.g., if it's about corn, include ["corn", "maize", "zea mays", "sweet corn", "field corn"]). DO NOT use generic category terms like "crop", "grain", "plant", "biology", or "development" as they will pull in completely irrelevant false positives!
@@ -54,9 +82,9 @@ You MUST return a JSON with:
 Example Output:
 {{
     "execution_chain": [
-        {{"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "initial_value": 25.0, "optimization_goal": "target"}},
-        {{"model": "darcy", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "water_retention", "target_value": 0.0, "initial_value": -999.0, "optimization_goal": "minimize"}},
-        {{"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 1000.0, "initial_value": 10.0, "optimization_goal": "maximize"}}
+        {{"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "initial_value": 25.0, "optimization_goal": "target", "assumed_defaults": []}},
+        {{"model": "darcy", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "water_retention", "target_value": 0.0, "initial_value": 0.0, "optimization_goal": "minimize", "assumed_defaults": ["initial_value"]}},
+        {{"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 1000.0, "initial_value": 10.0, "optimization_goal": "maximize", "assumed_defaults": []}}
     ],
     "weights": {{
         "heat": 0.25,
@@ -99,26 +127,26 @@ Example Output:
         
         # Rule-based routing simulating the LLM's logic
         if "heat" in combined_text or "temperature" in combined_text:
-            chain.append({"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "optimization_goal": "target"})
+            chain.append({"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "initial_value": 25.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
             weights["heat"] = 0.3
             
         if "drought" in combined_text or "flood" in combined_text or "disease" in combined_text:
-            chain.append({"model": "darcy", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "water_retention", "target_value": 0.0, "optimization_goal": "minimize"})
+            chain.append({"model": "darcy", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "water_retention", "target_value": 0.0, "initial_value": 0.0, "optimization_goal": "minimize", "assumed_defaults": ["initial_value"]})
             weights["darcy"] = 0.4
             
         if "yield" in combined_text or "growth" in combined_text:
-            chain.append({"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 100.0, "optimization_goal": "maximize"})
+            chain.append({"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 100.0, "initial_value": 1.0, "optimization_goal": "maximize", "assumed_defaults": ["initial_value"]})
             weights["logistic"] = 0.3
             
         if "salinity" in combined_text or "ph" in combined_text or "soil" in combined_text:
-            chain.append({"model": "gray_scott", "inputs": ["time", "ph"], "output_maps_to": "chemical_concentration", "target_value": 7.0, "optimization_goal": "target"})
+            chain.append({"model": "gray_scott", "inputs": ["time", "ph"], "output_maps_to": "chemical_concentration", "target_value": 7.0, "initial_value": 7.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
             weights["gray_scott"] = 0.2
             
         # Fallback if spec is incredibly vague
         if not chain:
             chain = [
-                {"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 25.0, "optimization_goal": "target"},
-                {"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 50.0, "optimization_goal": "maximize"}
+                {"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 25.0, "initial_value": 25.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]},
+                {"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 50.0, "initial_value": 1.0, "optimization_goal": "maximize", "assumed_defaults": ["initial_value"]}
             ]
             weights = {"heat": 0.5, "logistic": 0.5}
             
@@ -193,6 +221,61 @@ Example Output:
                     print(f"      => [Router Anti-Hallucination] Mapped '{old_name}' -> '{new_name}'")
                     if "weights" in dag and old_name in dag["weights"]:
                         dag["weights"][new_name] = dag["weights"].pop(old_name)
+
+            # Default-Value Safety Net
+            # Catches any node where Gemini still emits an old-style sentinel (-999.0,
+            # or an unflagged ambiguous 0.0) despite the updated prompt instructions.
+            # Values mirror exactly what Aryan specified for each domain.
+            INITIAL_DEFAULTS = {
+                "temperature": 25.0, "temp": 25.0,
+                "ph": 7.0,
+                "rate": 1.0,
+                "biomass": 1.0, "growth": 1.0,
+                "infected": 0.01,
+                "stress": 0.0, "pressure": 0.0,
+            }
+            # boundary_pressure specifically defaults to atmospheric baseline (1.0),
+            # distinct from initial_stress/initial_pressure (0.0, no applied load).
+            BOUNDARY_PRESSURE_DEFAULT = 1.0
+
+            TARGET_DEFAULTS = {
+                "biomass": 100.0, "growth": 100.0,
+                "stress": 1.0,
+            }
+
+            def _pick_initial_default(output_var: str, req_name: str = "") -> float:
+                combined = f"{output_var} {req_name}".lower()
+                if "pressure" in combined and "boundary" in combined:
+                    return BOUNDARY_PRESSURE_DEFAULT
+                for key, val in INITIAL_DEFAULTS.items():
+                    if key in combined:
+                        return val
+                return 0.0
+
+            def _pick_target_default(output_var: str, optimization_goal: str) -> float:
+                ov = (output_var or "").lower()
+                if "rate" in ov:
+                    return 0.1 if optimization_goal == "minimize" else 10.0
+                for key, val in TARGET_DEFAULTS.items():
+                    if key in ov:
+                        return val
+                return 0.0
+
+            for node in dag.get("execution_chain", []):
+                node.setdefault("assumed_defaults", [])
+                output_var = node.get("output_maps_to", "")
+                goal = node.get("optimization_goal", "target")
+
+                if float(node.get("initial_value", -999.0)) == -999.0:
+                    node["initial_value"] = _pick_initial_default(output_var)
+                    if "initial_value" not in node["assumed_defaults"]:
+                        node["assumed_defaults"].append("initial_value")
+
+                # target_value's old 0.0-means-missing heuristic is retired —
+                # 0.0 can be a real, intentional target. We only trust the
+                # router's own "assumed_defaults" flag here, never the raw value.
+                if "target_value" in node.get("assumed_defaults", []):
+                    node["target_value"] = _pick_target_default(output_var, goal)
 
             dag["context"] = "Generated via Gemini API."
             return dag
