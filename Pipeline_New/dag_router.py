@@ -16,6 +16,7 @@ class DAGRouter:
     
     @property
     def LLM_SYSTEM_PROMPT(self):
+        available_surrogates = self._get_available_surrogates()
         return f"""
 You are the Master Orchestrator for the PRANA-G Physical Simulation Pipeline.
 You will receive a user specification for a biological or material design.
@@ -23,14 +24,8 @@ Your job is to output a JSON defining the Directed Acyclic Graph (DAG) for surro
 
 Available Surrogates & Strict Input Schemas:
 (Note: `intrinsic_property_1` represents the entity's normalized Capability/Baseline Performance like Yield or Strength. `intrinsic_property_2` represents the entity's normalized Resilience/Stability like Drought Tolerance or Weathering Resistance).
-{{
-  "heat": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"]}},
-  "darcy": {{"inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"]}},
-  "stress": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_stress", "initial_stress"]}},
-  "biology": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_biomass", "initial_biomass"]}},
-  "logistic": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"]}},
-  "arrhenius": {{"inputs": ["temperature", "intrinsic_property_1", "intrinsic_property_2", "boundary_rate", "initial_rate"]}}
-}}
+  
+  {available_surrogates}
 
 CRITICAL RULE: You MUST choose ONLY from the EXACT Available Surrogates listed above. 
 DO NOT INVENT new domain names (like 'osmotic_stress' or 'growth'). 
@@ -97,11 +92,29 @@ Example Output:
 }}
 """
 
+    def _get_available_surrogates(self) -> str:
+        factory = PINNFactory()
+
+        surrogates = {}
+
+        for name, (cls, _) in factory._registry.items():
+            metadata = getattr(cls, "ROUTER_METADATA", None)
+
+            if metadata is None:
+                continue
+
+            surrogates[name] = {
+                "inputs": metadata["inputs"]
+            }
+
+        return json.dumps(surrogates, indent=2)
+
     def __init__(self, use_mock=True):
         self.use_mock = use_mock
 
     def build_dag(self, spec_path: str) -> dict:
         """Reads the spec.json and returns the execution DAG."""
+        
         if not os.path.exists(spec_path):
             raise FileNotFoundError(f"Spec file not found: {spec_path}")
             
@@ -186,7 +199,8 @@ Example Output:
             if not api_key:
                 print("WARNING: GEMINI_API_KEY not found in .env. Falling back to Mock Router.")
                 return self._mock_llm_routing(spec)
-                
+                    # Print the complete system prompt once
+
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-2.5-flash',
                                           system_instruction=self.LLM_SYSTEM_PROMPT)

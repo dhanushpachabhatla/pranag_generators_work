@@ -180,6 +180,16 @@ class _GenericPINN(nn.Module):
 # ═══════════════════════════════════════════════════════════════
 
 class HeatPINN(_GenericPINN):
+    ROUTER_METADATA = {
+    "description": "Heat transfer and thermal diffusion",
+    "inputs": [
+        "time",
+        "space",
+        "intrinsic_property_1",
+        "intrinsic_property_2",
+        "boundary_temperature",
+        "initial_temperature"
+    ]}
     """1D heat equation: du/dt = alpha * d2u/dx2."""
     def __init__(self, alpha: float = 0.05, **kw):
         input_dim = kw.pop("input_dim", 2)
@@ -199,6 +209,7 @@ class HeatPINN(_GenericPINN):
 
 
 class WavePINN(_GenericPINN):
+    
     """1D wave equation: d2u/dt2 = c^2 * d2u/dx2."""
     def __init__(self, c: float = 1.0, **kw):
         input_dim = kw.pop("input_dim", 2)
@@ -462,6 +473,16 @@ class EulerBernoulliBeamPINN(_GenericPINN):
 
 
 class DarcyPINN(_GenericPINN):
+    ROUTER_METADATA = {
+    "description": "Fluid flow through porous media and water transport",
+    "inputs": [
+        "space_x",
+        "space_y",
+        "intrinsic_property_1",
+        "intrinsic_property_2",
+        "boundary_pressure",
+        "initial_pressure"]
+    }
     """Darcy flow through porous media: -div(K*grad(p)) = f."""
     def __init__(self, K:float=1.0, f_src:float=1.0, **kw):
         input_dim = kw.pop("input_dim", 2)
@@ -499,6 +520,16 @@ class VanDerPolPINN(_GenericPINN):
 
 
 class LogisticPINN(_GenericPINN):
+    ROUTER_METADATA = {
+    "description": "Logistic growth and population dynamics",
+    "inputs": [
+        "time",
+        "intrinsic_property_1",
+        "intrinsic_property_2",
+        "boundary_growth",
+        "initial_growth"
+    ]
+    }
     """Logistic population growth ODE."""
     def __init__(self, r:float=0.3, K:float=1000.0, **kw):
         input_dim = kw.pop("input_dim", 1)
@@ -530,6 +561,15 @@ class CardinalTemperaturePINN(_GenericPINN):
 
 
 class StressPINN(_GenericPINN):
+    ROUTER_METADATA = {
+    "description": "Environmental stress accumulation and response",
+    "inputs": [
+        "time",
+        "intrinsic_property_1",
+        "intrinsic_property_2",
+        "boundary_stress",
+        "initial_stress"]
+    }
     """Environmental stress accumulation ODE."""
     def __init__(self, alpha:float=0.1, S_max:float=1.0, **kw):
         input_dim = kw.pop("input_dim", 1)
@@ -547,6 +587,16 @@ class StressPINN(_GenericPINN):
 
 
 class BiologyPINN(_GenericPINN):
+    ROUTER_METADATA = {
+    "description": "Biological growth, adaptation and trait expression",
+    "inputs": [
+        "time",
+        "intrinsic_property_1",
+        "intrinsic_property_2",
+        "boundary_biomass",
+        "initial_biomass"
+    ]
+    }
     """Generic biological adaptive trait expression ODE."""
     def __init__(self, r:float=0.5, m:float=0.1, **kw):
         input_dim = kw.pop("input_dim", 1)
@@ -565,6 +615,16 @@ class BiologyPINN(_GenericPINN):
 
 
 class ArrheniusPINN(_GenericPINN):
+    ROUTER_METADATA = {
+    "description": "Temperature-dependent reaction kinetics using the Arrhenius equation",
+    "inputs": [
+        "temperature",
+        "intrinsic_property_1",
+        "intrinsic_property_2",
+        "boundary_rate",
+        "initial_rate"
+    ]
+    }
     """Normalized Arrhenius Equation: k_factor = exp(Ea/R * (1/T_ref - 1/T))"""
     def __init__(self, Ea:float=50000.0, R:float=8.314, T_ref:float=298.15, **kw):
         input_dim = kw.pop("input_dim", 1)
