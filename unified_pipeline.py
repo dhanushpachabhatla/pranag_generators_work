@@ -141,6 +141,9 @@ class PranagPipeline:
         elif self.domain == 'navier_stokes':
             surrogate_estimators = 60
             surrogate_depth = 22
+        elif self.domain == 'solid_mechanics':
+            surrogate_estimators = 60
+            surrogate_depth = 22
         else:
             # Complex 3D/6D outputs
             surrogate_estimators = 50

@@ -721,6 +721,71 @@ class EconomicsPINN(_GenericPINN):
             decay_param = self.decay * (1.0 + 0.5 * torch.abs(x[:, 3:4]))
         return ((dC + decay_param * C)**2).mean()
 
+class SolidMechanicsPINN(_GenericPINN):
+    """2D Solid Mechanics (Linear Elasticity - Navier Cauchy)."""
+    def __init__(self, E:float=200e9, nu:float=0.3, **kw):
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=2,
+                         params={"E":E,"nu":nu}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        out = self(x)
+        u, v = out[:,0:1], out[:,1:2]
+        
+        def G(f): return torch.autograd.grad(f, x, torch.ones_like(f), create_graph=True)[0]
+        gu = G(u); gv = G(v)
+        u_x, u_y = gu[:,0:1], gu[:,1:2]
+        v_x, v_y = gv[:,0:1], gv[:,1:2]
+        
+        u_xx = G(u_x)[:,0:1]; u_yy = G(u_y)[:,1:2]; u_xy = G(u_x)[:,1:2]
+        v_xx = G(v_x)[:,0:1]; v_yy = G(v_y)[:,1:2]; v_yx = G(v_x)[:,1:2]
+        
+        E_param = self.E
+        if x.shape[1] > 5:
+            E_param = self.E * (1.0 + 0.5 * torch.abs(x[:, 5:6]))
+        
+        nu_param = self.nu
+        
+        lam_norm = nu_param / ((1.0 + nu_param) * (1.0 - 2.0 * nu_param) + 1e-6)
+        mu_norm = 1.0 / (2.0 * (1.0 + nu_param))
+        
+        r1 = (lam_norm + mu_norm) * (u_xx + v_yx) + mu_norm * (u_xx + u_yy)
+        r2 = (lam_norm + mu_norm) * (u_xy + v_yy) + mu_norm * (v_xx + v_yy)
+        
+        return (r1**2 + r2**2).mean()
+
+class PhaseChangePINN(_GenericPINN):
+    """1D Phase Change (Stefan Problem / Enthalpy)."""
+    def __init__(self, L:float=334.0, Tm:float=273.15, **kw):
+        input_dim = kw.pop("input_dim", 2)
+        super().__init__(input_dim=input_dim, output_dim=1,
+                         params={"L":L,"Tm":Tm}, **kw)
+    def physics_loss(self, x):
+        x = x.clone().requires_grad_(True)
+        T = self(x)
+        
+        def G(f): return torch.autograd.grad(f, x, torch.ones_like(f), create_graph=True)[0]
+        gT = G(T)
+        T_t, T_x = gT[:,0:1], gT[:,1:2]
+        T_xx = G(T_x)[:,1:2]
+        
+        L_param = self.L
+        if x.shape[1] > 4:
+            L_param = self.L * (1.0 + 0.5 * torch.abs(x[:, 4:5]))
+            
+        Tm_param = self.Tm
+        
+        epsilon = 0.5
+        arg = -((T - Tm_param)/epsilon)**2
+        arg = torch.clamp(arg, min=-20.0, max=0.0)
+        delta = (1.0 / (epsilon * 1.77245)) * torch.exp(arg)
+        
+        C_eff = 1.0 + L_param * delta
+        k = 1.0
+        
+        residual = C_eff * T_t - k * T_xx
+        return (residual**2).mean()
+
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -741,6 +806,8 @@ _BUILTIN_REGISTRY: Dict[str, Tuple[Type[nn.Module], Dict]] = {
     "euler_bernoulli_beam":(EulerBernoulliBeamPINN,{"EI":1.0,"q":1.0}),
     "beam":              (EulerBernoulliBeamPINN,{"EI":1.0,"q":1.0}),
     "van_der_pol":       (VanDerPolPINN,        {"mu": 1.0}),
+    "solid_mechanics":   (SolidMechanicsPINN,   {"E": 200e9, "nu": 0.3}),
+    "phase_change":      (PhaseChangePINN,      {"L": 334.0, "Tm": 273.15}),
     # ── Quantum / Electromagnetism ─────────────────────────────
     "schrodinger":       (SchrodingerPINN,      {"hbar": 1.0, "m": 1.0}),
     "klein_gordon":      (WavePINN,             {"c": 1.0}),        # same structure

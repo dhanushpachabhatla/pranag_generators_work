@@ -462,6 +462,26 @@ EQUATION_PATTERNS = {
         "loss_template": "orbital_ode",
         "description": "Orbital mechanics 2-body problem",
     },
+    "solid_mechanics": {
+        "keywords": ["solid mechanics", "elasticity", "structures", "alloys"],
+        "eq_hint": "d2u/dx2 + nu/(1-2nu)*(d2u/dx2+d2v/dxdy) = 0",
+        "domain_class": "materials",
+        "independent": ["x", "y"],
+        "dependent": ["u", "v"],
+        "params": {"E": 200e9, "nu": 0.3},
+        "loss_template": "solid_mechanics_2d",
+        "description": "2D linear elasticity for solid mechanics",
+    },
+    "phase_change": {
+        "keywords": ["phase change", "melting", "freezing", "stefan"],
+        "eq_hint": "C_eff(T) dT/dt = k d2T/dx2",
+        "domain_class": "physics",
+        "independent": ["t", "x"],
+        "dependent": ["T"],
+        "params": {"L": 334.0, "Tm": 273.15},
+        "loss_template": "phase_change_1d",
+        "description": "1D Phase Change (Stefan Problem) Enthalpy formulation",
+    },
     "radiation": {
         "keywords": ["radiation", "decay", "transport"],
         "eq_hint": "dI/dt + dI/dx + alpha * I = 0",
@@ -667,6 +687,18 @@ LOSS_TEMPLATES = {
         gv = torch.autograd.grad(v, x, grad_outputs=torch.ones_like(v), create_graph=True)[0]
         residual = gu[:,0:1] + gv[:,1:2] - self.E
         return (residual ** 2).mean()
+''',
+
+"solid_mechanics_2d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for Solid Mechanics."""
+        return torch.tensor(0.0, requires_grad=True)
+''',
+
+"phase_change_1d": '''
+    def physics_loss(self, x: torch.Tensor) -> torch.Tensor:
+        """Placeholder residual for Phase Change."""
+        return torch.tensor(0.0, requires_grad=True)
 ''',
 
 "euler_fluid_2d": '''
