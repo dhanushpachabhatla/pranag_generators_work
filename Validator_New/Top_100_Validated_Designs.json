@@ -1,1227 +1,1005 @@
 {
-    "total_evaluated": 208,
-    "total_safe": 94,
+    "total_evaluated": 1483,
+    "total_safe": 588,
     "top_100": [
         {
-            "entity_id": "globiint_zea_mays_anicla_ignicans",
-            "name": "Zea mays \u2192 Anicla ignicans (hostOf)",
+            "entity_id": "ncbi_gene_3131402",
+            "name": "petA",
             "domain": "biology",
-            "viability_score": 0.8228,
+            "viability_score": 0.4937,
             "domain_scores": {
-                "heat_score": 0.4241,
-                "darcy_score": 1.0,
-                "stress_score": 1.0,
-                "arrhenius_score": 0.6938,
-                "logistic_score": 0.9357
+                "stress_score": 0.243,
+                "logistic_score": 0.7443
             }
         },
         {
-            "entity_id": "agristack_meghalaya_maize_2023",
-            "name": "Maize \u2014 Meghalaya",
+            "entity_id": "agristack_mizoram_rice_2023",
+            "name": "Rice \u2014 Mizoram",
             "domain": "environment",
-            "viability_score": 0.787,
+            "viability_score": 0.4856,
             "domain_scores": {
-                "heat_score": 0.4634,
-                "darcy_score": 1.0,
-                "stress_score": 0.8293,
-                "arrhenius_score": 0.6678,
-                "logistic_score": 0.9132
+                "stress_score": 0.2418,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "agristack_kerala_maize_2023",
-            "name": "Maize \u2014 Kerala",
+            "entity_id": "agristack_west_bengal_rice_2023",
+            "name": "Rice \u2014 West Bengal",
             "domain": "environment",
-            "viability_score": 0.7472,
+            "viability_score": 0.4856,
             "domain_scores": {
-                "heat_score": 0.4615,
-                "darcy_score": 0.9263,
-                "stress_score": 0.6621,
-                "arrhenius_score": 0.6863,
-                "logistic_score": 0.9372
+                "stress_score": 0.2418,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_estigmene_acrea",
-            "name": "Zea mays \u2192 Estigmene acrea (eatenBy)",
+            "entity_id": "ncbi_gene_3131436",
+            "name": "rps14",
             "domain": "biology",
-            "viability_score": 0.6178,
+            "viability_score": 0.4849,
             "domain_scores": {
-                "heat_score": 0.386,
-                "darcy_score": 0.4897,
-                "stress_score": 0.4396,
-                "arrhenius_score": 0.7228,
-                "logistic_score": 0.9851
+                "stress_score": 0.2405,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_andrena_carlini",
-            "name": "Zea mays \u2192 Andrena carlini (flowersVisitedBy)",
+            "entity_id": "globiint_oryza_sativa_borbo_impar",
+            "name": "Oryza sativa \u2192 Borbo impar (hostOf)",
             "domain": "biology",
-            "viability_score": 0.592,
+            "viability_score": 0.4849,
             "domain_scores": {
-                "heat_score": 0.369,
-                "darcy_score": 0.4739,
-                "stress_score": 0.4317,
-                "arrhenius_score": 0.6923,
-                "logistic_score": 0.933
+                "stress_score": 0.2405,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_euxoa_tessellata",
-            "name": "Zea mays \u2192 Euxoa tessellata (hostOf)",
+            "entity_id": "ncbi_gene_4347929",
+            "name": "LOC4347929",
             "domain": "biology",
-            "viability_score": 0.5912,
+            "viability_score": 0.4849,
             "domain_scores": {
-                "heat_score": 0.3591,
-                "darcy_score": 0.4329,
-                "stress_score": 0.3714,
-                "arrhenius_score": 0.7318,
-                "logistic_score": 0.9951
+                "stress_score": 0.2405,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_borbo_gemella",
-            "name": "Zea mays \u2192 Borbo gemella (hostOf)",
+            "entity_id": "globiint_oryza_sativa_cicadella",
+            "name": "Oryza sativa \u2192 Cicadella (eatenBy)",
             "domain": "biology",
-            "viability_score": 0.5885,
+            "viability_score": 0.4849,
             "domain_scores": {
-                "heat_score": 0.3823,
-                "darcy_score": 0.4762,
-                "stress_score": 0.4323,
-                "arrhenius_score": 0.6729,
-                "logistic_score": 0.9175
+                "stress_score": 0.2405,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "agristack_madhya_pradesh_maize_2023",
-            "name": "Maize \u2014 Madhya Pradesh",
+            "entity_id": "ncbi_gene_4349102",
+            "name": "DTE1",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "globiint_oryza_sativa_hiccoda_nigripalpis",
+            "name": "Oryza sativa \u2192 Hiccoda nigripalpis (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "globiint_oryza_sativa_mythimna_zeae",
+            "name": "Oryza sativa \u2192 Mythimna zeae (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "ncbi_gene_4343840",
+            "name": "LOC4343840",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "globiint_oryza_sativa_phaeosphaeriopsis_musae",
+            "name": "Oryza sativa \u2192 Phaeosphaeriopsis musae (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "ncbi_gene_4327178",
+            "name": "LOC4327178",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "ncbi_gene_4334593",
+            "name": "LOC4334593",
+            "domain": "biology",
+            "viability_score": 0.4849,
+            "domain_scores": {
+                "stress_score": 0.4397,
+                "logistic_score": 0.53
+            }
+        },
+        {
+            "entity_id": "ncbi_gene_4336962",
+            "name": "LOC4336962",
+            "domain": "biology",
+            "viability_score": 0.4848,
+            "domain_scores": {
+                "stress_score": 0.438,
+                "logistic_score": 0.5315
+            }
+        },
+        {
+            "entity_id": "agristack_assam_rice_2023",
+            "name": "Rice \u2014 Assam",
             "domain": "environment",
-            "viability_score": 0.5766,
+            "viability_score": 0.4845,
             "domain_scores": {
-                "heat_score": 0.3787,
-                "darcy_score": 0.4608,
-                "stress_score": 0.4161,
-                "arrhenius_score": 0.6638,
-                "logistic_score": 0.9037
+                "stress_score": 0.2247,
+                "logistic_score": 0.7443
             }
         },
         {
-            "entity_id": "agristack_manipur_maize_2023",
-            "name": "Maize \u2014 Manipur",
+            "entity_id": "agristack_arunachal_pradesh_rice_2023",
+            "name": "Rice \u2014 Arunachal Pradesh",
             "domain": "environment",
-            "viability_score": 0.5715,
+            "viability_score": 0.4845,
             "domain_scores": {
-                "heat_score": 0.3645,
-                "darcy_score": 0.4437,
-                "stress_score": 0.3843,
-                "arrhenius_score": 0.681,
-                "logistic_score": 0.9236
+                "stress_score": 0.2247,
+                "logistic_score": 0.7443
             }
         },
         {
-            "entity_id": "agristack_sikkim_maize_2023",
-            "name": "Maize \u2014 Sikkim",
-            "domain": "environment",
-            "viability_score": 0.5659,
-            "domain_scores": {
-                "heat_score": 0.3591,
-                "darcy_score": 0.3789,
-                "stress_score": 0.2977,
-                "arrhenius_score": 0.7331,
-                "logistic_score": 0.9951
-            }
-        },
-        {
-            "entity_id": "globiint_apis_cerana_zea_mays",
-            "name": "Apis cerana \u2192 Zea mays (eats)",
+            "entity_id": "globiint_oryza_sativa_koorchalomella_oryzae",
+            "name": "Oryza sativa \u2192 Koorchalomella oryzae (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5658,
+            "viability_score": 0.4842,
             "domain_scores": {
-                "heat_score": 0.3693,
-                "darcy_score": 0.4375,
-                "stress_score": 0.3721,
-                "arrhenius_score": 0.6706,
-                "logistic_score": 0.9175
+                "stress_score": 0.4411,
+                "logistic_score": 0.5272
             }
         },
         {
-            "entity_id": "globiint_zea_mays_lasioglossum",
-            "name": "Zea mays \u2192 Lasioglossum (flowersVisitedBy)",
+            "entity_id": "ncbi_gene_4348736",
+            "name": "LOC4348736",
             "domain": "biology",
-            "viability_score": 0.561,
+            "viability_score": 0.4837,
             "domain_scores": {
-                "heat_score": 0.2844,
-                "darcy_score": 0.3466,
-                "stress_score": 0.3085,
-                "arrhenius_score": 0.886,
-                "logistic_score": 0.9609
+                "stress_score": 0.4347,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_phidotricha_eregens",
-            "name": "Zea mays \u2192 Phidotricha eregens (hostOf)",
+            "entity_id": "globiint_oryza_sativa_brachycyttarus_griseus",
+            "name": "Oryza sativa \u2192 Brachycyttarus griseus (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5579,
+            "viability_score": 0.4835,
             "domain_scores": {
-                "heat_score": 0.2855,
-                "darcy_score": 0.3576,
-                "stress_score": 0.3234,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.4342,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "inat_52838",
-            "name": "Anthemis arvensis",
+            "entity_id": "ncbi_gene_4343305",
+            "name": "LOC4343305",
             "domain": "biology",
-            "viability_score": 0.5496,
+            "viability_score": 0.4834,
             "domain_scores": {
-                "heat_score": 0.3638,
-                "darcy_score": 0.4122,
-                "stress_score": 0.3296,
-                "arrhenius_score": 0.6678,
-                "logistic_score": 0.9132
+                "stress_score": 0.2375,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "gbif_occ_6171007592",
-            "name": "Zea mays",
+            "entity_id": "ncbi_gene_4329861",
+            "name": "LOC4329861",
             "domain": "biology",
-            "viability_score": 0.5495,
+            "viability_score": 0.4834,
             "domain_scores": {
-                "heat_score": 0.3549,
-                "darcy_score": 0.4115,
-                "stress_score": 0.3296,
-                "arrhenius_score": 0.6725,
-                "logistic_score": 0.9175
+                "stress_score": 0.2375,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "pdb_1e56",
-            "name": "PDB 1E56: Crystal structure of the inactive mutant Monocot (Maize ZMGlu1) beta-glucosidase",
+            "entity_id": "ncbi_gene_4334233",
+            "name": "LOC4334233",
             "domain": "biology",
-            "viability_score": 0.547,
+            "viability_score": 0.4834,
             "domain_scores": {
-                "heat_score": 0.28,
-                "darcy_score": 0.3134,
-                "stress_score": 0.2769,
-                "arrhenius_score": 0.8885,
-                "logistic_score": 0.9588
+                "stress_score": 0.2375,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_bombus_pratorum",
-            "name": "Zea mays \u2192 Bombus pratorum (flowersVisitedBy)",
+            "entity_id": "ncbi_gene_4331490",
+            "name": "CPK7",
             "domain": "biology",
-            "viability_score": 0.5452,
-            "domain_scores": {
-                "heat_score": 0.3476,
-                "darcy_score": 0.3916,
-                "stress_score": 0.3022,
-                "arrhenius_score": 0.6841,
-                "logistic_score": 0.9372
-            }
-        },
-        {
-            "entity_id": "agristack_maharashtra_maize_2023",
-            "name": "Maize \u2014 Maharashtra",
-            "domain": "environment",
-            "viability_score": 0.5448,
+            "viability_score": 0.4834,
             "domain_scores": {
-                "heat_score": 0.3147,
-                "darcy_score": 0.3731,
-                "stress_score": 1.0,
-                "arrhenius_score": 0.5274,
-                "logistic_score": 0.5126
+                "stress_score": 0.2375,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "inat_58188",
-            "name": "Mentha arvensis",
+            "entity_id": "globiint_oryza_sativa_katumotoa_bambusicola",
+            "name": "Oryza sativa \u2192 Katumotoa bambusicola (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5428,
+            "viability_score": 0.4834,
             "domain_scores": {
-                "heat_score": 0.3353,
-                "darcy_score": 0.3795,
-                "stress_score": 0.2947,
-                "arrhenius_score": 0.7729,
-                "logistic_score": 0.8997
+                "stress_score": 0.2375,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_euxoa_albipennis",
-            "name": "Zea mays \u2192 Euxoa albipennis (hostOf)",
+            "entity_id": "globiint_oryza_sativa_thumatha_fuscescens",
+            "name": "Oryza sativa \u2192 Thumatha fuscescens (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5389,
+            "viability_score": 0.4834,
             "domain_scores": {
-                "heat_score": 0.3109,
-                "darcy_score": 0.3464,
-                "stress_score": 0.2725,
-                "arrhenius_score": 0.7198,
-                "logistic_score": 0.98
+                "stress_score": 0.2375,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_loscopia_velata",
-            "name": "Zea mays \u2192 Loscopia velata (hostOf)",
+            "entity_id": "ncbi_gene_4343832",
+            "name": "LOC4343832",
             "domain": "biology",
-            "viability_score": 0.5344,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2811,
-                "darcy_score": 0.3179,
-                "stress_score": 0.2788,
-                "arrhenius_score": 0.8951,
-                "logistic_score": 0.8984
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_fusarium_lateritium",
-            "name": "Zea mays \u2192 Fusarium lateritium (interactsWith)",
+            "entity_id": "globiint_oryza_sativa_coptotermes_formosanus",
+            "name": "Oryza sativa \u2192 Coptotermes formosanus (eatenBy)",
             "domain": "biology",
-            "viability_score": 0.5334,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3054,
-                "darcy_score": 0.3217,
-                "stress_score": 0.2452,
-                "arrhenius_score": 0.7305,
-                "logistic_score": 0.9973
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_meliponula_bocandei",
-            "name": "Zea mays \u2192 Meliponula bocandei (flowersVisitedBy)",
+            "entity_id": "ncbi_gene_4346506",
+            "name": "LOC4346506",
             "domain": "biology",
-            "viability_score": 0.5322,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.3045,
-                "stress_score": 0.2731,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_blissus_leucopterus",
-            "name": "Zea mays \u2192 Blissus leucopterus (eatenBy)",
+            "entity_id": "ncbi_gene_4334218",
+            "name": "LOC4334218",
             "domain": "biology",
-            "viability_score": 0.5317,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3303,
-                "darcy_score": 0.3634,
-                "stress_score": 0.2887,
-                "arrhenius_score": 0.6889,
-                "logistic_score": 0.9276
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_phyllotreta_undulata",
-            "name": "Zea mays \u2192 Phyllotreta undulata (eatenBy)",
+            "entity_id": "ncbi_gene_4345019",
+            "name": "LOC4345019",
             "domain": "biology",
-            "viability_score": 0.5311,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.3045,
-                "stress_score": 0.2731,
-                "arrhenius_score": 0.993,
-                "logistic_score": 0.8582
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "pdb_1gaw",
-            "name": "PDB 1GAW: CRYSTAL STRUCTURE ANALYSIS OF THE FERREDOXIN-NADP+ REDUCTASE FROM MAIZE LEAF",
+            "entity_id": "globiint_oryza_sativa_leucania_microsticha",
+            "name": "Oryza sativa \u2192 Leucania microsticha (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5306,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3362,
-                "darcy_score": 0.3821,
-                "stress_score": 0.2973,
-                "arrhenius_score": 0.6655,
-                "logistic_score": 0.9106
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_pseudaletia_unipuncta",
-            "name": "Zea mays \u2192 Pseudaletia unipuncta (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_sarocladium_attenuatum",
+            "name": "Oryza sativa \u2192 Sarocladium attenuatum (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5301,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2597,
-                "darcy_score": 0.2947,
-                "stress_score": 0.2536,
-                "arrhenius_score": 0.8811,
-                "logistic_score": 0.9453
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_brachypera_zoilus",
-            "name": "Zea mays \u2192 Brachypera zoilus (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_cochliobolus_geniculatus",
+            "name": "Oryza sativa \u2192 Cochliobolus geniculatus (interactsWith)",
             "domain": "biology",
-            "viability_score": 0.5286,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3241,
-                "darcy_score": 0.3659,
-                "stress_score": 0.2887,
-                "arrhenius_score": 0.6794,
-                "logistic_score": 0.9236
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_lipotriches_langi",
-            "name": "Zea mays \u2192 Lipotriches langi (flowersVisitedBy)",
+            "entity_id": "globiint_oryza_sativa_leucania_irregularis",
+            "name": "Oryza sativa \u2192 Leucania irregularis (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5281,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.3045,
-                "stress_score": 0.2704,
-                "arrhenius_score": 0.8951,
-                "logistic_score": 0.9071
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_apamea_vulgaris",
-            "name": "Zea mays \u2192 Apamea vulgaris (hostOf)",
+            "entity_id": "globiint_oryza_sativa_lasiosordaria_oryzeti",
+            "name": "Oryza sativa \u2192 Lasiosordaria oryzeti (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5274,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.322,
-                "darcy_score": 0.35,
-                "stress_score": 0.2779,
-                "arrhenius_score": 0.6985,
-                "logistic_score": 0.9303
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_bombus_terrestris",
-            "name": "Zea mays \u2192 Bombus terrestris (flowersVisitedBy)",
+            "entity_id": "globiint_oryza_sativa_curvularia_pseudoclavata",
+            "name": "Oryza sativa \u2192 Curvularia pseudoclavata (hostOf)",
             "domain": "biology",
-            "viability_score": 0.526,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3182,
-                "darcy_score": 0.371,
-                "stress_score": 0.2892,
-                "arrhenius_score": 0.6728,
-                "logistic_score": 0.9175
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "inat_48448",
-            "name": "Zea mays",
+            "entity_id": "ncbi_gene_4324478",
+            "name": "LOC4324478",
             "domain": "biology",
-            "viability_score": 0.5229,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3175,
-                "darcy_score": 0.3713,
-                "stress_score": 0.2986,
-                "arrhenius_score": 0.6638,
-                "logistic_score": 0.9037
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_leucania_secta",
-            "name": "Zea mays \u2192 Leucania secta (hostOf)",
+            "entity_id": "ncbi_gene_4324704",
+            "name": "LOC4324704",
             "domain": "biology",
-            "viability_score": 0.5228,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.25,
-                "darcy_score": 0.2666,
-                "stress_score": 0.2328,
-                "arrhenius_score": 0.8885,
-                "logistic_score": 0.9588
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_grammia_arge",
-            "name": "Zea mays \u2192 Grammia arge (hostOf)",
+            "entity_id": "ncbi_gene_4326229",
+            "name": "LOC4326229",
             "domain": "biology",
-            "viability_score": 0.5213,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.3045,
-                "stress_score": 0.2727,
-                "arrhenius_score": 0.9283,
-                "logistic_score": 0.8582
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "agristack_karnataka_maize_2023",
-            "name": "Maize \u2014 Karnataka",
-            "domain": "environment",
-            "viability_score": 0.5206,
+            "entity_id": "ncbi_gene_9269039",
+            "name": "LOC9269039",
+            "domain": "biology",
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3123,
-                "darcy_score": 0.3416,
-                "stress_score": 0.2725,
-                "arrhenius_score": 0.687,
-                "logistic_score": 0.9292
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_ziphius_cavirostris",
-            "name": "Zea mays \u2192 Ziphius cavirostris (eatenBy)",
+            "entity_id": "ncbi_gene_4332995",
+            "name": "LOC4332995",
             "domain": "biology",
-            "viability_score": 0.5204,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2586,
-                "darcy_score": 0.2877,
-                "stress_score": 0.2507,
-                "arrhenius_score": 0.8655,
-                "logistic_score": 0.9247
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_pelopidas_conjuncta_conjuncta",
-            "name": "Zea mays \u2192 Pelopidas conjuncta conjuncta (hostOf)",
+            "entity_id": "ncbi_gene_4327409",
+            "name": "LOC4327409",
             "domain": "biology",
-            "viability_score": 0.5186,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2586,
-                "darcy_score": 0.2877,
-                "stress_score": 0.254,
-                "arrhenius_score": 0.9596,
-                "logistic_score": 0.8582
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_trogoderma_glabrum",
-            "name": "Zea mays \u2192 Trogoderma glabrum (eatenBy)",
+            "entity_id": "ncbi_gene_4345541",
+            "name": "LOC4345541",
             "domain": "biology",
-            "viability_score": 0.5186,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.3045,
-                "stress_score": 0.2689,
-                "arrhenius_score": 0.8495,
-                "logistic_score": 0.8975
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_mythimna_separata",
-            "name": "Zea mays \u2192 Mythimna separata (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_septoria_miyakei",
+            "name": "Oryza sativa \u2192 Septoria miyakei (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5181,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2562,
-                "darcy_score": 0.2721,
-                "stress_score": 0.2394,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "ncbi_gene_822061",
-            "name": "ABI3",
+            "entity_id": "globiint_oryza_sativa_westerdykella_minutispora",
+            "name": "Oryza sativa \u2192 Westerdykella minutispora (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5173,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2562,
-                "darcy_score": 0.2714,
-                "stress_score": 0.2363,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.3828,
+                "logistic_score": 0.5832
             }
         },
         {
-            "entity_id": "globiint_zea_mays_fusarium_culmorum",
-            "name": "Zea mays \u2192 Fusarium culmorum (interactsWith)",
+            "entity_id": "ncbi_gene_4330587",
+            "name": "LOC4330587",
             "domain": "biology",
-            "viability_score": 0.517,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.2852,
-                "darcy_score": 0.2914,
-                "stress_score": 0.2112,
-                "arrhenius_score": 0.7294,
-                "logistic_score": 1.0
+                "stress_score": 0.4332,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_aspergillus_fischeri",
-            "name": "Zea mays \u2192 Aspergillus fischeri (interactsWith)",
+            "entity_id": "ncbi_gene_4331775",
+            "name": "LOC4331775",
             "domain": "biology",
-            "viability_score": 0.5162,
+            "viability_score": 0.483,
             "domain_scores": {
-                "heat_score": 0.3095,
-                "darcy_score": 0.3355,
-                "stress_score": 0.248,
-                "arrhenius_score": 0.7041,
-                "logistic_score": 0.928
+                "stress_score": 0.4332,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_lophoruza_semiscripta",
-            "name": "Zea mays \u2192 Lophoruza semiscripta (hostOf)",
+            "entity_id": "ncbi_gene_4327307",
+            "name": "LOC4327307",
             "domain": "biology",
-            "viability_score": 0.5155,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2572,
-                "darcy_score": 0.2781,
-                "stress_score": 0.2409,
-                "arrhenius_score": 0.8951,
-                "logistic_score": 0.9038
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_phthorimaea_operculella",
-            "name": "Zea mays \u2192 Phthorimaea operculella (eatenBy)",
+            "entity_id": "ncbi_gene_4336066",
+            "name": "LOC4336066",
             "domain": "biology",
-            "viability_score": 0.5154,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2552,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2368,
-                "arrhenius_score": 0.9893,
-                "logistic_score": 0.8582
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_phyllophaga_futilis",
-            "name": "Zea mays \u2192 Phyllophaga futilis (eatenBy)",
+            "entity_id": "ncbi_gene_4332090",
+            "name": "LOC4332090",
             "domain": "biology",
-            "viability_score": 0.5153,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.253,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2368,
-                "arrhenius_score": 0.9917,
-                "logistic_score": 0.8582
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_ascochyta_straminea",
-            "name": "Zea mays \u2192 Ascochyta straminea (interactsWith)",
+            "entity_id": "ncbi_gene_4326945",
+            "name": "LOC4326945",
             "domain": "biology",
-            "viability_score": 0.5145,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.3086,
-                "darcy_score": 0.3322,
-                "stress_score": 0.2461,
-                "arrhenius_score": 0.7005,
-                "logistic_score": 0.9284
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_tipula_vittata",
-            "name": "Zea mays \u2192 Tipula vittata (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_melanitis_leda_leda",
+            "name": "Oryza sativa \u2192 Melanitis leda leda (hostOf)",
             "domain": "biology",
-            "viability_score": 0.514,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2518,
-                "darcy_score": 0.2693,
-                "stress_score": 0.2336,
-                "arrhenius_score": 0.8677,
-                "logistic_score": 0.9314
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_grammia_phyllira",
-            "name": "Zea mays \u2192 Grammia phyllira (hostOf)",
+            "entity_id": "ncbi_gene_9271228",
+            "name": "LOC9271228",
             "domain": "biology",
-            "viability_score": 0.5136,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2586,
-                "darcy_score": 0.2856,
-                "stress_score": 0.2529,
-                "arrhenius_score": 0.9308,
-                "logistic_score": 0.8582
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "agristack_haryana_maize_2023",
-            "name": "Maize \u2014 Haryana",
-            "domain": "environment",
-            "viability_score": 0.5134,
+            "entity_id": "ncbi_gene_4335427",
+            "name": "LOC4335427",
+            "domain": "biology",
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.2343,
-                "stress_score": 0.2072,
-                "arrhenius_score": 0.8885,
-                "logistic_score": 0.9588
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_machaeris",
-            "name": "Zea mays \u2192 Machaeris (flowersVisitedBy)",
+            "entity_id": "ncbi_gene_4342420",
+            "name": "LOC4342420",
             "domain": "biology",
-            "viability_score": 0.5133,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.2997,
-                "stress_score": 0.2631,
-                "arrhenius_score": 0.897,
-                "logistic_score": 0.8565
+                "stress_score": 0.2362,
+                "logistic_score": 0.7294
             }
         },
         {
-            "entity_id": "globiint_zea_mays_pseudoleucania_minna",
-            "name": "Zea mays \u2192 Pseudoleucania minna (hostOf)",
+            "entity_id": "ncbi_gene_6450161",
+            "name": "cox2",
             "domain": "biology",
-            "viability_score": 0.5122,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2572,
-                "darcy_score": 0.2814,
-                "stress_score": 0.2425,
-                "arrhenius_score": 0.943,
-                "logistic_score": 0.8582
+                "stress_score": 0.2309,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_gibberella_zeae",
-            "name": "Zea mays \u2192 Gibberella zeae (hasPathogen)",
+            "entity_id": "globiint_oryza_sativa_niphadoses_palleucus",
+            "name": "Oryza sativa \u2192 Niphadoses palleucus (hostOf)",
             "domain": "biology",
-            "viability_score": 0.512,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2588,
-                "darcy_score": 0.292,
-                "stress_score": 0.2571,
-                "arrhenius_score": 0.9088,
-                "logistic_score": 0.8565
+                "stress_score": 0.2309,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_zenonia_zeno",
-            "name": "Zea mays \u2192 Zenonia zeno (hostOf)",
+            "entity_id": "globiint_oryza_sativa_myrothecium_oryzae",
+            "name": "Oryza sativa \u2192 Myrothecium oryzae (hostOf)",
             "domain": "biology",
-            "viability_score": 0.512,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2562,
-                "darcy_score": 0.2721,
-                "stress_score": 0.2372,
-                "arrhenius_score": 0.8637,
-                "logistic_score": 0.9174
+                "stress_score": 0.2309,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_cryptophlebia_leucotreta",
-            "name": "Zea mays \u2192 Cryptophlebia leucotreta (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_khuskia_oryzae",
+            "name": "Oryza sativa \u2192 Khuskia oryzae (interactsWith)",
             "domain": "biology",
-            "viability_score": 0.5107,
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2791,
-                "darcy_score": 0.2828,
-                "stress_score": 0.2049,
-                "arrhenius_score": 0.7349,
-                "logistic_score": 0.9884
+                "stress_score": 0.2309,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "agristack_telangana_maize_2023",
-            "name": "Maize \u2014 Telangana",
-            "domain": "environment",
-            "viability_score": 0.5099,
+            "entity_id": "ncbi_gene_4336035",
+            "name": "LOC4336035",
+            "domain": "biology",
+            "viability_score": 0.4828,
             "domain_scores": {
-                "heat_score": 0.2783,
-                "darcy_score": 0.2373,
-                "stress_score": 0.2109,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.2309,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_parnara_guttatus_apostata",
-            "name": "Zea mays \u2192 Parnara guttatus apostata (hostOf)",
+            "entity_id": "ncbi_gene_4352491",
+            "name": "LOC4352491",
             "domain": "biology",
-            "viability_score": 0.5096,
+            "viability_score": 0.4827,
             "domain_scores": {
-                "heat_score": 0.2562,
-                "darcy_score": 0.2721,
-                "stress_score": 0.2394,
-                "arrhenius_score": 0.943,
-                "logistic_score": 0.8582
+                "stress_score": 0.4326,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_vespula_germanica",
-            "name": "Zea mays \u2192 Vespula germanica (flowersVisitedBy)",
+            "entity_id": "globiint_oryza_sativa_scirpophaga_incertulas",
+            "name": "Oryza sativa \u2192 Scirpophaga incertulas (eatenBy)",
             "domain": "biology",
-            "viability_score": 0.5094,
+            "viability_score": 0.4827,
             "domain_scores": {
-                "heat_score": 0.253,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2318,
-                "arrhenius_score": 0.8593,
-                "logistic_score": 0.918
+                "stress_score": 0.4326,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_helotropha_reniformis",
-            "name": "Zea mays \u2192 Helotropha reniformis (hostOf)",
+            "entity_id": "ncbi_gene_4338875",
+            "name": "wsl8",
             "domain": "biology",
-            "viability_score": 0.508,
+            "viability_score": 0.4827,
             "domain_scores": {
-                "heat_score": 0.255,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2368,
-                "arrhenius_score": 0.9407,
-                "logistic_score": 0.8582
+                "stress_score": 0.2264,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_parasa_semperi",
-            "name": "Zea mays \u2192 Parasa semperi (hostOf)",
+            "entity_id": "ncbi_gene_4339123",
+            "name": "SNAT1",
             "domain": "biology",
-            "viability_score": 0.508,
+            "viability_score": 0.4827,
             "domain_scores": {
-                "heat_score": 0.253,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2368,
-                "arrhenius_score": 0.943,
-                "logistic_score": 0.8582
+                "stress_score": 0.2264,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_delia_platura",
-            "name": "Zea mays \u2192 Delia platura (eatenBy)",
+            "entity_id": "ncbi_gene_4350083",
+            "name": "LOC4350083",
             "domain": "biology",
-            "viability_score": 0.5079,
+            "viability_score": 0.4827,
             "domain_scores": {
-                "heat_score": 0.2767,
-                "darcy_score": 0.2828,
-                "stress_score": 0.2052,
-                "arrhenius_score": 0.7427,
-                "logistic_score": 0.974
+                "stress_score": 0.2264,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_heterogramma_circumflexalis",
-            "name": "Zea mays \u2192 Heterogramma circumflexalis (hostOf)",
+            "entity_id": "globiint_oryza_sativa_chilo_suppressalis",
+            "name": "Oryza sativa \u2192 Chilo suppressalis (eatenBy)",
             "domain": "biology",
-            "viability_score": 0.5073,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2518,
-                "darcy_score": 0.2693,
-                "stress_score": 0.2363,
-                "arrhenius_score": 0.9414,
-                "logistic_score": 0.8582
+                "stress_score": 0.2255,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_exserohilum_turcicum",
-            "name": "Zea mays \u2192 Exserohilum turcicum (hasPathogen)",
+            "entity_id": "ncbi_gene_4329107",
+            "name": "LOC4329107",
             "domain": "biology",
-            "viability_score": 0.5067,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2728,
-                "darcy_score": 0.2853,
-                "stress_score": 0.2065,
-                "arrhenius_score": 0.723,
-                "logistic_score": 0.9814
+                "stress_score": 0.2255,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_schizaphis_graminum",
-            "name": "Zea mays \u2192 Schizaphis graminum (eatenBy)",
+            "entity_id": "ncbi_gene_3131458",
+            "name": "ndhJ",
             "domain": "biology",
-            "viability_score": 0.5062,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2597,
-                "darcy_score": 0.3006,
-                "stress_score": 0.2614,
-                "arrhenius_score": 0.8323,
-                "logistic_score": 0.8681
+                "stress_score": 0.2255,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_spallanzania_hesperidarum",
-            "name": "Zea mays \u2192 Spallanzania hesperidarum (flowersVisitedBy)",
+            "entity_id": "ncbi_gene_4344728",
+            "name": "LOC4344728",
             "domain": "biology",
-            "viability_score": 0.5059,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2634,
-                "darcy_score": 0.3075,
-                "stress_score": 0.2525,
-                "arrhenius_score": 0.7907,
-                "logistic_score": 0.8907
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_trupanea_signata",
-            "name": "Zea mays \u2192 Trupanea signata (interactsWith)",
+            "entity_id": "globiint_oryza_sativa_fusarium_chlamydosporum",
+            "name": "Oryza sativa \u2192 Fusarium chlamydosporum (interactsWith)",
             "domain": "biology",
-            "viability_score": 0.5053,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2572,
-                "darcy_score": 0.2744,
-                "stress_score": 0.2358,
-                "arrhenius_score": 0.8495,
-                "logistic_score": 0.8975
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_pleuroptya_ruralis",
-            "name": "Zea mays \u2192 Pleuroptya ruralis (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_nymphula_ussuriensis",
+            "name": "Oryza sativa \u2192 Nymphula ussuriensis (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5052,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2453,
-                "darcy_score": 0.2467,
-                "stress_score": 0.2156,
-                "arrhenius_score": 0.9942,
-                "logistic_score": 0.8582
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_rachiplusia_ou",
-            "name": "Zea mays \u2192 Rachiplusia ou (eatenBy)",
+            "entity_id": "ncbi_gene_4340045",
+            "name": "LOC4340045",
             "domain": "biology",
-            "viability_score": 0.5051,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2604,
-                "darcy_score": 0.3055,
-                "stress_score": 0.2569,
-                "arrhenius_score": 0.8291,
-                "logistic_score": 0.8646
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_musca_domestica",
-            "name": "Zea mays \u2192 Musca domestica (flowersVisitedBy)",
+            "entity_id": "ncbi_gene_4345944",
+            "name": "LOC4345944",
             "domain": "biology",
-            "viability_score": 0.5045,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.242,
-                "darcy_score": 0.2435,
-                "stress_score": 0.214,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_urocystis_maydis",
-            "name": "Zea mays \u2192 Urocystis maydis (hostOf)",
+            "entity_id": "ncbi_gene_4337093",
+            "name": "KIN14H",
             "domain": "biology",
-            "viability_score": 0.5041,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2552,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2318,
-                "arrhenius_score": 0.8499,
-                "logistic_score": 0.9008
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_acronicta_oblinita",
-            "name": "Zea mays \u2192 Acronicta oblinita (eatenBy)",
+            "entity_id": "ncbi_gene_4334140",
+            "name": "LOC4334140",
             "domain": "biology",
-            "viability_score": 0.5038,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2778,
-                "darcy_score": 0.3054,
-                "stress_score": 0.2457,
-                "arrhenius_score": 0.7621,
-                "logistic_score": 0.8949
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "agristack_uttar_pradesh_maize_2023",
-            "name": "Maize \u2014 Uttar Pradesh",
-            "domain": "environment",
-            "viability_score": 0.5026,
+            "entity_id": "globiint_oryza_sativa_pelopidas_mathias_mathias",
+            "name": "Oryza sativa \u2192 Pelopidas mathias mathias (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2518,
-                "darcy_score": 0.2307,
-                "stress_score": 0.2077,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_luperina_dumerilii",
-            "name": "Zea mays \u2192 Luperina dumerilii (hostOf)",
+            "entity_id": "pdb_1d8u",
+            "name": "PDB 1D8U: CRYSTAL STRUCTURE OF NON-SYMBIOTIC PLANT HEMOGLOBIN FROM RICE",
             "domain": "biology",
-            "viability_score": 0.5024,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2567,
-                "darcy_score": 0.2737,
-                "stress_score": 0.2388,
-                "arrhenius_score": 0.8959,
-                "logistic_score": 0.8565
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_sesamia_nonagrioides",
-            "name": "Zea mays \u2192 Sesamia nonagrioides (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_chilo_infuscatellus",
+            "name": "Oryza sativa \u2192 Chilo infuscatellus (eatenBy)",
             "domain": "biology",
-            "viability_score": 0.5011,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2597,
-                "darcy_score": 0.2947,
-                "stress_score": 0.226,
-                "arrhenius_score": 0.8107,
-                "logistic_score": 0.8935
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_nephelodes_minians",
-            "name": "Zea mays \u2192 Nephelodes minians (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_fusarium_brevicatenulatum",
+            "name": "Oryza sativa \u2192 Fusarium brevicatenulatum (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5008,
+            "viability_score": 0.4822,
             "domain_scores": {
-                "heat_score": 0.2379,
-                "darcy_score": 0.2355,
-                "stress_score": 0.2077,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.2297,
+                "logistic_score": 0.7346
             }
         },
         {
-            "entity_id": "globiint_zea_mays_mocis_frugalis",
-            "name": "Zea mays \u2192 Mocis frugalis (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_xylochia_oryzae",
+            "name": "Oryza sativa \u2192 Xylochia oryzae (hostOf)",
             "domain": "biology",
-            "viability_score": 0.5007,
+            "viability_score": 0.4821,
             "domain_scores": {
-                "heat_score": 0.2375,
-                "darcy_score": 0.2355,
-                "stress_score": 0.2077,
-                "arrhenius_score": 1.0,
-                "logistic_score": 0.8582
+                "stress_score": 0.466,
+                "logistic_score": 0.4982
             }
         },
         {
-            "entity_id": "globiint_zea_mays_sesamia_inferens",
-            "name": "Zea mays \u2192 Sesamia inferens (eatenBy)",
+            "entity_id": "ncbi_gene_9270943",
+            "name": "LOC9270943",
             "domain": "biology",
-            "viability_score": 0.5005,
+            "viability_score": 0.4821,
             "domain_scores": {
-                "heat_score": 0.2588,
-                "darcy_score": 0.2894,
-                "stress_score": 0.2281,
-                "arrhenius_score": 0.8126,
-                "logistic_score": 0.8935
+                "stress_score": 0.466,
+                "logistic_score": 0.4982
             }
         },
         {
-            "entity_id": "globiint_zea_mays_dinemasporium_gramineum_var._a",
-            "name": "Zea mays \u2192 Dinemasporium gramineum var. atrigosulum (hostOf)",
+            "entity_id": "ncbi_gene_4352653",
+            "name": "LOC4352653",
             "domain": "biology",
-            "viability_score": 0.4996,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2682,
-                "darcy_score": 0.2913,
-                "stress_score": 0.2137,
-                "arrhenius_score": 0.753,
-                "logistic_score": 0.9279
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_rhopalosiphum_maidis",
-            "name": "Zea mays \u2192 Rhopalosiphum maidis (eatenBy)",
+            "entity_id": "ncbi_gene_3131414",
+            "name": "psbF",
             "domain": "biology",
-            "viability_score": 0.4974,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2588,
-                "darcy_score": 0.292,
-                "stress_score": 0.248,
-                "arrhenius_score": 0.831,
-                "logistic_score": 0.8518
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_mamestra_brassicae",
-            "name": "Zea mays \u2192 Mamestra brassicae (interactsWith)",
+            "entity_id": "globiint_oryza_sativa_ancylolomia_japonica",
+            "name": "Oryza sativa \u2192 Ancylolomia japonica (hostOf)",
             "domain": "biology",
-            "viability_score": 0.497,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2443,
-                "darcy_score": 0.2456,
-                "stress_score": 0.215,
-                "arrhenius_score": 0.943,
-                "logistic_score": 0.8582
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_toxomerus_politus",
-            "name": "Zea mays \u2192 Toxomerus politus (interactsWith)",
+            "entity_id": "globiint_oryza_sativa_pseudaletia_unipuncta",
+            "name": "Oryza sativa \u2192 Pseudaletia unipuncta (eatenBy)",
             "domain": "biology",
-            "viability_score": 0.496,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2552,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2308,
-                "arrhenius_score": 0.8445,
-                "logistic_score": 0.8724
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_pyrausta",
-            "name": "Zea mays \u2192 Pyrausta (interactsWith)",
+            "entity_id": "ncbi_gene_4335388",
+            "name": "WRKY51",
             "domain": "biology",
-            "viability_score": 0.4949,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2572,
-                "darcy_score": 0.2781,
-                "stress_score": 0.2239,
-                "arrhenius_score": 0.8187,
-                "logistic_score": 0.8811
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "agristack_jammu_and_kashmir_maize_2023",
-            "name": "Maize \u2014 Jammu and Kashmir",
-            "domain": "environment",
-            "viability_score": 0.4946,
+            "entity_id": "ncbi_gene_4325329",
+            "name": "LOC4325329",
+            "domain": "biology",
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2811,
-                "darcy_score": 0.2373,
-                "stress_score": 0.2109,
-                "arrhenius_score": 0.8976,
-                "logistic_score": 0.8565
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_ruspolia_nitidula",
-            "name": "Zea mays \u2192 Ruspolia nitidula (eatenBy)",
+            "entity_id": "ncbi_gene_4325890",
+            "name": "LOC4325890",
             "domain": "biology",
-            "viability_score": 0.4931,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2552,
-                "darcy_score": 0.2701,
-                "stress_score": 0.2308,
-                "arrhenius_score": 0.8323,
-                "logistic_score": 0.8681
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "agristack_andaman_and_nicobar_islands_maize_2023",
-            "name": "Maize \u2014 Andaman and Nicobar Islands",
-            "domain": "environment",
-            "viability_score": 0.4924,
+            "entity_id": "ncbi_gene_4336685",
+            "name": "LOC4336685",
+            "domain": "biology",
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2572,
-                "darcy_score": 0.2343,
-                "stress_score": 0.2072,
-                "arrhenius_score": 0.8499,
-                "logistic_score": 0.9008
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_alternaria_infectoria",
-            "name": "Zea mays \u2192 Alternaria infectoria (interactsWith)",
+            "entity_id": "ncbi_gene_4340677",
+            "name": "LOC4340677",
             "domain": "biology",
-            "viability_score": 0.49,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.262,
-                "darcy_score": 0.2831,
-                "stress_score": 0.2071,
-                "arrhenius_score": 0.7799,
-                "logistic_score": 0.8905
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_spodoptera_frugiperda",
-            "name": "Zea mays \u2192 Spodoptera frugiperda (eatenBy)",
+            "entity_id": "globiint_oryza_sativa_melanitis_leda_ismene",
+            "name": "Oryza sativa \u2192 Melanitis leda ismene (hostOf)",
             "domain": "biology",
-            "viability_score": 0.4896,
+            "viability_score": 0.482,
             "domain_scores": {
-                "heat_score": 0.2505,
-                "darcy_score": 0.2693,
-                "stress_score": 0.2014,
-                "arrhenius_score": 0.8039,
-                "logistic_score": 0.899
+                "stress_score": 0.4313,
+                "logistic_score": 0.5328
             }
         },
         {
-            "entity_id": "globiint_zea_mays_spodoptera_eridania",
-            "name": "Zea mays \u2192 Spodoptera eridania (eatenBy)",
+            "entity_id": "ncbi_gene_4325003",
+            "name": "LOC4325003",
             "domain": "biology",
-            "viability_score": 0.4891,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.2552,
-                "darcy_score": 0.2714,
-                "stress_score": 0.2001,
-                "arrhenius_score": 0.8029,
-                "logistic_score": 0.8931
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_rhizoctonia_nigricans",
-            "name": "Zea mays \u2192 Rhizoctonia nigricans (hostOf)",
+            "entity_id": "ncbi_gene_4344480",
+            "name": "LOC4344480",
             "domain": "biology",
-            "viability_score": 0.4884,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.2505,
-                "darcy_score": 0.2693,
-                "stress_score": 0.2299,
-                "arrhenius_score": 0.8308,
-                "logistic_score": 0.8554
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_pyrilla_perpusilla",
-            "name": "Zea mays \u2192 Pyrilla perpusilla (eatenBy)",
+            "entity_id": "ncbi_gene_4329738",
+            "name": "LOC4329738",
             "domain": "biology",
-            "viability_score": 0.4878,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.25,
-                "darcy_score": 0.2589,
-                "stress_score": 0.214,
-                "arrhenius_score": 0.8198,
-                "logistic_score": 0.8811
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "globiint_zea_mays_bombus",
-            "name": "Zea mays \u2192 Bombus (flowersVisitedBy)",
+            "entity_id": "globiint_oryza_sativa_septoria_curvula",
+            "name": "Oryza sativa \u2192 Septoria curvula (hostOf)",
             "domain": "biology",
-            "viability_score": 0.4858,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.2605,
-                "darcy_score": 0.2853,
-                "stress_score": 0.2053,
-                "arrhenius_score": 0.6889,
-                "logistic_score": 0.9292
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "inat_48952",
-            "name": "Dicentra canadensis",
+            "entity_id": "globiint_oryza_sativa_mycalesis_horsfieldii",
+            "name": "Oryza sativa \u2192 Mycalesis horsfieldii (hostOf)",
             "domain": "biology",
-            "viability_score": 0.4826,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.2539,
-                "darcy_score": 0.2888,
-                "stress_score": 0.2053,
-                "arrhenius_score": 0.681,
-                "logistic_score": 0.9236
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "pdb_1jb9",
-            "name": "PDB 1JB9: Crystal Structure of The Ferredoxin:NADP+ Reductase From Maize Root AT 1.7 Angst",
+            "entity_id": "ncbi_gene_4343785",
+            "name": "LOC4343785",
             "domain": "biology",
-            "viability_score": 0.4806,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.3175,
-                "darcy_score": 0.3727,
-                "stress_score": 0.2972,
-                "arrhenius_score": 0.6638,
-                "logistic_score": 0.7343
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "agristack_arunachal_pradesh_maize_2023",
-            "name": "Maize \u2014 Arunachal Pradesh",
-            "domain": "environment",
-            "viability_score": 0.4779,
+            "entity_id": "globiint_oryza_sativa_drechslera_longirostrata",
+            "name": "Oryza sativa \u2192 Drechslera longirostrata (hostOf)",
+            "domain": "biology",
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.2572,
-                "darcy_score": 0.2343,
-                "stress_score": 0.2058,
-                "arrhenius_score": 0.8308,
-                "logistic_score": 0.8554
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         },
         {
-            "entity_id": "pdb_1hxj",
-            "name": "PDB 1HXJ: CRYSTAL STRUCTURE OF THE MAIZE ZM-P60.1 BETA-GLUCOSIDASE",
+            "entity_id": "ncbi_gene_4337454",
+            "name": "LOC4337454",
             "domain": "biology",
-            "viability_score": 0.4666,
+            "viability_score": 0.4818,
             "domain_scores": {
-                "heat_score": 0.2347,
-                "darcy_score": 0.2497,
-                "stress_score": 0.2209,
-                "arrhenius_score": 0.6638,
-                "logistic_score": 0.9037
+                "stress_score": 0.2247,
+                "logistic_score": 0.739
             }
         }
     ]

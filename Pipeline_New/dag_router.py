@@ -24,18 +24,28 @@ Your job is to output a JSON defining the Directed Acyclic Graph (DAG) for surro
 Available Surrogates & Strict Input Schemas:
 (Note: `intrinsic_property_1` represents the entity's normalized Capability/Baseline Performance like Yield or Strength. `intrinsic_property_2` represents the entity's normalized Resilience/Stability like Drought Tolerance or Weathering Resistance).
 {{
-  "heat": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"]}},
-  "darcy": {{"inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"]}},
-  "stress": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_stress", "initial_stress"]}},
+  "arrhenius": {{"inputs": ["temperature", "intrinsic_property_1", "intrinsic_property_2", "boundary_rate", "initial_rate"]}},
   "biology": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_biomass", "initial_biomass"]}},
+  "darcy": {{"inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_pressure", "initial_pressure"]}},
+  "economics": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_cost", "initial_cost"]}},
+  "heat": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"]}},
   "logistic": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"]}},
-  "arrhenius": {{"inputs": ["temperature", "intrinsic_property_1", "intrinsic_property_2", "boundary_rate", "initial_rate"]}}
+  "maxwell": {{"inputs": ["time", "space_x", "space_y", "space_z", "intrinsic_property_1", "intrinsic_property_2", "boundary_em_field", "initial_em_field"]}},
+  "navier_stokes": {{"inputs": ["time", "space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_velocity", "initial_velocity"]}},
+  "orbital": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_position", "initial_position"]}},
+  "phase_change": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_state", "initial_state"]}},
+  "radiation": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_intensity", "initial_intensity"]}},
+  "reaction_diffusion": {{"inputs": ["time", "space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_concentration", "initial_concentration"]}},
+  "schrodinger": {{"inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_wavefunction", "initial_wavefunction"]}},
+  "solid_mechanics": {{"inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_displacement", "initial_displacement"]}},
+  "stress": {{"inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_stress", "initial_stress"]}}
 }}
 
 CRITICAL RULE: You MUST choose ONLY from the EXACT Available Surrogates listed above. 
 DO NOT INVENT new domain names (like 'osmotic_stress' or 'growth'). 
 If a required biological or physical phenomenon isn't listed, map it to the closest existing surrogate (e.g., use 'stress' for any type of stress, or 'biology' for generic biological growth).
 You MUST strictly use the exact input names specified in the schema for the chosen model. DO NOT invent input names.
+DYNAMIC COUPLING RULE: If a node's physics depends on the output of a previous node (e.g., biology depends on temperature), you MUST replace `intrinsic_property_1` or `intrinsic_property_2` in its input array with the exact `output_maps_to` string from the previous node. Do not replace time, space, boundary, or initial variables.
 
 Output Format:
 You MUST return a JSON with:
@@ -118,6 +128,7 @@ Example Output:
         Simulates the LLM's response by parsing the spec.json text.
         This allows the pipeline to run locally without API keys.
         """
+        print("\n[!] WARNING: Falling back to Local Mock Router as API failed or was bypassed.")
         stresses = " ".join(spec.get("stress_conditions", [])).lower()
         targets = " ".join(spec.get("target_traits", [])).lower()
         combined_text = stresses + " " + targets
@@ -139,16 +150,49 @@ Example Output:
             weights["logistic"] = 0.3
             
         if "salinity" in combined_text or "ph" in combined_text or "soil" in combined_text:
-            chain.append({"model": "gray_scott", "inputs": ["time", "ph"], "output_maps_to": "chemical_concentration", "target_value": 7.0, "initial_value": 7.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
-            weights["gray_scott"] = 0.2
+            chain.append({"model": "reaction_diffusion", "inputs": ["time", "space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_concentration", "initial_concentration"], "output_maps_to": "chemical_concentration", "target_value": 7.0, "initial_value": 7.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
+            weights["reaction_diffusion"] = 0.2
             
-        # Fallback if spec is incredibly vague
+        if "finance" in combined_text or "cost" in combined_text or "price" in combined_text or "economy" in combined_text:
+            chain.append({"model": "economics", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_cost", "initial_cost"], "output_maps_to": "cost", "target_value": 0.0, "initial_value": 100.0, "optimization_goal": "minimize", "assumed_defaults": ["initial_value"]})
+            weights["economics"] = 0.3
+            
+        if "fluid" in combined_text or "velocity" in combined_text or "aerodynamics" in combined_text or "flow" in combined_text:
+            chain.append({"model": "navier_stokes", "inputs": ["time", "space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_velocity", "initial_velocity"], "output_maps_to": "velocity", "target_value": 10.0, "initial_value": 0.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
+            weights["navier_stokes"] = 0.3
+            
+        if "structure" in combined_text or "elasticity" in combined_text or "deformation" in combined_text or "strain" in combined_text:
+            chain.append({"model": "solid_mechanics", "inputs": ["space_x", "space_y", "intrinsic_property_1", "intrinsic_property_2", "boundary_displacement", "initial_displacement"], "output_maps_to": "displacement", "target_value": 0.0, "initial_value": 0.0, "optimization_goal": "minimize", "assumed_defaults": ["initial_value"]})
+            weights["solid_mechanics"] = 0.3
+            
+        if "electric" in combined_text or "magnetic" in combined_text or "em wave" in combined_text or "plasma" in combined_text:
+            chain.append({"model": "maxwell", "inputs": ["time", "space_x", "space_y", "space_z", "intrinsic_property_1", "intrinsic_property_2", "boundary_em_field", "initial_em_field"], "output_maps_to": "em_field", "target_value": 1.0, "initial_value": 0.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
+            weights["maxwell"] = 0.3
+            
+        if "orbit" in combined_text or "gravity" in combined_text or "spacecraft" in combined_text:
+            chain.append({"model": "orbital", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_position", "initial_position"], "output_maps_to": "position", "target_value": 100.0, "initial_value": 0.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
+            weights["orbital"] = 0.3
+            
+        if "quantum" in combined_text or "wavefunction" in combined_text or "electron" in combined_text:
+            chain.append({"model": "schrodinger", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_wavefunction", "initial_wavefunction"], "output_maps_to": "wavefunction", "target_value": 1.0, "initial_value": 0.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
+            weights["schrodinger"] = 0.3
+            
+        if "melting" in combined_text or "freezing" in combined_text or "phase change" in combined_text:
+            chain.append({"model": "phase_change", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_state", "initial_state"], "output_maps_to": "state", "target_value": 1.0, "initial_value": 0.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]})
+            weights["phase_change"] = 0.3
+            
+        if "radiation" in combined_text or "decay" in combined_text or "intensity" in combined_text:
+            chain.append({"model": "radiation", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_intensity", "initial_intensity"], "output_maps_to": "intensity", "target_value": 0.0, "initial_value": 1.0, "optimization_goal": "minimize", "assumed_defaults": ["initial_value"]})
+            weights["radiation"] = 0.3
+            
+        # Fallback if spec is incredibly vague: Build a tough 3-stage chain
         if not chain:
             chain = [
-                {"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 25.0, "initial_value": 25.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]},
-                {"model": "logistic", "inputs": ["time", "intrinsic_property_1", "intrinsic_property_2", "boundary_growth", "initial_growth"], "output_maps_to": "biomass", "target_value": 50.0, "initial_value": 1.0, "optimization_goal": "maximize", "assumed_defaults": ["initial_value"]}
+                {"model": "heat", "inputs": ["time", "space", "intrinsic_property_1", "intrinsic_property_2", "boundary_temperature", "initial_temperature"], "output_maps_to": "temperature", "target_value": 45.0, "initial_value": 25.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]},
+                {"model": "darcy", "inputs": ["space_x", "space_y", "temperature", "intrinsic_property_2", "boundary_pressure", "initial_pressure"], "output_maps_to": "pressure", "target_value": 1.0, "initial_value": 0.0, "optimization_goal": "target", "assumed_defaults": ["initial_value"]},
+                {"model": "biology", "inputs": ["time", "pressure", "intrinsic_property_2", "boundary_biomass", "initial_biomass"], "output_maps_to": "biomass", "target_value": 100.0, "initial_value": 1.0, "optimization_goal": "maximize", "assumed_defaults": ["initial_value"]}
             ]
-            weights = {"heat": 0.5, "logistic": 0.5}
+            weights = {"heat": 0.2, "darcy": 0.3, "biology": 0.5}
             
         # Normalize weights to exactly 1.0
         total_weight = sum(weights.values())
@@ -215,7 +259,12 @@ Example Output:
                     elif "biology" in model_name.lower() or "growth" in model_name.lower() or "yield" in model_name.lower():
                         node["model"] = "biology"
                     else:
-                        node["model"] = "logistic"
+                        import difflib
+                        matches = difflib.get_close_matches(model_name, valid_models, n=1, cutoff=0.5)
+                        if matches:
+                            node["model"] = matches[0]
+                        else:
+                            node["model"] = "logistic"
                     
                     new_name = node["model"]
                     print(f"      => [Router Anti-Hallucination] Mapped '{old_name}' -> '{new_name}'")
@@ -233,6 +282,15 @@ Example Output:
                 "biomass": 1.0, "growth": 1.0,
                 "infected": 0.01,
                 "stress": 0.0, "pressure": 0.0,
+                "cost": 100.0,
+                "velocity": 0.0,
+                "displacement": 0.0,
+                "intensity": 0.0,
+                "concentration": 0.0,
+                "wavefunction": 0.0,
+                "state": 0.0,
+                "em_field": 0.0,
+                "position": 0.0
             }
             # boundary_pressure specifically defaults to atmospheric baseline (1.0),
             # distinct from initial_stress/initial_pressure (0.0, no applied load).

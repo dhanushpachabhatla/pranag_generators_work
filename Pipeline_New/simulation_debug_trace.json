@@ -1,0 +1,365 @@
+{
+  "source_spec": "C:\\Users\\dhanu\\Downloads\\Updated_pranag\\Updated\\datasrc\\spec3.json",
+  "llm_output_dag": {
+    "execution_chain": [
+      {
+        "model": "stress",
+        "inputs": [
+          "time",
+          "intrinsic_property_1",
+          "intrinsic_property_2",
+          "boundary_stress",
+          "initial_stress"
+        ],
+        "output_maps_to": "salinity_tolerance_factor",
+        "target_value": 0.0,
+        "initial_value": 0.0,
+        "optimization_goal": "target",
+        "assumed_defaults": [
+          "initial_value",
+          "target_value",
+          "boundary_stress"
+        ]
+      },
+      {
+        "model": "logistic",
+        "inputs": [
+          "time",
+          "intrinsic_property_1",
+          "salinity_tolerance_factor",
+          "boundary_growth",
+          "initial_growth"
+        ],
+        "output_maps_to": "yield_potential",
+        "target_value": 0.0,
+        "initial_value": 1.0,
+        "optimization_goal": "maximize",
+        "assumed_defaults": [
+          "target_value",
+          "initial_value",
+          "boundary_growth"
+        ]
+      }
+    ],
+    "weights": {
+      "stress": 0.5,
+      "logistic": 0.5
+    },
+    "target_entities": [
+      "rice",
+      "oryza sativa"
+    ],
+    "semantic_keywords": [
+      "rice",
+      "oryza sativa",
+      "salt tolerance",
+      "salinity",
+      "Saltol",
+      "QTL",
+      "halophyte"
+    ],
+    "domain_filters": [
+      "biology",
+      "environment"
+    ],
+    "context": "Generated via Gemini API."
+  },
+  "simulation_batches": [
+    {
+      "batch_index": 0,
+      "surrogates_executed": [
+        {
+          "model": "stress",
+          "output_maps_to": "salinity_tolerance_factor",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.004346835892647505,
+              "max": 0.9832822680473328,
+              "mean": 0.5458734035491943
+            },
+            "intrinsic_property_2": {
+              "min": 0.01034940779209137,
+              "max": 0.9784119129180908,
+              "mean": 0.4832537770271301
+            },
+            "boundary_stress": {
+              "min": 0.0010000000474974513,
+              "max": 0.0010000000474974513,
+              "mean": 0.0010000000474974513
+            },
+            "initial_stress": {
+              "min": 0.0,
+              "max": 0.0,
+              "mean": 0.0
+            }
+          },
+          "prediction_mean": 0.5261714836204534,
+          "prediction_min": 0.013587183148770218,
+          "prediction_max": 0.982251302112575
+        },
+        {
+          "model": "logistic",
+          "output_maps_to": "yield_potential",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.004346835892647505,
+              "max": 0.9832822680473328,
+              "mean": 0.5458734035491943
+            },
+            "salinity_tolerance_factor": {
+              "min": 0.0138326957821846,
+              "max": 1.0,
+              "mean": 0.5356791019439697
+            },
+            "boundary_growth": {
+              "min": 0.009999999776482582,
+              "max": 0.009999999776482582,
+              "mean": 0.009999998845160007
+            },
+            "initial_growth": {
+              "min": 9.999999747378752e-05,
+              "max": 9.999999747378752e-05,
+              "mean": 0.00010000000474974513
+            }
+          },
+          "prediction_mean": 0.8708921576989056,
+          "prediction_min": 0.047522124529088765,
+          "prediction_max": 1.3766958014218478
+        }
+      ],
+      "survivors": 29
+    },
+    {
+      "batch_index": 1,
+      "surrogates_executed": [
+        {
+          "model": "stress",
+          "output_maps_to": "salinity_tolerance_factor",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.00012473241076804698,
+              "max": 0.9997480511665344,
+              "mean": 0.5003578662872314
+            },
+            "intrinsic_property_2": {
+              "min": 3.4350356145296246e-05,
+              "max": 0.9999480843544006,
+              "mean": 0.5031135082244873
+            },
+            "boundary_stress": {
+              "min": 0.0010000000474974513,
+              "max": 0.0010000000474974513,
+              "mean": 0.0010000000474974513
+            },
+            "initial_stress": {
+              "min": 0.0,
+              "max": 0.0,
+              "mean": 0.0
+            }
+          },
+          "prediction_mean": 0.5461525976901571,
+          "prediction_min": 0.002487742172330697,
+          "prediction_max": 0.989216158615616
+        },
+        {
+          "model": "logistic",
+          "output_maps_to": "yield_potential",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.00012473241076804698,
+              "max": 0.9997480511665344,
+              "mean": 0.5003578662872314
+            },
+            "salinity_tolerance_factor": {
+              "min": 0.0025148619897663593,
+              "max": 1.0,
+              "mean": 0.5521064400672913
+            },
+            "boundary_growth": {
+              "min": 0.009999999776482582,
+              "max": 0.009999999776482582,
+              "mean": 0.009999997913837433
+            },
+            "initial_growth": {
+              "min": 9.999999747378752e-05,
+              "max": 9.999999747378752e-05,
+              "mean": 9.999998292187229e-05
+            }
+          },
+          "prediction_mean": 0.8866634806646932,
+          "prediction_min": 0.007383221942837538,
+          "prediction_max": 1.3766958014218473
+        }
+      ],
+      "survivors": 1414
+    },
+    {
+      "batch_index": 2,
+      "surrogates_executed": [
+        {
+          "model": "stress",
+          "output_maps_to": "salinity_tolerance_factor",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.09587566554546356,
+              "max": 0.20876258611679077,
+              "mean": 0.1574348658323288
+            },
+            "intrinsic_property_2": {
+              "min": 0.23277096450328827,
+              "max": 0.8545448780059814,
+              "mean": 0.466551274061203
+            },
+            "boundary_stress": {
+              "min": 0.0010000000474974513,
+              "max": 0.0010000000474974513,
+              "mean": 0.0010000000474974513
+            },
+            "initial_stress": {
+              "min": 0.0,
+              "max": 0.0,
+              "mean": 0.0
+            }
+          },
+          "prediction_mean": 0.5084050066557447,
+          "prediction_min": 0.276188277775932,
+          "prediction_max": 0.8883553798161005
+        },
+        {
+          "model": "logistic",
+          "output_maps_to": "yield_potential",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.09587566554546356,
+              "max": 0.20876258611679077,
+              "mean": 0.1574348658323288
+            },
+            "salinity_tolerance_factor": {
+              "min": 0.31089842319488525,
+              "max": 1.0,
+              "mean": 0.5722991228103638
+            },
+            "boundary_growth": {
+              "min": 0.009999999776482582,
+              "max": 0.009999999776482582,
+              "mean": 0.009999999776482582
+            },
+            "initial_growth": {
+              "min": 9.999999747378752e-05,
+              "max": 9.999999747378752e-05,
+              "mean": 9.999999747378752e-05
+            }
+          },
+          "prediction_mean": 0.8744499124392148,
+          "prediction_min": 0.5228102523735688,
+          "prediction_max": 1.3766958014218478
+        }
+      ],
+      "survivors": 3
+    },
+    {
+      "batch_index": 4,
+      "surrogates_executed": [
+        {
+          "model": "stress",
+          "output_maps_to": "salinity_tolerance_factor",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.0205919798463583,
+              "max": 0.967038094997406,
+              "mean": 0.5127851366996765
+            },
+            "intrinsic_property_2": {
+              "min": 0.02276012860238552,
+              "max": 0.9496784210205078,
+              "mean": 0.4352462887763977
+            },
+            "boundary_stress": {
+              "min": 0.0010000000474974513,
+              "max": 0.0010000000474974513,
+              "mean": 0.0009999998146668077
+            },
+            "initial_stress": {
+              "min": 0.0,
+              "max": 0.0,
+              "mean": 0.0
+            }
+          },
+          "prediction_mean": 0.47694527240345413,
+          "prediction_min": 0.026699497106621606,
+          "prediction_max": 0.9629920997728781
+        },
+        {
+          "model": "logistic",
+          "output_maps_to": "yield_potential",
+          "input_statistics": {
+            "time": {
+              "min": 0.5,
+              "max": 0.5,
+              "mean": 0.5
+            },
+            "intrinsic_property_1": {
+              "min": 0.0205919798463583,
+              "max": 0.967038094997406,
+              "mean": 0.5127851366996765
+            },
+            "salinity_tolerance_factor": {
+              "min": 0.02772556245326996,
+              "max": 1.0,
+              "mean": 0.4952743649482727
+            },
+            "boundary_growth": {
+              "min": 0.009999999776482582,
+              "max": 0.009999999776482582,
+              "mean": 0.009999998845160007
+            },
+            "initial_growth": {
+              "min": 9.999999747378752e-05,
+              "max": 9.999999747378752e-05,
+              "mean": 0.00010000000474974513
+            }
+          },
+          "prediction_mean": 0.7869793850104086,
+          "prediction_min": 0.06614858641570259,
+          "prediction_max": 1.3766958014218478
+        }
+      ],
+      "survivors": 37
+    }
+  ]
+}

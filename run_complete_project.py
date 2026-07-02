@@ -69,7 +69,7 @@ if __name__ == "__main__":
     else:
         # Default testing spec
         # spec_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'datasrc', 'spec_20260604_062219_5ab7e575.json'))
-        spec_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'datasrc', 'spec_20260604_062603_1b370a2a.json'))
+        spec_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'datasrc', 'spec3.json'))
         
     if not os.path.exists(spec_file):
         print(f"ERROR: Specification file not found: {spec_file}")

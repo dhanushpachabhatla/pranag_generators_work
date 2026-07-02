@@ -14,10 +14,10 @@ class InferenceEngine:
     Features: Batch Streaming, Sequential DAG Chaining, Dynamic Input Sizing, 
     and Mathematical Weight Normalization.
     """
-    
     SURROGATE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "unified_pipeline_new_output_1", "surrogate"))
-    PARQUET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'datasrc', 'universal_index_final.parquet'))
+    PARQUET_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'new_parquet', 'universal_index_final.parquet'))
     OUTPUT_PATH = os.path.join(os.path.dirname(__file__), 'inference_handoff.csv')
+    DEBUG_LOG_PATH = os.path.join(os.path.dirname(__file__), 'simulation_debug_trace.json')
     
     def __init__(self, use_mock_llm=False):
         self.router = DAGRouter(use_mock=use_mock_llm)
@@ -77,47 +77,43 @@ class InferenceEngine:
 
         cols = []
         
-        # We MUST enforce a strict positional layout matching the LHS training data.
-        from training.simulation_generator import EQUATION_PATTERNS
-        domain_name = node.get("pinn_type", "heat")
+        # 1. Trust the LLM's mathematically verified inputs array first
+        requested_inputs = node.get("inputs", [])
         
-        # Determine base variables dynamically
-        if domain_name in EQUATION_PATTERNS:
-            independent_vars = EQUATION_PATTERNS[domain_name]["independent"]
-        else:
-            # Fallback based on n_features if domain not found
-            independent_vars = ["t", "x"] if n_features == 4 else ["t", "x", "y"] if n_features == 5 else ["t"]
+        # 2. Fallback if LLM broke the schema: reverse engineer from the actual PINN domain
+        if not requested_inputs or len(requested_inputs) != n_features:
+            from training.simulation_generator import EQUATION_PATTERNS
+            domain_name = node.get("model", "heat")
             
-        requested_inputs = []
-        for var in independent_vars:
-            if var in ["t", "time", "time_days"]:
-                requested_inputs.append("time")
-            elif var in ["x", "space", "depth", "S", "r"]:
-                requested_inputs.append("space_x")
-            elif var == "y":
-                requested_inputs.append("space_y")
-            elif var == "z":
-                requested_inputs.append("space_z")
+            if domain_name in EQUATION_PATTERNS:
+                independent_vars = EQUATION_PATTERNS[domain_name]["independent"]
             else:
-                requested_inputs.append("space_x") # default spatial
+                independent_vars = ["t", "x"] if n_features == 4 else ["t", "x", "y"] if n_features == 5 else ["t"]
                 
-        # The remaining columns are parameters (targets/boundaries/intrinsics)
-        # unified_pipeline adds +4 dimensions: Boundary, IC, Intrinsic 1, Intrinsic 2
-        remaining = n_features - len(requested_inputs)
-        if remaining > 0:
-            if remaining >= 1: requested_inputs.append("boundary")
-            if remaining >= 2: requested_inputs.append("initial_condition")
-            if remaining >= 3: requested_inputs.append("intrinsic_property_1")
-            if remaining >= 4: requested_inputs.append("intrinsic_property_2")
-            for i in range(5, remaining + 1):
-                requested_inputs.append(f"intrinsic_property_{i-2}")
+            requested_inputs = []
+            for var in independent_vars:
+                if var in ["t", "time", "time_days"]:
+                    requested_inputs.append("time")
+                elif var in ["x", "space", "depth", "S", "r"]:
+                    requested_inputs.append("space_x")
+                elif var == "y":
+                    requested_inputs.append("space_y")
+                elif var == "z":
+                    requested_inputs.append("space_z")
+                else:
+                    requested_inputs.append("space_x") # default spatial
+                    
+            remaining = n_features - len(requested_inputs)
+            if remaining > 0:
+                if remaining >= 1: requested_inputs.append("boundary_generic")
+                if remaining >= 2: requested_inputs.append("initial_generic")
+                if remaining >= 3: requested_inputs.append("intrinsic_property_1")
+                if remaining >= 4: requested_inputs.append("intrinsic_property_2")
+                for i in range(5, remaining + 1):
+                    requested_inputs.append(f"intrinsic_property_{i-2}")
 
-        # GUARANTEED CHAINING: If a previous model ran, its output becomes the primary boundary condition
-        # for this model. This enforces mathematical continuity across the DAG.
-        if previous_output_var and previous_output_var in df.columns:
-            if "boundary" in requested_inputs:
-                idx = requested_inputs.index("boundary")
-                requested_inputs[idx] = previous_output_var
+        # (GUARANTEED CHAINING hack removed: The LLM now has true dynamic coupling power 
+        # by explicitly replacing intrinsic properties in its output schema.)
                 
         for req in requested_inputs:
             # 1. Temporal dimension (scaled [0, 1] in training)
@@ -301,6 +297,12 @@ class InferenceEngine:
         print(f"1. Parsing Spec & Triggering DAG Router...")
         dag = self.router.build_dag(spec_path)
         
+        debug_trace = {
+            "source_spec": spec_path,
+            "llm_output_dag": dag,
+            "simulation_batches": []
+        }
+        
         # Check if the LLM output is the legacy format or the new format
         if "execution_chain" in dag:
             execution_chain = dag.get("execution_chain", [])
@@ -348,6 +350,11 @@ class InferenceEngine:
         
         for batch_idx, batch in enumerate(parquet_file.iter_batches(batch_size=batch_size)):
             df = batch.to_pandas()
+            
+            batch_trace = {
+                "batch_index": batch_idx,
+                "surrogates_executed": []
+            }
             
             # --- Dynamic Semantic Domain Pre-Filter ---
             target_entities = dag.get("target_entities", [])
@@ -430,6 +437,26 @@ class InferenceEngine:
                     print(f"      -> ERROR running '{domain}': {e}. Skipping.")
                     continue
                     
+                # --- Debug Trace Capture ---
+                req_inputs = node.get("inputs", [f"dim_{i}" for i in range(X.shape[1])])
+                input_stats = {}
+                for i in range(X.shape[1]):
+                    col_name = req_inputs[i] if i < len(req_inputs) else f"pad_{i}"
+                    input_stats[col_name] = {
+                        "min": float(np.min(X[:, i])),
+                        "max": float(np.max(X[:, i])),
+                        "mean": float(np.mean(X[:, i]))
+                    }
+                batch_trace["surrogates_executed"].append({
+                    "model": domain,
+                    "output_maps_to": maps_to,
+                    "input_statistics": input_stats,
+                    "prediction_mean": float(np.mean(raw_pred)),
+                    "prediction_min": float(np.min(raw_pred)),
+                    "prediction_max": float(np.max(raw_pred))
+                })
+                # ---------------------------
+                    
                 if raw_pred.ndim > 1 and raw_pred.shape[1] > 1:
                     # Multi-Output mapping
                     from training.simulation_generator import EQUATION_PATTERNS
@@ -473,10 +500,18 @@ class InferenceEngine:
             header = True if batch_idx == 0 else False
             surviving_df.to_csv(self.OUTPUT_PATH, mode=mode, header=header, index=False)
             
+            batch_trace["survivors"] = len(surviving_df)
+            debug_trace["simulation_batches"].append(batch_trace)
+            
         print(f"\n3. Pre-Filtering Summary")
         print(f"   => Processed {total_processed:,} total candidates.")
         print(f"   => Deleted {total_processed - total_survivors:,} failed candidates (< 0.7).")
         print(f"   => {total_survivors:,} highly viable candidates survived the physics.")
+        
+        with open(self.DEBUG_LOG_PATH, "w") as f:
+            json.dump(debug_trace, f, indent=2)
+        print(f"   => Diagnostic Trace saved to: {self.DEBUG_LOG_PATH}")
+        
         print(f"\nInference Complete! Handoff saved to: {self.OUTPUT_PATH}")
         
         return {
