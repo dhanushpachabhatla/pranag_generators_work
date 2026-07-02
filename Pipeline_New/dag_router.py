@@ -55,28 +55,32 @@ You MUST return a JSON with:
     - "output_maps_to": The physical parameter name that this model's prediction will overwrite for subsequent models (e.g., "temperature", "biomass", "ph").
     - "target_value": The numerical target extracted from the user's specification (e.g., 45.0 for temperature, 90.0 for maturity).
         If the user specification does not explicitly provide a numerical value, you MUST use your
-        scientific knowledge to infer a realistic standard physical baseline rather than outputting
-        an arbitrary placeholder. Use these standard references depending on the model:
-          - biology / logistic (target_biomass, boundary_growth): 100.0 (full maturity / 100% yield capacity)
+        scientific knowledge to infer a realistic standard physical baseline. Note that downstream 
+        neural networks scale inputs against maximum physical bounds, so you must provide values on 
+        the real-world unscaled metric (e.g. Temperature max=1500.0, Stress max=1000.0, Yield max=10000.0, pH max=14.0).
+        Use these standard unscaled references depending on the model:
+          - biology / logistic (target_biomass, boundary_growth): 100.0 (full maturity yield)
           - arrhenius (target_rate): 0.1 if optimization_goal implies decay/stability (minimize),
-            or 10.0 if it implies catalysis/speed (maximize)
-          - stress (target_stress): 1.0 (the pipeline normalizes maximum critical stress to 1.0)
+            or 100.0 if it implies catalysis/speed (maximize)
+          - stress / darcy (target_stress, boundary_pressure): 1000.0 (maximum critical physical stress in MPa)
+          - heat (target_temperature): 1500.0 (maximum temperature limit in Celsius)
+          - chemistry (target_ph): 14.0 (maximum pH)
+          - ALL OTHER MODELS (e.g. maxwell, orbital, solid_mechanics, etc.): 100.0 (assume a default physical scale of 100)
         If the specification genuinely implies a target of exactly zero (e.g. "minimize stress to
         zero", "no water retention"), use 0.0 — that is a real value, not a missing one.
         You MUST add "target_value" to this node's "assumed_defaults" list whenever you used a
         standard baseline above instead of a number extracted directly from the specification.
     - "initial_value": The baseline or starting state extracted from the user's specification (e.g., 25.0 for standard room temp, 0.0 for zero stress).
         If not explicitly provided, use your scientific knowledge to infer a realistic standard
-        baseline. Use these standard references:
+        baseline. Use these standard unscaled references:
           - heat / arrhenius (initial_temperature, boundary_temperature): 25.0 (standard room
             temperature in Celsius)
           - arrhenius (initial_ph): 7.0 (neutral baseline)
-          - arrhenius (initial_rate): 1.0 (normalized baseline reaction rate)
+          - arrhenius (initial_rate): 1.0 (baseline reaction rate)
           - biology / logistic (initial_biomass, initial_growth): 1.0 (seedling / initial culture —
             do NOT use 0.0, since growth equations often stall at exactly zero)
           - biology disease/infection state (initial_infected): 0.01 (a small initial outbreak)
           - stress / darcy (initial_stress, initial_pressure): 0.0 (no applied external load)
-          - darcy boundary (boundary_pressure): 1.0 (standard atmospheric pressure baseline)
         DO NOT output arbitrary placeholders like -999.0 under any circumstance.
         You MUST add "initial_value" to this node's "assumed_defaults" list whenever you used a
         standard baseline above instead of a number extracted directly from the specification.
