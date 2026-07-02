@@ -72,3 +72,4 @@ Model/.env
 
 
 test_dag_specs.py
+*.parquet
